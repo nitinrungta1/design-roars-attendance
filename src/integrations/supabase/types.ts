@@ -129,6 +129,62 @@ export type Database = {
           },
         ]
       }
+      contacts: {
+        Row: {
+          company_id: string | null
+          company_name: string | null
+          created_at: string
+          email: string | null
+          full_name: string
+          id: string
+          metadata: Json
+          notes: string | null
+          owner_id: string | null
+          phone: string | null
+          stage: Database["public"]["Enums"]["contact_stage"]
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          company_id?: string | null
+          company_name?: string | null
+          created_at?: string
+          email?: string | null
+          full_name: string
+          id?: string
+          metadata?: Json
+          notes?: string | null
+          owner_id?: string | null
+          phone?: string | null
+          stage?: Database["public"]["Enums"]["contact_stage"]
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string | null
+          company_name?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string
+          id?: string
+          metadata?: Json
+          notes?: string | null
+          owner_id?: string | null
+          phone?: string | null
+          stage?: Database["public"]["Enums"]["contact_stage"]
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contacts_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       demo_requests: {
         Row: {
           company: string | null
@@ -219,6 +275,7 @@ export type Database = {
       }
       leads: {
         Row: {
+          assigned_to: string | null
           company: string | null
           company_id: string | null
           created_at: string
@@ -227,10 +284,15 @@ export type Database = {
           message: string | null
           metadata: Json | null
           name: string
+          notes: string | null
           phone: string | null
+          plan_interest: string | null
           source: string | null
+          status: Database["public"]["Enums"]["lead_status"]
+          updated_at: string
         }
         Insert: {
+          assigned_to?: string | null
           company?: string | null
           company_id?: string | null
           created_at?: string
@@ -239,10 +301,15 @@ export type Database = {
           message?: string | null
           metadata?: Json | null
           name: string
+          notes?: string | null
           phone?: string | null
+          plan_interest?: string | null
           source?: string | null
+          status?: Database["public"]["Enums"]["lead_status"]
+          updated_at?: string
         }
         Update: {
+          assigned_to?: string | null
           company?: string | null
           company_id?: string | null
           created_at?: string
@@ -251,8 +318,12 @@ export type Database = {
           message?: string | null
           metadata?: Json | null
           name?: string
+          notes?: string | null
           phone?: string | null
+          plan_interest?: string | null
           source?: string | null
+          status?: Database["public"]["Enums"]["lead_status"]
+          updated_at?: string
         }
         Relationships: [
           {
@@ -373,6 +444,56 @@ export type Database = {
         }
         Relationships: []
       }
+      usage_metrics: {
+        Row: {
+          active_users: number
+          api_calls: number
+          checkins: number
+          company_id: string
+          created_at: string
+          employees: number
+          id: string
+          metadata: Json
+          metric_date: string
+          storage_mb: number
+          updated_at: string
+        }
+        Insert: {
+          active_users?: number
+          api_calls?: number
+          checkins?: number
+          company_id: string
+          created_at?: string
+          employees?: number
+          id?: string
+          metadata?: Json
+          metric_date?: string
+          storage_mb?: number
+          updated_at?: string
+        }
+        Update: {
+          active_users?: number
+          api_calls?: number
+          checkins?: number
+          company_id?: string
+          created_at?: string
+          employees?: number
+          id?: string
+          metadata?: Json
+          metric_date?: string
+          storage_mb?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "usage_metrics_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           granted_at: string
@@ -428,6 +549,22 @@ export type Database = {
         | "finance"
         | "developer"
         | "viewer"
+      contact_stage:
+        | "subscriber"
+        | "lead"
+        | "mql"
+        | "sql"
+        | "customer"
+        | "evangelist"
+        | "other"
+      lead_status:
+        | "new"
+        | "contacted"
+        | "demo_booked"
+        | "trial"
+        | "negotiation"
+        | "won"
+        | "lost"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -566,6 +703,24 @@ export const Constants = {
         "finance",
         "developer",
         "viewer",
+      ],
+      contact_stage: [
+        "subscriber",
+        "lead",
+        "mql",
+        "sql",
+        "customer",
+        "evangelist",
+        "other",
+      ],
+      lead_status: [
+        "new",
+        "contacted",
+        "demo_booked",
+        "trial",
+        "negotiation",
+        "won",
+        "lost",
       ],
     },
   },
