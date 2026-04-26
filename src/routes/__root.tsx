@@ -1,5 +1,6 @@
 import { Outlet, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 import { Toaster } from "@/components/ui/sonner";
+import { ORG_JSON_LD } from "@/lib/seo";
 
 import appCss from "../styles.css?url";
 
@@ -31,24 +32,17 @@ export const Route = createRootRoute({
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { name: "theme-color", content: "#4F46E5" },
-      { title: "Oqlio— Smart Attendance & Workforce Management Software" },
+      { title: "Oqlio — Workforce software people love. Punchly attendance & time tracking." },
       {
         name: "description",
         content:
-          "Punchly is the smartest attendance management software for modern teams. Track attendance, shifts, timesheets, overtime & GPS check-ins from anywhere.",
+          "Oqlio builds workforce software people love. Meet Punchly — the smartest attendance, time-tracking, and shift management platform for modern teams.",
       },
-      { name: "author", content: "Punchly" },
-      { property: "og:site_name", content: "Punchly" },
+      { name: "author", content: "Oqlio" },
+      { property: "og:site_name", content: "Oqlio" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: "@punchlyhq" },
-      { property: "og:title", content: "Oqlio— Smart Attendance & Workforce Management Software" },
-      { name: "twitter:title", content: "Oqlio— Smart Attendance & Workforce Management Software" },
-      { name: "description", content: "Streamline all your HR processes and deliver exceptional employee experiences with Oqlio" },
-      { property: "og:description", content: "Streamline all your HR processes and deliver exceptional employee experiences with Oqlio" },
-      { name: "twitter:description", content: "Streamline all your HR processes and deliver exceptional employee experiences with Oqlio" },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/2120bd8b-d2f8-4744-80a7-e680dc0bdf4c/id-preview-edf12e30--cbd0bc63-458a-4252-8da1-03aae28365f3.lovable.app-1777231332180.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/2120bd8b-d2f8-4744-80a7-e680dc0bdf4c/id-preview-edf12e30--cbd0bc63-458a-4252-8da1-03aae28365f3.lovable.app-1777231332180.png" },
+      { name: "twitter:site", content: "@oqlio" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
@@ -57,6 +51,12 @@ export const Route = createRootRoute({
       {
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Geist:wght@400;500;600;700;800&display=swap",
+      },
+    ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify(ORG_JSON_LD),
       },
     ],
   }),
