@@ -52,7 +52,7 @@ function SeoPage() {
 
   return (
     <>
-      <PageHeader eyebrow="Content" title="SEO" description="Global title template, default description, robots & sitemap." breadcrumbs={[{ label: "Admin", to: "/admin" }, { label: "SEO" }]} icon={Search} />
+      <PageHeader eyebrow="Content" title="SEO" description="Global title template, default description, robots & sitemap." breadcrumbs={[{ label: "Admin", to: "/admin" }, { label: "SEO" }]} />
       <PageBody className="max-w-3xl space-y-4">
         <div>
           <Label>Title template</Label>
