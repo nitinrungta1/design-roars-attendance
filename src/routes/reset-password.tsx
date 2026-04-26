@@ -9,7 +9,7 @@ import { seo } from "@/lib/seo";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/reset-password")({
-  head: () => ({ meta: seo({ title: "Set new password", description: "Choose a new password.", kind: "product" }) }),
+  head: () => seo({ title: "Set new password", description: "Choose a new password.", kind: "product", path: "/reset-password", noindex: true }),
   component: ResetPasswordPage,
 });
 

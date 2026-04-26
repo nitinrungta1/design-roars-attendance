@@ -10,7 +10,7 @@ import { seo } from "@/lib/seo";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/signup")({
-  head: () => ({ meta: seo({ title: "Create account", description: "Start using Punchly free.", kind: "product" }) }),
+  head: () => seo({ title: "Create account", description: "Start using Punchly free.", kind: "product", path: "/signup", noindex: true }),
   component: SignupPage,
 });
 

@@ -12,7 +12,7 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/login")({
   validateSearch: z.object({ redirect: z.string().optional() }).parse,
-  head: () => ({ meta: seo({ title: "Sign in", description: "Sign in to Punchly.", kind: "product" }) }),
+  head: () => seo({ title: "Sign in", description: "Sign in to Punchly.", kind: "product", path: "/login", noindex: true }),
   component: LoginPage,
 });
 
