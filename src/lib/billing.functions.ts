@@ -75,7 +75,14 @@ export const updatePlan = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => UpdatePlanSchema.parse(input))
   .handler(async ({ context, data }) => {
     const { supabase } = context;
-    const patch: Record<string, unknown> = {};
+    const patch: {
+      name?: string;
+      description?: string;
+      price_monthly?: number;
+      price_yearly?: number;
+      is_active?: boolean;
+      is_public?: boolean;
+    } = {};
     if (typeof data.name === "string") patch.name = data.name;
     if (typeof data.description === "string") patch.description = data.description;
     if (typeof data.price_monthly === "number") patch.price_monthly = data.price_monthly;
@@ -163,7 +170,9 @@ export const updateSubscriptionStatus = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => UpdateSubStatusSchema.parse(input))
   .handler(async ({ context, data }) => {
     const { supabase } = context;
-    const patch: Record<string, unknown> = { status: data.status };
+    const patch: { status: SubscriptionStatus; canceled_at?: string } = {
+      status: data.status,
+    };
     if (data.status === "canceled") patch.canceled_at = new Date().toISOString();
     const { error } = await supabase.from("subscriptions").update(patch).eq("id", data.id);
     if (error) return { ok: false as const, error: error.message };
