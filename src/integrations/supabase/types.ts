@@ -185,6 +185,57 @@ export type Database = {
           },
         ]
       }
+      coupons: {
+        Row: {
+          applies_to_plan_ids: string[] | null
+          code: string
+          created_at: string
+          currency: string | null
+          description: string | null
+          expires_at: string | null
+          id: string
+          is_active: boolean
+          kind: Database["public"]["Enums"]["coupon_kind"]
+          max_redemptions: number | null
+          redeemed_count: number
+          starts_at: string | null
+          updated_at: string
+          value: number
+        }
+        Insert: {
+          applies_to_plan_ids?: string[] | null
+          code: string
+          created_at?: string
+          currency?: string | null
+          description?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          kind?: Database["public"]["Enums"]["coupon_kind"]
+          max_redemptions?: number | null
+          redeemed_count?: number
+          starts_at?: string | null
+          updated_at?: string
+          value?: number
+        }
+        Update: {
+          applies_to_plan_ids?: string[] | null
+          code?: string
+          created_at?: string
+          currency?: string | null
+          description?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          kind?: Database["public"]["Enums"]["coupon_kind"]
+          max_redemptions?: number | null
+          redeemed_count?: number
+          starts_at?: string | null
+          updated_at?: string
+          value?: number
+        }
+        Relationships: []
+      }
       demo_requests: {
         Row: {
           company: string | null
@@ -269,6 +320,90 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invoices: {
+        Row: {
+          amount_due: number
+          amount_paid: number
+          company_id: string
+          created_at: string
+          currency: string
+          due_at: string | null
+          hosted_pdf_url: string | null
+          id: string
+          issued_at: string | null
+          notes: string | null
+          number: string
+          paid_at: string | null
+          provider: Database["public"]["Enums"]["payment_provider"]
+          provider_invoice_id: string | null
+          status: Database["public"]["Enums"]["invoice_status"]
+          subscription_id: string | null
+          subtotal: number
+          tax_amount: number
+          total: number
+          updated_at: string
+        }
+        Insert: {
+          amount_due?: number
+          amount_paid?: number
+          company_id: string
+          created_at?: string
+          currency?: string
+          due_at?: string | null
+          hosted_pdf_url?: string | null
+          id?: string
+          issued_at?: string | null
+          notes?: string | null
+          number: string
+          paid_at?: string | null
+          provider?: Database["public"]["Enums"]["payment_provider"]
+          provider_invoice_id?: string | null
+          status?: Database["public"]["Enums"]["invoice_status"]
+          subscription_id?: string | null
+          subtotal?: number
+          tax_amount?: number
+          total?: number
+          updated_at?: string
+        }
+        Update: {
+          amount_due?: number
+          amount_paid?: number
+          company_id?: string
+          created_at?: string
+          currency?: string
+          due_at?: string | null
+          hosted_pdf_url?: string | null
+          id?: string
+          issued_at?: string | null
+          notes?: string | null
+          number?: string
+          paid_at?: string | null
+          provider?: Database["public"]["Enums"]["payment_provider"]
+          provider_invoice_id?: string | null
+          status?: Database["public"]["Enums"]["invoice_status"]
+          subscription_id?: string | null
+          subtotal?: number
+          tax_amount?: number
+          total?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions"
             referencedColumns: ["id"]
           },
         ]
@@ -379,6 +514,129 @@ export type Database = {
           },
         ]
       }
+      payments: {
+        Row: {
+          amount: number
+          company_id: string
+          created_at: string
+          currency: string
+          failure_reason: string | null
+          id: string
+          invoice_id: string | null
+          metadata: Json
+          method: string | null
+          processed_at: string | null
+          provider: Database["public"]["Enums"]["payment_provider"]
+          provider_charge_id: string | null
+          status: Database["public"]["Enums"]["payment_status"]
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          company_id: string
+          created_at?: string
+          currency?: string
+          failure_reason?: string | null
+          id?: string
+          invoice_id?: string | null
+          metadata?: Json
+          method?: string | null
+          processed_at?: string | null
+          provider?: Database["public"]["Enums"]["payment_provider"]
+          provider_charge_id?: string | null
+          status?: Database["public"]["Enums"]["payment_status"]
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          company_id?: string
+          created_at?: string
+          currency?: string
+          failure_reason?: string | null
+          id?: string
+          invoice_id?: string | null
+          metadata?: Json
+          method?: string | null
+          processed_at?: string | null
+          provider?: Database["public"]["Enums"]["payment_provider"]
+          provider_charge_id?: string | null
+          status?: Database["public"]["Enums"]["payment_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      plans: {
+        Row: {
+          code: string
+          created_at: string
+          currency: string
+          description: string | null
+          employee_limit: number | null
+          features: Json
+          id: string
+          is_active: boolean
+          is_public: boolean
+          name: string
+          price_monthly: number
+          price_yearly: number
+          sort_order: number
+          tier: Database["public"]["Enums"]["plan_tier"]
+          trial_days: number
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          currency?: string
+          description?: string | null
+          employee_limit?: number | null
+          features?: Json
+          id?: string
+          is_active?: boolean
+          is_public?: boolean
+          name: string
+          price_monthly?: number
+          price_yearly?: number
+          sort_order?: number
+          tier?: Database["public"]["Enums"]["plan_tier"]
+          trial_days?: number
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          currency?: string
+          description?: string | null
+          employee_limit?: number | null
+          features?: Json
+          id?: string
+          is_active?: boolean
+          is_public?: boolean
+          name?: string
+          price_monthly?: number
+          price_yearly?: number
+          sort_order?: number
+          tier?: Database["public"]["Enums"]["plan_tier"]
+          trial_days?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -441,6 +699,117 @@ export type Database = {
           email?: string
           id?: string
           source?: string | null
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          cancel_at: string | null
+          canceled_at: string | null
+          company_id: string
+          created_at: string
+          current_period_end: string | null
+          current_period_start: string | null
+          cycle: Database["public"]["Enums"]["billing_cycle"]
+          id: string
+          metadata: Json
+          plan_id: string | null
+          provider: Database["public"]["Enums"]["payment_provider"]
+          provider_subscription_id: string | null
+          seats: number
+          status: Database["public"]["Enums"]["subscription_status"]
+          trial_end: string | null
+          trial_start: string | null
+          updated_at: string
+        }
+        Insert: {
+          cancel_at?: string | null
+          canceled_at?: string | null
+          company_id: string
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          cycle?: Database["public"]["Enums"]["billing_cycle"]
+          id?: string
+          metadata?: Json
+          plan_id?: string | null
+          provider?: Database["public"]["Enums"]["payment_provider"]
+          provider_subscription_id?: string | null
+          seats?: number
+          status?: Database["public"]["Enums"]["subscription_status"]
+          trial_end?: string | null
+          trial_start?: string | null
+          updated_at?: string
+        }
+        Update: {
+          cancel_at?: string | null
+          canceled_at?: string | null
+          company_id?: string
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          cycle?: Database["public"]["Enums"]["billing_cycle"]
+          id?: string
+          metadata?: Json
+          plan_id?: string | null
+          provider?: Database["public"]["Enums"]["payment_provider"]
+          provider_subscription_id?: string | null
+          seats?: number
+          status?: Database["public"]["Enums"]["subscription_status"]
+          trial_end?: string | null
+          trial_start?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscriptions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tax_rates: {
+        Row: {
+          country: string | null
+          created_at: string
+          id: string
+          inclusive: boolean
+          is_active: boolean
+          name: string
+          rate: number
+          region: string | null
+          updated_at: string
+        }
+        Insert: {
+          country?: string | null
+          created_at?: string
+          id?: string
+          inclusive?: boolean
+          is_active?: boolean
+          name: string
+          rate?: number
+          region?: string | null
+          updated_at?: string
+        }
+        Update: {
+          country?: string | null
+          created_at?: string
+          id?: string
+          inclusive?: boolean
+          is_active?: boolean
+          name?: string
+          rate?: number
+          region?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
@@ -549,6 +918,7 @@ export type Database = {
         | "finance"
         | "developer"
         | "viewer"
+      billing_cycle: "monthly" | "yearly"
       contact_stage:
         | "subscriber"
         | "lead"
@@ -557,6 +927,8 @@ export type Database = {
         | "customer"
         | "evangelist"
         | "other"
+      coupon_kind: "percent" | "fixed"
+      invoice_status: "draft" | "open" | "paid" | "void" | "uncollectible"
       lead_status:
         | "new"
         | "contacted"
@@ -565,6 +937,16 @@ export type Database = {
         | "negotiation"
         | "won"
         | "lost"
+      payment_provider: "stripe" | "razorpay" | "paypal" | "manual" | "none"
+      payment_status: "pending" | "succeeded" | "failed" | "refunded"
+      plan_tier: "free" | "starter" | "growth" | "business" | "enterprise"
+      subscription_status:
+        | "trialing"
+        | "active"
+        | "past_due"
+        | "canceled"
+        | "paused"
+        | "incomplete"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -704,6 +1086,7 @@ export const Constants = {
         "developer",
         "viewer",
       ],
+      billing_cycle: ["monthly", "yearly"],
       contact_stage: [
         "subscriber",
         "lead",
@@ -713,6 +1096,8 @@ export const Constants = {
         "evangelist",
         "other",
       ],
+      coupon_kind: ["percent", "fixed"],
+      invoice_status: ["draft", "open", "paid", "void", "uncollectible"],
       lead_status: [
         "new",
         "contacted",
@@ -721,6 +1106,17 @@ export const Constants = {
         "negotiation",
         "won",
         "lost",
+      ],
+      payment_provider: ["stripe", "razorpay", "paypal", "manual", "none"],
+      payment_status: ["pending", "succeeded", "failed", "refunded"],
+      plan_tier: ["free", "starter", "growth", "business", "enterprise"],
+      subscription_status: [
+        "trialing",
+        "active",
+        "past_due",
+        "canceled",
+        "paused",
+        "incomplete",
       ],
     },
   },
