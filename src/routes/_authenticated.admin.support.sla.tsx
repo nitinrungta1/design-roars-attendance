@@ -18,7 +18,7 @@ function SlaPage() {
   const qc = useQueryClient();
   const { data, isLoading } = useQuery({ queryKey: ["admin", "sla"], queryFn: () => listSlaPolicies() });
   const mut = useMutation({
-    mutationFn: (vars: Parameters<typeof patchSlaPolicy>[0]["data"]) => patchSlaPolicy({ data: vars }),
+    mutationFn: (vars: { id: string; first_response_minutes?: number; resolution_minutes?: number; is_active?: boolean }) => patchSlaPolicy({ data: vars }),
     onSuccess: (res) => {
       if (res.ok) qc.invalidateQueries({ queryKey: ["admin", "sla"] });
       else toast.error(res.error);
