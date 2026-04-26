@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { Logo } from "./logo";
@@ -14,9 +14,19 @@ const nav = [
   { to: "/contact", label: "Contact" },
 ];
 
+const PRODUCT_PATHS = new Set([
+  "/", "/features", "/pricing", "/industries", "/mobile-app", "/demo",
+  "/attendance-management-system", "/time-tracking-software", "/employee-timesheet-software",
+  "/gps-attendance-app", "/biometric-attendance-software", "/shift-management-software",
+  "/overtime-management-system", "/employee-check-in-app", "/payroll-attendance-integration",
+  "/attendance-app-india",
+]);
+
 export function MarketingHeader() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const path = useRouterState({ select: (s) => s.location.pathname });
+  const isProduct = PRODUCT_PATHS.has(path);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -35,8 +45,8 @@ export function MarketingHeader() {
       )}
     >
       <div className="mx-auto container-x flex h-16 max-w-7xl items-center justify-between">
-        <Link to="/" className="flex items-center" aria-label="Punchly home">
-          <Logo />
+        <Link to="/" className="flex items-center" aria-label="Oqlio home">
+          <Logo productEyebrow={isProduct} />
         </Link>
         <nav className="hidden items-center gap-1 lg:flex">
           {nav.map((n) => (
