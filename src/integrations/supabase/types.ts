@@ -14,6 +14,53 @@ export type Database = {
   }
   public: {
     Tables: {
+      audit_logs: {
+        Row: {
+          action: string
+          actor_id: string | null
+          company_id: string | null
+          created_at: string
+          diff: Json | null
+          entity_id: string | null
+          entity_type: string | null
+          id: string
+          ip: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          company_id?: string | null
+          created_at?: string
+          diff?: Json | null
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          ip?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          company_id?: string | null
+          created_at?: string
+          diff?: Json | null
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          ip?: string | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_logs_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       companies: {
         Row: {
           created_at: string
@@ -44,9 +91,48 @@ export type Database = {
         }
         Relationships: []
       }
+      company_members: {
+        Row: {
+          company_id: string
+          id: string
+          invited_by: string | null
+          is_owner: boolean
+          joined_at: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          company_id: string
+          id?: string
+          invited_by?: string | null
+          is_owner?: boolean
+          joined_at?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          company_id?: string
+          id?: string
+          invited_by?: string | null
+          is_owner?: boolean
+          joined_at?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_members_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       demo_requests: {
         Row: {
           company: string | null
+          company_id: string | null
           created_at: string
           email: string
           id: string
@@ -59,6 +145,7 @@ export type Database = {
         }
         Insert: {
           company?: string | null
+          company_id?: string | null
           created_at?: string
           email: string
           id?: string
@@ -71,6 +158,7 @@ export type Database = {
         }
         Update: {
           company?: string | null
+          company_id?: string | null
           created_at?: string
           email?: string
           id?: string
@@ -81,11 +169,58 @@ export type Database = {
           source?: string | null
           team_size?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "demo_requests_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      feature_flags: {
+        Row: {
+          company_id: string | null
+          enabled: boolean
+          id: string
+          key: string
+          payload: Json | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          company_id?: string | null
+          enabled?: boolean
+          id?: string
+          key: string
+          payload?: Json | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          company_id?: string | null
+          enabled?: boolean
+          id?: string
+          key?: string
+          payload?: Json | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feature_flags_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       leads: {
         Row: {
           company: string | null
+          company_id: string | null
           created_at: string
           email: string
           id: string
@@ -97,6 +232,7 @@ export type Database = {
         }
         Insert: {
           company?: string | null
+          company_id?: string | null
           created_at?: string
           email: string
           id?: string
@@ -108,6 +244,7 @@ export type Database = {
         }
         Update: {
           company?: string | null
+          company_id?: string | null
           created_at?: string
           email?: string
           id?: string
@@ -117,11 +254,64 @@ export type Database = {
           phone?: string | null
           source?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "leads_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          body: string | null
+          company_id: string | null
+          created_at: string
+          id: string
+          link: string | null
+          read_at: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          company_id?: string | null
+          created_at?: string
+          id?: string
+          link?: string | null
+          read_at?: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          company_id?: string | null
+          created_at?: string
+          id?: string
+          link?: string | null
+          read_at?: string | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
           avatar_url: string | null
+          company_id: string | null
           created_at: string
           full_name: string | null
           id: string
@@ -132,6 +322,7 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          company_id?: string | null
           created_at?: string
           full_name?: string | null
           id: string
@@ -142,6 +333,7 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          company_id?: string | null
           created_at?: string
           full_name?: string | null
           id?: string
@@ -150,7 +342,15 @@ export type Database = {
           timezone?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       subscribers: {
         Row: {
@@ -202,6 +402,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      current_company_id: { Args: never; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -211,11 +412,22 @@ export type Database = {
       }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
       is_attendance_admin: { Args: { _user_id: string }; Returns: boolean }
+      is_member_of: { Args: { _company_id: string }; Returns: boolean }
       is_super_admin: { Args: { _user_id: string }; Returns: boolean }
       needs_bootstrap: { Args: never; Returns: boolean }
     }
     Enums: {
-      app_role: "super_admin" | "admin" | "hr" | "manager" | "employee"
+      app_role:
+        | "super_admin"
+        | "admin"
+        | "hr"
+        | "manager"
+        | "employee"
+        | "sales"
+        | "support"
+        | "finance"
+        | "developer"
+        | "viewer"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -343,7 +555,18 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["super_admin", "admin", "hr", "manager", "employee"],
+      app_role: [
+        "super_admin",
+        "admin",
+        "hr",
+        "manager",
+        "employee",
+        "sales",
+        "support",
+        "finance",
+        "developer",
+        "viewer",
+      ],
     },
   },
 } as const
