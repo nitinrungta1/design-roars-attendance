@@ -34,7 +34,7 @@ function ContactPage() {
           <div className="grid gap-10 lg:grid-cols-[1fr_1fr]">
             <div className="space-y-6">
               {[
-                { icon: Mail, t: "Email", d: "hello@punchly.app" },
+                { icon: Mail, t: "Email", d: "hello@oqlio.com" },
                 { icon: MessageSquare, t: "Live chat", d: "9am – 9pm IST, weekdays" },
                 { icon: Phone, t: "Phone", d: "+1 (415) 555-0142" },
               ].map((c) => (

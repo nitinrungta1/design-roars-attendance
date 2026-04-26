@@ -17,7 +17,7 @@ export const Route = createFileRoute("/gdpr")({
           <h1 className="text-4xl font-bold tracking-tight">GDPR Compliance</h1>
           <p className="mt-6 text-lg leading-relaxed text-muted-foreground">
             Punchly is GDPR-ready. We act as a data processor for our customers.
-            DPA available on request: privacy@punchly.app.
+            DPA available on request: privacy@oqlio.com.
           </p>
         </Container>
       </Section>
