@@ -77,7 +77,11 @@ export const updateLead = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => UpdateLeadSchema.parse(input))
   .handler(async ({ context, data }) => {
     const { supabase } = context;
-    const patch: Record<string, string | null> = {};
+    const patch: {
+      status?: LeadStatus;
+      notes?: string;
+      plan_interest?: string;
+    } = {};
     if (data.status) patch.status = data.status;
     if (typeof data.notes === "string") patch.notes = data.notes;
     if (typeof data.plan_interest === "string") patch.plan_interest = data.plan_interest;
