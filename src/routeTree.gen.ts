@@ -45,6 +45,59 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated.admin'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated.admin.index'
+import { Route as AuthenticatedAdminLeadsIndexRouteImport } from './routes/_authenticated.admin.leads.index'
+import { Route as AuthenticatedAdminWorkforceTimesheetsRouteImport } from './routes/_authenticated.admin.workforce.timesheets'
+import { Route as AuthenticatedAdminWorkforceShiftsRouteImport } from './routes/_authenticated.admin.workforce.shifts'
+import { Route as AuthenticatedAdminWorkforceOvertimeRouteImport } from './routes/_authenticated.admin.workforce.overtime'
+import { Route as AuthenticatedAdminWorkforceLeaveRouteImport } from './routes/_authenticated.admin.workforce.leave'
+import { Route as AuthenticatedAdminWorkforceHolidaysRouteImport } from './routes/_authenticated.admin.workforce.holidays'
+import { Route as AuthenticatedAdminWorkforceEmployeesRouteImport } from './routes/_authenticated.admin.workforce.employees'
+import { Route as AuthenticatedAdminWorkforceAttendanceRouteImport } from './routes/_authenticated.admin.workforce.attendance'
+import { Route as AuthenticatedAdminSystemSettingsRouteImport } from './routes/_authenticated.admin.system.settings'
+import { Route as AuthenticatedAdminSystemSecurityRouteImport } from './routes/_authenticated.admin.system.security'
+import { Route as AuthenticatedAdminSystemBackupsRouteImport } from './routes/_authenticated.admin.system.backups'
+import { Route as AuthenticatedAdminSystemAuditLogsRouteImport } from './routes/_authenticated.admin.system.audit-logs'
+import { Route as AuthenticatedAdminSupportTicketsRouteImport } from './routes/_authenticated.admin.support.tickets'
+import { Route as AuthenticatedAdminSupportSlaRouteImport } from './routes/_authenticated.admin.support.sla'
+import { Route as AuthenticatedAdminSupportKbRouteImport } from './routes/_authenticated.admin.support.kb'
+import { Route as AuthenticatedAdminSupportChatRouteImport } from './routes/_authenticated.admin.support.chat'
+import { Route as AuthenticatedAdminLeadsFormsRouteImport } from './routes/_authenticated.admin.leads.forms'
+import { Route as AuthenticatedAdminIntegrationsWhatsappRouteImport } from './routes/_authenticated.admin.integrations.whatsapp'
+import { Route as AuthenticatedAdminIntegrationsWebhooksRouteImport } from './routes/_authenticated.admin.integrations.webhooks'
+import { Route as AuthenticatedAdminIntegrationsSmsRouteImport } from './routes/_authenticated.admin.integrations.sms'
+import { Route as AuthenticatedAdminIntegrationsPaymentsRouteImport } from './routes/_authenticated.admin.integrations.payments'
+import { Route as AuthenticatedAdminIntegrationsEmailRouteImport } from './routes/_authenticated.admin.integrations.email'
+import { Route as AuthenticatedAdminIntegrationsApisRouteImport } from './routes/_authenticated.admin.integrations.apis'
+import { Route as AuthenticatedAdminDashboardTrialsRouteImport } from './routes/_authenticated.admin.dashboard.trials'
+import { Route as AuthenticatedAdminDashboardRevenueRouteImport } from './routes/_authenticated.admin.dashboard.revenue'
+import { Route as AuthenticatedAdminDashboardGrowthRouteImport } from './routes/_authenticated.admin.dashboard.growth'
+import { Route as AuthenticatedAdminDashboardAlertsRouteImport } from './routes/_authenticated.admin.dashboard.alerts'
+import { Route as AuthenticatedAdminCustomersUsageRouteImport } from './routes/_authenticated.admin.customers.usage'
+import { Route as AuthenticatedAdminCustomersPlansRouteImport } from './routes/_authenticated.admin.customers.plans'
+import { Route as AuthenticatedAdminCustomersContactsRouteImport } from './routes/_authenticated.admin.customers.contacts'
+import { Route as AuthenticatedAdminCustomersCompaniesRouteImport } from './routes/_authenticated.admin.customers.companies'
+import { Route as AuthenticatedAdminCustomersAccountsRouteImport } from './routes/_authenticated.admin.customers.accounts'
+import { Route as AuthenticatedAdminCmsSeoRouteImport } from './routes/_authenticated.admin.cms.seo'
+import { Route as AuthenticatedAdminCmsPagesRouteImport } from './routes/_authenticated.admin.cms.pages'
+import { Route as AuthenticatedAdminCmsMediaRouteImport } from './routes/_authenticated.admin.cms.media'
+import { Route as AuthenticatedAdminCmsFormsRouteImport } from './routes/_authenticated.admin.cms.forms'
+import { Route as AuthenticatedAdminCmsCareersRouteImport } from './routes/_authenticated.admin.cms.careers'
+import { Route as AuthenticatedAdminCmsBlogsRouteImport } from './routes/_authenticated.admin.cms.blogs'
+import { Route as AuthenticatedAdminBillingTaxesRouteImport } from './routes/_authenticated.admin.billing.taxes'
+import { Route as AuthenticatedAdminBillingSubscriptionsRouteImport } from './routes/_authenticated.admin.billing.subscriptions'
+import { Route as AuthenticatedAdminBillingPlansRouteImport } from './routes/_authenticated.admin.billing.plans'
+import { Route as AuthenticatedAdminBillingPaymentsRouteImport } from './routes/_authenticated.admin.billing.payments'
+import { Route as AuthenticatedAdminBillingInvoicesRouteImport } from './routes/_authenticated.admin.billing.invoices'
+import { Route as AuthenticatedAdminBillingCouponsRouteImport } from './routes/_authenticated.admin.billing.coupons'
+import { Route as AuthenticatedAdminAnalyticsRetentionRouteImport } from './routes/_authenticated.admin.analytics.retention'
+import { Route as AuthenticatedAdminAnalyticsProductRouteImport } from './routes/_authenticated.admin.analytics.product'
+import { Route as AuthenticatedAdminAnalyticsFunnelsRouteImport } from './routes/_authenticated.admin.analytics.funnels'
+import { Route as AuthenticatedAdminAnalyticsChurnRouteImport } from './routes/_authenticated.admin.analytics.churn'
+import { Route as AuthenticatedAdminAnalyticsAcquisitionRouteImport } from './routes/_authenticated.admin.analytics.acquisition'
+import { Route as AuthenticatedAdminAccessUsersRouteImport } from './routes/_authenticated.admin.access.users'
+import { Route as AuthenticatedAdminAccessTeamsRouteImport } from './routes/_authenticated.admin.access.teams'
+import { Route as AuthenticatedAdminAccessRolesRouteImport } from './routes/_authenticated.admin.access.roles'
+import { Route as AuthenticatedAdminAccessPermissionsRouteImport } from './routes/_authenticated.admin.access.permissions'
 
 const TimeTrackingSoftwareRoute = TimeTrackingSoftwareRouteImport.update({
   id: '/time-tracking-software',
@@ -230,6 +283,324 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const AuthenticatedAdminLeadsIndexRoute =
+  AuthenticatedAdminLeadsIndexRouteImport.update({
+    id: '/leads/',
+    path: '/leads/',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminWorkforceTimesheetsRoute =
+  AuthenticatedAdminWorkforceTimesheetsRouteImport.update({
+    id: '/workforce/timesheets',
+    path: '/workforce/timesheets',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminWorkforceShiftsRoute =
+  AuthenticatedAdminWorkforceShiftsRouteImport.update({
+    id: '/workforce/shifts',
+    path: '/workforce/shifts',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminWorkforceOvertimeRoute =
+  AuthenticatedAdminWorkforceOvertimeRouteImport.update({
+    id: '/workforce/overtime',
+    path: '/workforce/overtime',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminWorkforceLeaveRoute =
+  AuthenticatedAdminWorkforceLeaveRouteImport.update({
+    id: '/workforce/leave',
+    path: '/workforce/leave',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminWorkforceHolidaysRoute =
+  AuthenticatedAdminWorkforceHolidaysRouteImport.update({
+    id: '/workforce/holidays',
+    path: '/workforce/holidays',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminWorkforceEmployeesRoute =
+  AuthenticatedAdminWorkforceEmployeesRouteImport.update({
+    id: '/workforce/employees',
+    path: '/workforce/employees',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminWorkforceAttendanceRoute =
+  AuthenticatedAdminWorkforceAttendanceRouteImport.update({
+    id: '/workforce/attendance',
+    path: '/workforce/attendance',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminSystemSettingsRoute =
+  AuthenticatedAdminSystemSettingsRouteImport.update({
+    id: '/system/settings',
+    path: '/system/settings',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminSystemSecurityRoute =
+  AuthenticatedAdminSystemSecurityRouteImport.update({
+    id: '/system/security',
+    path: '/system/security',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminSystemBackupsRoute =
+  AuthenticatedAdminSystemBackupsRouteImport.update({
+    id: '/system/backups',
+    path: '/system/backups',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminSystemAuditLogsRoute =
+  AuthenticatedAdminSystemAuditLogsRouteImport.update({
+    id: '/system/audit-logs',
+    path: '/system/audit-logs',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminSupportTicketsRoute =
+  AuthenticatedAdminSupportTicketsRouteImport.update({
+    id: '/support/tickets',
+    path: '/support/tickets',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminSupportSlaRoute =
+  AuthenticatedAdminSupportSlaRouteImport.update({
+    id: '/support/sla',
+    path: '/support/sla',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminSupportKbRoute =
+  AuthenticatedAdminSupportKbRouteImport.update({
+    id: '/support/kb',
+    path: '/support/kb',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminSupportChatRoute =
+  AuthenticatedAdminSupportChatRouteImport.update({
+    id: '/support/chat',
+    path: '/support/chat',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminLeadsFormsRoute =
+  AuthenticatedAdminLeadsFormsRouteImport.update({
+    id: '/leads/forms',
+    path: '/leads/forms',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminIntegrationsWhatsappRoute =
+  AuthenticatedAdminIntegrationsWhatsappRouteImport.update({
+    id: '/integrations/whatsapp',
+    path: '/integrations/whatsapp',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminIntegrationsWebhooksRoute =
+  AuthenticatedAdminIntegrationsWebhooksRouteImport.update({
+    id: '/integrations/webhooks',
+    path: '/integrations/webhooks',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminIntegrationsSmsRoute =
+  AuthenticatedAdminIntegrationsSmsRouteImport.update({
+    id: '/integrations/sms',
+    path: '/integrations/sms',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminIntegrationsPaymentsRoute =
+  AuthenticatedAdminIntegrationsPaymentsRouteImport.update({
+    id: '/integrations/payments',
+    path: '/integrations/payments',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminIntegrationsEmailRoute =
+  AuthenticatedAdminIntegrationsEmailRouteImport.update({
+    id: '/integrations/email',
+    path: '/integrations/email',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminIntegrationsApisRoute =
+  AuthenticatedAdminIntegrationsApisRouteImport.update({
+    id: '/integrations/apis',
+    path: '/integrations/apis',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminDashboardTrialsRoute =
+  AuthenticatedAdminDashboardTrialsRouteImport.update({
+    id: '/dashboard/trials',
+    path: '/dashboard/trials',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminDashboardRevenueRoute =
+  AuthenticatedAdminDashboardRevenueRouteImport.update({
+    id: '/dashboard/revenue',
+    path: '/dashboard/revenue',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminDashboardGrowthRoute =
+  AuthenticatedAdminDashboardGrowthRouteImport.update({
+    id: '/dashboard/growth',
+    path: '/dashboard/growth',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminDashboardAlertsRoute =
+  AuthenticatedAdminDashboardAlertsRouteImport.update({
+    id: '/dashboard/alerts',
+    path: '/dashboard/alerts',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminCustomersUsageRoute =
+  AuthenticatedAdminCustomersUsageRouteImport.update({
+    id: '/customers/usage',
+    path: '/customers/usage',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminCustomersPlansRoute =
+  AuthenticatedAdminCustomersPlansRouteImport.update({
+    id: '/customers/plans',
+    path: '/customers/plans',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminCustomersContactsRoute =
+  AuthenticatedAdminCustomersContactsRouteImport.update({
+    id: '/customers/contacts',
+    path: '/customers/contacts',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminCustomersCompaniesRoute =
+  AuthenticatedAdminCustomersCompaniesRouteImport.update({
+    id: '/customers/companies',
+    path: '/customers/companies',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminCustomersAccountsRoute =
+  AuthenticatedAdminCustomersAccountsRouteImport.update({
+    id: '/customers/accounts',
+    path: '/customers/accounts',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminCmsSeoRoute =
+  AuthenticatedAdminCmsSeoRouteImport.update({
+    id: '/cms/seo',
+    path: '/cms/seo',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminCmsPagesRoute =
+  AuthenticatedAdminCmsPagesRouteImport.update({
+    id: '/cms/pages',
+    path: '/cms/pages',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminCmsMediaRoute =
+  AuthenticatedAdminCmsMediaRouteImport.update({
+    id: '/cms/media',
+    path: '/cms/media',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminCmsFormsRoute =
+  AuthenticatedAdminCmsFormsRouteImport.update({
+    id: '/cms/forms',
+    path: '/cms/forms',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminCmsCareersRoute =
+  AuthenticatedAdminCmsCareersRouteImport.update({
+    id: '/cms/careers',
+    path: '/cms/careers',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminCmsBlogsRoute =
+  AuthenticatedAdminCmsBlogsRouteImport.update({
+    id: '/cms/blogs',
+    path: '/cms/blogs',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminBillingTaxesRoute =
+  AuthenticatedAdminBillingTaxesRouteImport.update({
+    id: '/billing/taxes',
+    path: '/billing/taxes',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminBillingSubscriptionsRoute =
+  AuthenticatedAdminBillingSubscriptionsRouteImport.update({
+    id: '/billing/subscriptions',
+    path: '/billing/subscriptions',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminBillingPlansRoute =
+  AuthenticatedAdminBillingPlansRouteImport.update({
+    id: '/billing/plans',
+    path: '/billing/plans',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminBillingPaymentsRoute =
+  AuthenticatedAdminBillingPaymentsRouteImport.update({
+    id: '/billing/payments',
+    path: '/billing/payments',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminBillingInvoicesRoute =
+  AuthenticatedAdminBillingInvoicesRouteImport.update({
+    id: '/billing/invoices',
+    path: '/billing/invoices',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminBillingCouponsRoute =
+  AuthenticatedAdminBillingCouponsRouteImport.update({
+    id: '/billing/coupons',
+    path: '/billing/coupons',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminAnalyticsRetentionRoute =
+  AuthenticatedAdminAnalyticsRetentionRouteImport.update({
+    id: '/analytics/retention',
+    path: '/analytics/retention',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminAnalyticsProductRoute =
+  AuthenticatedAdminAnalyticsProductRouteImport.update({
+    id: '/analytics/product',
+    path: '/analytics/product',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminAnalyticsFunnelsRoute =
+  AuthenticatedAdminAnalyticsFunnelsRouteImport.update({
+    id: '/analytics/funnels',
+    path: '/analytics/funnels',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminAnalyticsChurnRoute =
+  AuthenticatedAdminAnalyticsChurnRouteImport.update({
+    id: '/analytics/churn',
+    path: '/analytics/churn',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminAnalyticsAcquisitionRoute =
+  AuthenticatedAdminAnalyticsAcquisitionRouteImport.update({
+    id: '/analytics/acquisition',
+    path: '/analytics/acquisition',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminAccessUsersRoute =
+  AuthenticatedAdminAccessUsersRouteImport.update({
+    id: '/access/users',
+    path: '/access/users',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminAccessTeamsRoute =
+  AuthenticatedAdminAccessTeamsRouteImport.update({
+    id: '/access/teams',
+    path: '/access/teams',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminAccessRolesRoute =
+  AuthenticatedAdminAccessRolesRouteImport.update({
+    id: '/access/roles',
+    path: '/access/roles',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminAccessPermissionsRoute =
+  AuthenticatedAdminAccessPermissionsRouteImport.update({
+    id: '/access/permissions',
+    path: '/access/permissions',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -267,6 +638,59 @@ export interface FileRoutesByFullPath {
   '/time-tracking-software': typeof TimeTrackingSoftwareRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/admin/access/permissions': typeof AuthenticatedAdminAccessPermissionsRoute
+  '/admin/access/roles': typeof AuthenticatedAdminAccessRolesRoute
+  '/admin/access/teams': typeof AuthenticatedAdminAccessTeamsRoute
+  '/admin/access/users': typeof AuthenticatedAdminAccessUsersRoute
+  '/admin/analytics/acquisition': typeof AuthenticatedAdminAnalyticsAcquisitionRoute
+  '/admin/analytics/churn': typeof AuthenticatedAdminAnalyticsChurnRoute
+  '/admin/analytics/funnels': typeof AuthenticatedAdminAnalyticsFunnelsRoute
+  '/admin/analytics/product': typeof AuthenticatedAdminAnalyticsProductRoute
+  '/admin/analytics/retention': typeof AuthenticatedAdminAnalyticsRetentionRoute
+  '/admin/billing/coupons': typeof AuthenticatedAdminBillingCouponsRoute
+  '/admin/billing/invoices': typeof AuthenticatedAdminBillingInvoicesRoute
+  '/admin/billing/payments': typeof AuthenticatedAdminBillingPaymentsRoute
+  '/admin/billing/plans': typeof AuthenticatedAdminBillingPlansRoute
+  '/admin/billing/subscriptions': typeof AuthenticatedAdminBillingSubscriptionsRoute
+  '/admin/billing/taxes': typeof AuthenticatedAdminBillingTaxesRoute
+  '/admin/cms/blogs': typeof AuthenticatedAdminCmsBlogsRoute
+  '/admin/cms/careers': typeof AuthenticatedAdminCmsCareersRoute
+  '/admin/cms/forms': typeof AuthenticatedAdminCmsFormsRoute
+  '/admin/cms/media': typeof AuthenticatedAdminCmsMediaRoute
+  '/admin/cms/pages': typeof AuthenticatedAdminCmsPagesRoute
+  '/admin/cms/seo': typeof AuthenticatedAdminCmsSeoRoute
+  '/admin/customers/accounts': typeof AuthenticatedAdminCustomersAccountsRoute
+  '/admin/customers/companies': typeof AuthenticatedAdminCustomersCompaniesRoute
+  '/admin/customers/contacts': typeof AuthenticatedAdminCustomersContactsRoute
+  '/admin/customers/plans': typeof AuthenticatedAdminCustomersPlansRoute
+  '/admin/customers/usage': typeof AuthenticatedAdminCustomersUsageRoute
+  '/admin/dashboard/alerts': typeof AuthenticatedAdminDashboardAlertsRoute
+  '/admin/dashboard/growth': typeof AuthenticatedAdminDashboardGrowthRoute
+  '/admin/dashboard/revenue': typeof AuthenticatedAdminDashboardRevenueRoute
+  '/admin/dashboard/trials': typeof AuthenticatedAdminDashboardTrialsRoute
+  '/admin/integrations/apis': typeof AuthenticatedAdminIntegrationsApisRoute
+  '/admin/integrations/email': typeof AuthenticatedAdminIntegrationsEmailRoute
+  '/admin/integrations/payments': typeof AuthenticatedAdminIntegrationsPaymentsRoute
+  '/admin/integrations/sms': typeof AuthenticatedAdminIntegrationsSmsRoute
+  '/admin/integrations/webhooks': typeof AuthenticatedAdminIntegrationsWebhooksRoute
+  '/admin/integrations/whatsapp': typeof AuthenticatedAdminIntegrationsWhatsappRoute
+  '/admin/leads/forms': typeof AuthenticatedAdminLeadsFormsRoute
+  '/admin/support/chat': typeof AuthenticatedAdminSupportChatRoute
+  '/admin/support/kb': typeof AuthenticatedAdminSupportKbRoute
+  '/admin/support/sla': typeof AuthenticatedAdminSupportSlaRoute
+  '/admin/support/tickets': typeof AuthenticatedAdminSupportTicketsRoute
+  '/admin/system/audit-logs': typeof AuthenticatedAdminSystemAuditLogsRoute
+  '/admin/system/backups': typeof AuthenticatedAdminSystemBackupsRoute
+  '/admin/system/security': typeof AuthenticatedAdminSystemSecurityRoute
+  '/admin/system/settings': typeof AuthenticatedAdminSystemSettingsRoute
+  '/admin/workforce/attendance': typeof AuthenticatedAdminWorkforceAttendanceRoute
+  '/admin/workforce/employees': typeof AuthenticatedAdminWorkforceEmployeesRoute
+  '/admin/workforce/holidays': typeof AuthenticatedAdminWorkforceHolidaysRoute
+  '/admin/workforce/leave': typeof AuthenticatedAdminWorkforceLeaveRoute
+  '/admin/workforce/overtime': typeof AuthenticatedAdminWorkforceOvertimeRoute
+  '/admin/workforce/shifts': typeof AuthenticatedAdminWorkforceShiftsRoute
+  '/admin/workforce/timesheets': typeof AuthenticatedAdminWorkforceTimesheetsRoute
+  '/admin/leads/': typeof AuthenticatedAdminLeadsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -303,6 +727,59 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/time-tracking-software': typeof TimeTrackingSoftwareRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
+  '/admin/access/permissions': typeof AuthenticatedAdminAccessPermissionsRoute
+  '/admin/access/roles': typeof AuthenticatedAdminAccessRolesRoute
+  '/admin/access/teams': typeof AuthenticatedAdminAccessTeamsRoute
+  '/admin/access/users': typeof AuthenticatedAdminAccessUsersRoute
+  '/admin/analytics/acquisition': typeof AuthenticatedAdminAnalyticsAcquisitionRoute
+  '/admin/analytics/churn': typeof AuthenticatedAdminAnalyticsChurnRoute
+  '/admin/analytics/funnels': typeof AuthenticatedAdminAnalyticsFunnelsRoute
+  '/admin/analytics/product': typeof AuthenticatedAdminAnalyticsProductRoute
+  '/admin/analytics/retention': typeof AuthenticatedAdminAnalyticsRetentionRoute
+  '/admin/billing/coupons': typeof AuthenticatedAdminBillingCouponsRoute
+  '/admin/billing/invoices': typeof AuthenticatedAdminBillingInvoicesRoute
+  '/admin/billing/payments': typeof AuthenticatedAdminBillingPaymentsRoute
+  '/admin/billing/plans': typeof AuthenticatedAdminBillingPlansRoute
+  '/admin/billing/subscriptions': typeof AuthenticatedAdminBillingSubscriptionsRoute
+  '/admin/billing/taxes': typeof AuthenticatedAdminBillingTaxesRoute
+  '/admin/cms/blogs': typeof AuthenticatedAdminCmsBlogsRoute
+  '/admin/cms/careers': typeof AuthenticatedAdminCmsCareersRoute
+  '/admin/cms/forms': typeof AuthenticatedAdminCmsFormsRoute
+  '/admin/cms/media': typeof AuthenticatedAdminCmsMediaRoute
+  '/admin/cms/pages': typeof AuthenticatedAdminCmsPagesRoute
+  '/admin/cms/seo': typeof AuthenticatedAdminCmsSeoRoute
+  '/admin/customers/accounts': typeof AuthenticatedAdminCustomersAccountsRoute
+  '/admin/customers/companies': typeof AuthenticatedAdminCustomersCompaniesRoute
+  '/admin/customers/contacts': typeof AuthenticatedAdminCustomersContactsRoute
+  '/admin/customers/plans': typeof AuthenticatedAdminCustomersPlansRoute
+  '/admin/customers/usage': typeof AuthenticatedAdminCustomersUsageRoute
+  '/admin/dashboard/alerts': typeof AuthenticatedAdminDashboardAlertsRoute
+  '/admin/dashboard/growth': typeof AuthenticatedAdminDashboardGrowthRoute
+  '/admin/dashboard/revenue': typeof AuthenticatedAdminDashboardRevenueRoute
+  '/admin/dashboard/trials': typeof AuthenticatedAdminDashboardTrialsRoute
+  '/admin/integrations/apis': typeof AuthenticatedAdminIntegrationsApisRoute
+  '/admin/integrations/email': typeof AuthenticatedAdminIntegrationsEmailRoute
+  '/admin/integrations/payments': typeof AuthenticatedAdminIntegrationsPaymentsRoute
+  '/admin/integrations/sms': typeof AuthenticatedAdminIntegrationsSmsRoute
+  '/admin/integrations/webhooks': typeof AuthenticatedAdminIntegrationsWebhooksRoute
+  '/admin/integrations/whatsapp': typeof AuthenticatedAdminIntegrationsWhatsappRoute
+  '/admin/leads/forms': typeof AuthenticatedAdminLeadsFormsRoute
+  '/admin/support/chat': typeof AuthenticatedAdminSupportChatRoute
+  '/admin/support/kb': typeof AuthenticatedAdminSupportKbRoute
+  '/admin/support/sla': typeof AuthenticatedAdminSupportSlaRoute
+  '/admin/support/tickets': typeof AuthenticatedAdminSupportTicketsRoute
+  '/admin/system/audit-logs': typeof AuthenticatedAdminSystemAuditLogsRoute
+  '/admin/system/backups': typeof AuthenticatedAdminSystemBackupsRoute
+  '/admin/system/security': typeof AuthenticatedAdminSystemSecurityRoute
+  '/admin/system/settings': typeof AuthenticatedAdminSystemSettingsRoute
+  '/admin/workforce/attendance': typeof AuthenticatedAdminWorkforceAttendanceRoute
+  '/admin/workforce/employees': typeof AuthenticatedAdminWorkforceEmployeesRoute
+  '/admin/workforce/holidays': typeof AuthenticatedAdminWorkforceHolidaysRoute
+  '/admin/workforce/leave': typeof AuthenticatedAdminWorkforceLeaveRoute
+  '/admin/workforce/overtime': typeof AuthenticatedAdminWorkforceOvertimeRoute
+  '/admin/workforce/shifts': typeof AuthenticatedAdminWorkforceShiftsRoute
+  '/admin/workforce/timesheets': typeof AuthenticatedAdminWorkforceTimesheetsRoute
+  '/admin/leads': typeof AuthenticatedAdminLeadsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -342,6 +819,59 @@ export interface FileRoutesById {
   '/time-tracking-software': typeof TimeTrackingSoftwareRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/_authenticated/admin/access/permissions': typeof AuthenticatedAdminAccessPermissionsRoute
+  '/_authenticated/admin/access/roles': typeof AuthenticatedAdminAccessRolesRoute
+  '/_authenticated/admin/access/teams': typeof AuthenticatedAdminAccessTeamsRoute
+  '/_authenticated/admin/access/users': typeof AuthenticatedAdminAccessUsersRoute
+  '/_authenticated/admin/analytics/acquisition': typeof AuthenticatedAdminAnalyticsAcquisitionRoute
+  '/_authenticated/admin/analytics/churn': typeof AuthenticatedAdminAnalyticsChurnRoute
+  '/_authenticated/admin/analytics/funnels': typeof AuthenticatedAdminAnalyticsFunnelsRoute
+  '/_authenticated/admin/analytics/product': typeof AuthenticatedAdminAnalyticsProductRoute
+  '/_authenticated/admin/analytics/retention': typeof AuthenticatedAdminAnalyticsRetentionRoute
+  '/_authenticated/admin/billing/coupons': typeof AuthenticatedAdminBillingCouponsRoute
+  '/_authenticated/admin/billing/invoices': typeof AuthenticatedAdminBillingInvoicesRoute
+  '/_authenticated/admin/billing/payments': typeof AuthenticatedAdminBillingPaymentsRoute
+  '/_authenticated/admin/billing/plans': typeof AuthenticatedAdminBillingPlansRoute
+  '/_authenticated/admin/billing/subscriptions': typeof AuthenticatedAdminBillingSubscriptionsRoute
+  '/_authenticated/admin/billing/taxes': typeof AuthenticatedAdminBillingTaxesRoute
+  '/_authenticated/admin/cms/blogs': typeof AuthenticatedAdminCmsBlogsRoute
+  '/_authenticated/admin/cms/careers': typeof AuthenticatedAdminCmsCareersRoute
+  '/_authenticated/admin/cms/forms': typeof AuthenticatedAdminCmsFormsRoute
+  '/_authenticated/admin/cms/media': typeof AuthenticatedAdminCmsMediaRoute
+  '/_authenticated/admin/cms/pages': typeof AuthenticatedAdminCmsPagesRoute
+  '/_authenticated/admin/cms/seo': typeof AuthenticatedAdminCmsSeoRoute
+  '/_authenticated/admin/customers/accounts': typeof AuthenticatedAdminCustomersAccountsRoute
+  '/_authenticated/admin/customers/companies': typeof AuthenticatedAdminCustomersCompaniesRoute
+  '/_authenticated/admin/customers/contacts': typeof AuthenticatedAdminCustomersContactsRoute
+  '/_authenticated/admin/customers/plans': typeof AuthenticatedAdminCustomersPlansRoute
+  '/_authenticated/admin/customers/usage': typeof AuthenticatedAdminCustomersUsageRoute
+  '/_authenticated/admin/dashboard/alerts': typeof AuthenticatedAdminDashboardAlertsRoute
+  '/_authenticated/admin/dashboard/growth': typeof AuthenticatedAdminDashboardGrowthRoute
+  '/_authenticated/admin/dashboard/revenue': typeof AuthenticatedAdminDashboardRevenueRoute
+  '/_authenticated/admin/dashboard/trials': typeof AuthenticatedAdminDashboardTrialsRoute
+  '/_authenticated/admin/integrations/apis': typeof AuthenticatedAdminIntegrationsApisRoute
+  '/_authenticated/admin/integrations/email': typeof AuthenticatedAdminIntegrationsEmailRoute
+  '/_authenticated/admin/integrations/payments': typeof AuthenticatedAdminIntegrationsPaymentsRoute
+  '/_authenticated/admin/integrations/sms': typeof AuthenticatedAdminIntegrationsSmsRoute
+  '/_authenticated/admin/integrations/webhooks': typeof AuthenticatedAdminIntegrationsWebhooksRoute
+  '/_authenticated/admin/integrations/whatsapp': typeof AuthenticatedAdminIntegrationsWhatsappRoute
+  '/_authenticated/admin/leads/forms': typeof AuthenticatedAdminLeadsFormsRoute
+  '/_authenticated/admin/support/chat': typeof AuthenticatedAdminSupportChatRoute
+  '/_authenticated/admin/support/kb': typeof AuthenticatedAdminSupportKbRoute
+  '/_authenticated/admin/support/sla': typeof AuthenticatedAdminSupportSlaRoute
+  '/_authenticated/admin/support/tickets': typeof AuthenticatedAdminSupportTicketsRoute
+  '/_authenticated/admin/system/audit-logs': typeof AuthenticatedAdminSystemAuditLogsRoute
+  '/_authenticated/admin/system/backups': typeof AuthenticatedAdminSystemBackupsRoute
+  '/_authenticated/admin/system/security': typeof AuthenticatedAdminSystemSecurityRoute
+  '/_authenticated/admin/system/settings': typeof AuthenticatedAdminSystemSettingsRoute
+  '/_authenticated/admin/workforce/attendance': typeof AuthenticatedAdminWorkforceAttendanceRoute
+  '/_authenticated/admin/workforce/employees': typeof AuthenticatedAdminWorkforceEmployeesRoute
+  '/_authenticated/admin/workforce/holidays': typeof AuthenticatedAdminWorkforceHolidaysRoute
+  '/_authenticated/admin/workforce/leave': typeof AuthenticatedAdminWorkforceLeaveRoute
+  '/_authenticated/admin/workforce/overtime': typeof AuthenticatedAdminWorkforceOvertimeRoute
+  '/_authenticated/admin/workforce/shifts': typeof AuthenticatedAdminWorkforceShiftsRoute
+  '/_authenticated/admin/workforce/timesheets': typeof AuthenticatedAdminWorkforceTimesheetsRoute
+  '/_authenticated/admin/leads/': typeof AuthenticatedAdminLeadsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -381,6 +911,59 @@ export interface FileRouteTypes {
     | '/time-tracking-software'
     | '/admin'
     | '/admin/'
+    | '/admin/access/permissions'
+    | '/admin/access/roles'
+    | '/admin/access/teams'
+    | '/admin/access/users'
+    | '/admin/analytics/acquisition'
+    | '/admin/analytics/churn'
+    | '/admin/analytics/funnels'
+    | '/admin/analytics/product'
+    | '/admin/analytics/retention'
+    | '/admin/billing/coupons'
+    | '/admin/billing/invoices'
+    | '/admin/billing/payments'
+    | '/admin/billing/plans'
+    | '/admin/billing/subscriptions'
+    | '/admin/billing/taxes'
+    | '/admin/cms/blogs'
+    | '/admin/cms/careers'
+    | '/admin/cms/forms'
+    | '/admin/cms/media'
+    | '/admin/cms/pages'
+    | '/admin/cms/seo'
+    | '/admin/customers/accounts'
+    | '/admin/customers/companies'
+    | '/admin/customers/contacts'
+    | '/admin/customers/plans'
+    | '/admin/customers/usage'
+    | '/admin/dashboard/alerts'
+    | '/admin/dashboard/growth'
+    | '/admin/dashboard/revenue'
+    | '/admin/dashboard/trials'
+    | '/admin/integrations/apis'
+    | '/admin/integrations/email'
+    | '/admin/integrations/payments'
+    | '/admin/integrations/sms'
+    | '/admin/integrations/webhooks'
+    | '/admin/integrations/whatsapp'
+    | '/admin/leads/forms'
+    | '/admin/support/chat'
+    | '/admin/support/kb'
+    | '/admin/support/sla'
+    | '/admin/support/tickets'
+    | '/admin/system/audit-logs'
+    | '/admin/system/backups'
+    | '/admin/system/security'
+    | '/admin/system/settings'
+    | '/admin/workforce/attendance'
+    | '/admin/workforce/employees'
+    | '/admin/workforce/holidays'
+    | '/admin/workforce/leave'
+    | '/admin/workforce/overtime'
+    | '/admin/workforce/shifts'
+    | '/admin/workforce/timesheets'
+    | '/admin/leads/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -417,6 +1000,59 @@ export interface FileRouteTypes {
     | '/terms'
     | '/time-tracking-software'
     | '/admin'
+    | '/admin/access/permissions'
+    | '/admin/access/roles'
+    | '/admin/access/teams'
+    | '/admin/access/users'
+    | '/admin/analytics/acquisition'
+    | '/admin/analytics/churn'
+    | '/admin/analytics/funnels'
+    | '/admin/analytics/product'
+    | '/admin/analytics/retention'
+    | '/admin/billing/coupons'
+    | '/admin/billing/invoices'
+    | '/admin/billing/payments'
+    | '/admin/billing/plans'
+    | '/admin/billing/subscriptions'
+    | '/admin/billing/taxes'
+    | '/admin/cms/blogs'
+    | '/admin/cms/careers'
+    | '/admin/cms/forms'
+    | '/admin/cms/media'
+    | '/admin/cms/pages'
+    | '/admin/cms/seo'
+    | '/admin/customers/accounts'
+    | '/admin/customers/companies'
+    | '/admin/customers/contacts'
+    | '/admin/customers/plans'
+    | '/admin/customers/usage'
+    | '/admin/dashboard/alerts'
+    | '/admin/dashboard/growth'
+    | '/admin/dashboard/revenue'
+    | '/admin/dashboard/trials'
+    | '/admin/integrations/apis'
+    | '/admin/integrations/email'
+    | '/admin/integrations/payments'
+    | '/admin/integrations/sms'
+    | '/admin/integrations/webhooks'
+    | '/admin/integrations/whatsapp'
+    | '/admin/leads/forms'
+    | '/admin/support/chat'
+    | '/admin/support/kb'
+    | '/admin/support/sla'
+    | '/admin/support/tickets'
+    | '/admin/system/audit-logs'
+    | '/admin/system/backups'
+    | '/admin/system/security'
+    | '/admin/system/settings'
+    | '/admin/workforce/attendance'
+    | '/admin/workforce/employees'
+    | '/admin/workforce/holidays'
+    | '/admin/workforce/leave'
+    | '/admin/workforce/overtime'
+    | '/admin/workforce/shifts'
+    | '/admin/workforce/timesheets'
+    | '/admin/leads'
   id:
     | '__root__'
     | '/'
@@ -455,6 +1091,59 @@ export interface FileRouteTypes {
     | '/time-tracking-software'
     | '/_authenticated/admin'
     | '/_authenticated/admin/'
+    | '/_authenticated/admin/access/permissions'
+    | '/_authenticated/admin/access/roles'
+    | '/_authenticated/admin/access/teams'
+    | '/_authenticated/admin/access/users'
+    | '/_authenticated/admin/analytics/acquisition'
+    | '/_authenticated/admin/analytics/churn'
+    | '/_authenticated/admin/analytics/funnels'
+    | '/_authenticated/admin/analytics/product'
+    | '/_authenticated/admin/analytics/retention'
+    | '/_authenticated/admin/billing/coupons'
+    | '/_authenticated/admin/billing/invoices'
+    | '/_authenticated/admin/billing/payments'
+    | '/_authenticated/admin/billing/plans'
+    | '/_authenticated/admin/billing/subscriptions'
+    | '/_authenticated/admin/billing/taxes'
+    | '/_authenticated/admin/cms/blogs'
+    | '/_authenticated/admin/cms/careers'
+    | '/_authenticated/admin/cms/forms'
+    | '/_authenticated/admin/cms/media'
+    | '/_authenticated/admin/cms/pages'
+    | '/_authenticated/admin/cms/seo'
+    | '/_authenticated/admin/customers/accounts'
+    | '/_authenticated/admin/customers/companies'
+    | '/_authenticated/admin/customers/contacts'
+    | '/_authenticated/admin/customers/plans'
+    | '/_authenticated/admin/customers/usage'
+    | '/_authenticated/admin/dashboard/alerts'
+    | '/_authenticated/admin/dashboard/growth'
+    | '/_authenticated/admin/dashboard/revenue'
+    | '/_authenticated/admin/dashboard/trials'
+    | '/_authenticated/admin/integrations/apis'
+    | '/_authenticated/admin/integrations/email'
+    | '/_authenticated/admin/integrations/payments'
+    | '/_authenticated/admin/integrations/sms'
+    | '/_authenticated/admin/integrations/webhooks'
+    | '/_authenticated/admin/integrations/whatsapp'
+    | '/_authenticated/admin/leads/forms'
+    | '/_authenticated/admin/support/chat'
+    | '/_authenticated/admin/support/kb'
+    | '/_authenticated/admin/support/sla'
+    | '/_authenticated/admin/support/tickets'
+    | '/_authenticated/admin/system/audit-logs'
+    | '/_authenticated/admin/system/backups'
+    | '/_authenticated/admin/system/security'
+    | '/_authenticated/admin/system/settings'
+    | '/_authenticated/admin/workforce/attendance'
+    | '/_authenticated/admin/workforce/employees'
+    | '/_authenticated/admin/workforce/holidays'
+    | '/_authenticated/admin/workforce/leave'
+    | '/_authenticated/admin/workforce/overtime'
+    | '/_authenticated/admin/workforce/shifts'
+    | '/_authenticated/admin/workforce/timesheets'
+    | '/_authenticated/admin/leads/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -748,15 +1437,520 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/leads/': {
+      id: '/_authenticated/admin/leads/'
+      path: '/leads'
+      fullPath: '/admin/leads/'
+      preLoaderRoute: typeof AuthenticatedAdminLeadsIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/workforce/timesheets': {
+      id: '/_authenticated/admin/workforce/timesheets'
+      path: '/workforce/timesheets'
+      fullPath: '/admin/workforce/timesheets'
+      preLoaderRoute: typeof AuthenticatedAdminWorkforceTimesheetsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/workforce/shifts': {
+      id: '/_authenticated/admin/workforce/shifts'
+      path: '/workforce/shifts'
+      fullPath: '/admin/workforce/shifts'
+      preLoaderRoute: typeof AuthenticatedAdminWorkforceShiftsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/workforce/overtime': {
+      id: '/_authenticated/admin/workforce/overtime'
+      path: '/workforce/overtime'
+      fullPath: '/admin/workforce/overtime'
+      preLoaderRoute: typeof AuthenticatedAdminWorkforceOvertimeRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/workforce/leave': {
+      id: '/_authenticated/admin/workforce/leave'
+      path: '/workforce/leave'
+      fullPath: '/admin/workforce/leave'
+      preLoaderRoute: typeof AuthenticatedAdminWorkforceLeaveRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/workforce/holidays': {
+      id: '/_authenticated/admin/workforce/holidays'
+      path: '/workforce/holidays'
+      fullPath: '/admin/workforce/holidays'
+      preLoaderRoute: typeof AuthenticatedAdminWorkforceHolidaysRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/workforce/employees': {
+      id: '/_authenticated/admin/workforce/employees'
+      path: '/workforce/employees'
+      fullPath: '/admin/workforce/employees'
+      preLoaderRoute: typeof AuthenticatedAdminWorkforceEmployeesRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/workforce/attendance': {
+      id: '/_authenticated/admin/workforce/attendance'
+      path: '/workforce/attendance'
+      fullPath: '/admin/workforce/attendance'
+      preLoaderRoute: typeof AuthenticatedAdminWorkforceAttendanceRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/system/settings': {
+      id: '/_authenticated/admin/system/settings'
+      path: '/system/settings'
+      fullPath: '/admin/system/settings'
+      preLoaderRoute: typeof AuthenticatedAdminSystemSettingsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/system/security': {
+      id: '/_authenticated/admin/system/security'
+      path: '/system/security'
+      fullPath: '/admin/system/security'
+      preLoaderRoute: typeof AuthenticatedAdminSystemSecurityRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/system/backups': {
+      id: '/_authenticated/admin/system/backups'
+      path: '/system/backups'
+      fullPath: '/admin/system/backups'
+      preLoaderRoute: typeof AuthenticatedAdminSystemBackupsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/system/audit-logs': {
+      id: '/_authenticated/admin/system/audit-logs'
+      path: '/system/audit-logs'
+      fullPath: '/admin/system/audit-logs'
+      preLoaderRoute: typeof AuthenticatedAdminSystemAuditLogsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/support/tickets': {
+      id: '/_authenticated/admin/support/tickets'
+      path: '/support/tickets'
+      fullPath: '/admin/support/tickets'
+      preLoaderRoute: typeof AuthenticatedAdminSupportTicketsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/support/sla': {
+      id: '/_authenticated/admin/support/sla'
+      path: '/support/sla'
+      fullPath: '/admin/support/sla'
+      preLoaderRoute: typeof AuthenticatedAdminSupportSlaRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/support/kb': {
+      id: '/_authenticated/admin/support/kb'
+      path: '/support/kb'
+      fullPath: '/admin/support/kb'
+      preLoaderRoute: typeof AuthenticatedAdminSupportKbRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/support/chat': {
+      id: '/_authenticated/admin/support/chat'
+      path: '/support/chat'
+      fullPath: '/admin/support/chat'
+      preLoaderRoute: typeof AuthenticatedAdminSupportChatRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/leads/forms': {
+      id: '/_authenticated/admin/leads/forms'
+      path: '/leads/forms'
+      fullPath: '/admin/leads/forms'
+      preLoaderRoute: typeof AuthenticatedAdminLeadsFormsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/integrations/whatsapp': {
+      id: '/_authenticated/admin/integrations/whatsapp'
+      path: '/integrations/whatsapp'
+      fullPath: '/admin/integrations/whatsapp'
+      preLoaderRoute: typeof AuthenticatedAdminIntegrationsWhatsappRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/integrations/webhooks': {
+      id: '/_authenticated/admin/integrations/webhooks'
+      path: '/integrations/webhooks'
+      fullPath: '/admin/integrations/webhooks'
+      preLoaderRoute: typeof AuthenticatedAdminIntegrationsWebhooksRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/integrations/sms': {
+      id: '/_authenticated/admin/integrations/sms'
+      path: '/integrations/sms'
+      fullPath: '/admin/integrations/sms'
+      preLoaderRoute: typeof AuthenticatedAdminIntegrationsSmsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/integrations/payments': {
+      id: '/_authenticated/admin/integrations/payments'
+      path: '/integrations/payments'
+      fullPath: '/admin/integrations/payments'
+      preLoaderRoute: typeof AuthenticatedAdminIntegrationsPaymentsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/integrations/email': {
+      id: '/_authenticated/admin/integrations/email'
+      path: '/integrations/email'
+      fullPath: '/admin/integrations/email'
+      preLoaderRoute: typeof AuthenticatedAdminIntegrationsEmailRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/integrations/apis': {
+      id: '/_authenticated/admin/integrations/apis'
+      path: '/integrations/apis'
+      fullPath: '/admin/integrations/apis'
+      preLoaderRoute: typeof AuthenticatedAdminIntegrationsApisRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/dashboard/trials': {
+      id: '/_authenticated/admin/dashboard/trials'
+      path: '/dashboard/trials'
+      fullPath: '/admin/dashboard/trials'
+      preLoaderRoute: typeof AuthenticatedAdminDashboardTrialsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/dashboard/revenue': {
+      id: '/_authenticated/admin/dashboard/revenue'
+      path: '/dashboard/revenue'
+      fullPath: '/admin/dashboard/revenue'
+      preLoaderRoute: typeof AuthenticatedAdminDashboardRevenueRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/dashboard/growth': {
+      id: '/_authenticated/admin/dashboard/growth'
+      path: '/dashboard/growth'
+      fullPath: '/admin/dashboard/growth'
+      preLoaderRoute: typeof AuthenticatedAdminDashboardGrowthRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/dashboard/alerts': {
+      id: '/_authenticated/admin/dashboard/alerts'
+      path: '/dashboard/alerts'
+      fullPath: '/admin/dashboard/alerts'
+      preLoaderRoute: typeof AuthenticatedAdminDashboardAlertsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/customers/usage': {
+      id: '/_authenticated/admin/customers/usage'
+      path: '/customers/usage'
+      fullPath: '/admin/customers/usage'
+      preLoaderRoute: typeof AuthenticatedAdminCustomersUsageRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/customers/plans': {
+      id: '/_authenticated/admin/customers/plans'
+      path: '/customers/plans'
+      fullPath: '/admin/customers/plans'
+      preLoaderRoute: typeof AuthenticatedAdminCustomersPlansRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/customers/contacts': {
+      id: '/_authenticated/admin/customers/contacts'
+      path: '/customers/contacts'
+      fullPath: '/admin/customers/contacts'
+      preLoaderRoute: typeof AuthenticatedAdminCustomersContactsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/customers/companies': {
+      id: '/_authenticated/admin/customers/companies'
+      path: '/customers/companies'
+      fullPath: '/admin/customers/companies'
+      preLoaderRoute: typeof AuthenticatedAdminCustomersCompaniesRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/customers/accounts': {
+      id: '/_authenticated/admin/customers/accounts'
+      path: '/customers/accounts'
+      fullPath: '/admin/customers/accounts'
+      preLoaderRoute: typeof AuthenticatedAdminCustomersAccountsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/cms/seo': {
+      id: '/_authenticated/admin/cms/seo'
+      path: '/cms/seo'
+      fullPath: '/admin/cms/seo'
+      preLoaderRoute: typeof AuthenticatedAdminCmsSeoRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/cms/pages': {
+      id: '/_authenticated/admin/cms/pages'
+      path: '/cms/pages'
+      fullPath: '/admin/cms/pages'
+      preLoaderRoute: typeof AuthenticatedAdminCmsPagesRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/cms/media': {
+      id: '/_authenticated/admin/cms/media'
+      path: '/cms/media'
+      fullPath: '/admin/cms/media'
+      preLoaderRoute: typeof AuthenticatedAdminCmsMediaRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/cms/forms': {
+      id: '/_authenticated/admin/cms/forms'
+      path: '/cms/forms'
+      fullPath: '/admin/cms/forms'
+      preLoaderRoute: typeof AuthenticatedAdminCmsFormsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/cms/careers': {
+      id: '/_authenticated/admin/cms/careers'
+      path: '/cms/careers'
+      fullPath: '/admin/cms/careers'
+      preLoaderRoute: typeof AuthenticatedAdminCmsCareersRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/cms/blogs': {
+      id: '/_authenticated/admin/cms/blogs'
+      path: '/cms/blogs'
+      fullPath: '/admin/cms/blogs'
+      preLoaderRoute: typeof AuthenticatedAdminCmsBlogsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/billing/taxes': {
+      id: '/_authenticated/admin/billing/taxes'
+      path: '/billing/taxes'
+      fullPath: '/admin/billing/taxes'
+      preLoaderRoute: typeof AuthenticatedAdminBillingTaxesRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/billing/subscriptions': {
+      id: '/_authenticated/admin/billing/subscriptions'
+      path: '/billing/subscriptions'
+      fullPath: '/admin/billing/subscriptions'
+      preLoaderRoute: typeof AuthenticatedAdminBillingSubscriptionsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/billing/plans': {
+      id: '/_authenticated/admin/billing/plans'
+      path: '/billing/plans'
+      fullPath: '/admin/billing/plans'
+      preLoaderRoute: typeof AuthenticatedAdminBillingPlansRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/billing/payments': {
+      id: '/_authenticated/admin/billing/payments'
+      path: '/billing/payments'
+      fullPath: '/admin/billing/payments'
+      preLoaderRoute: typeof AuthenticatedAdminBillingPaymentsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/billing/invoices': {
+      id: '/_authenticated/admin/billing/invoices'
+      path: '/billing/invoices'
+      fullPath: '/admin/billing/invoices'
+      preLoaderRoute: typeof AuthenticatedAdminBillingInvoicesRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/billing/coupons': {
+      id: '/_authenticated/admin/billing/coupons'
+      path: '/billing/coupons'
+      fullPath: '/admin/billing/coupons'
+      preLoaderRoute: typeof AuthenticatedAdminBillingCouponsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/analytics/retention': {
+      id: '/_authenticated/admin/analytics/retention'
+      path: '/analytics/retention'
+      fullPath: '/admin/analytics/retention'
+      preLoaderRoute: typeof AuthenticatedAdminAnalyticsRetentionRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/analytics/product': {
+      id: '/_authenticated/admin/analytics/product'
+      path: '/analytics/product'
+      fullPath: '/admin/analytics/product'
+      preLoaderRoute: typeof AuthenticatedAdminAnalyticsProductRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/analytics/funnels': {
+      id: '/_authenticated/admin/analytics/funnels'
+      path: '/analytics/funnels'
+      fullPath: '/admin/analytics/funnels'
+      preLoaderRoute: typeof AuthenticatedAdminAnalyticsFunnelsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/analytics/churn': {
+      id: '/_authenticated/admin/analytics/churn'
+      path: '/analytics/churn'
+      fullPath: '/admin/analytics/churn'
+      preLoaderRoute: typeof AuthenticatedAdminAnalyticsChurnRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/analytics/acquisition': {
+      id: '/_authenticated/admin/analytics/acquisition'
+      path: '/analytics/acquisition'
+      fullPath: '/admin/analytics/acquisition'
+      preLoaderRoute: typeof AuthenticatedAdminAnalyticsAcquisitionRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/access/users': {
+      id: '/_authenticated/admin/access/users'
+      path: '/access/users'
+      fullPath: '/admin/access/users'
+      preLoaderRoute: typeof AuthenticatedAdminAccessUsersRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/access/teams': {
+      id: '/_authenticated/admin/access/teams'
+      path: '/access/teams'
+      fullPath: '/admin/access/teams'
+      preLoaderRoute: typeof AuthenticatedAdminAccessTeamsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/access/roles': {
+      id: '/_authenticated/admin/access/roles'
+      path: '/access/roles'
+      fullPath: '/admin/access/roles'
+      preLoaderRoute: typeof AuthenticatedAdminAccessRolesRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/access/permissions': {
+      id: '/_authenticated/admin/access/permissions'
+      path: '/access/permissions'
+      fullPath: '/admin/access/permissions'
+      preLoaderRoute: typeof AuthenticatedAdminAccessPermissionsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
   }
 }
 
 interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+  AuthenticatedAdminAccessPermissionsRoute: typeof AuthenticatedAdminAccessPermissionsRoute
+  AuthenticatedAdminAccessRolesRoute: typeof AuthenticatedAdminAccessRolesRoute
+  AuthenticatedAdminAccessTeamsRoute: typeof AuthenticatedAdminAccessTeamsRoute
+  AuthenticatedAdminAccessUsersRoute: typeof AuthenticatedAdminAccessUsersRoute
+  AuthenticatedAdminAnalyticsAcquisitionRoute: typeof AuthenticatedAdminAnalyticsAcquisitionRoute
+  AuthenticatedAdminAnalyticsChurnRoute: typeof AuthenticatedAdminAnalyticsChurnRoute
+  AuthenticatedAdminAnalyticsFunnelsRoute: typeof AuthenticatedAdminAnalyticsFunnelsRoute
+  AuthenticatedAdminAnalyticsProductRoute: typeof AuthenticatedAdminAnalyticsProductRoute
+  AuthenticatedAdminAnalyticsRetentionRoute: typeof AuthenticatedAdminAnalyticsRetentionRoute
+  AuthenticatedAdminBillingCouponsRoute: typeof AuthenticatedAdminBillingCouponsRoute
+  AuthenticatedAdminBillingInvoicesRoute: typeof AuthenticatedAdminBillingInvoicesRoute
+  AuthenticatedAdminBillingPaymentsRoute: typeof AuthenticatedAdminBillingPaymentsRoute
+  AuthenticatedAdminBillingPlansRoute: typeof AuthenticatedAdminBillingPlansRoute
+  AuthenticatedAdminBillingSubscriptionsRoute: typeof AuthenticatedAdminBillingSubscriptionsRoute
+  AuthenticatedAdminBillingTaxesRoute: typeof AuthenticatedAdminBillingTaxesRoute
+  AuthenticatedAdminCmsBlogsRoute: typeof AuthenticatedAdminCmsBlogsRoute
+  AuthenticatedAdminCmsCareersRoute: typeof AuthenticatedAdminCmsCareersRoute
+  AuthenticatedAdminCmsFormsRoute: typeof AuthenticatedAdminCmsFormsRoute
+  AuthenticatedAdminCmsMediaRoute: typeof AuthenticatedAdminCmsMediaRoute
+  AuthenticatedAdminCmsPagesRoute: typeof AuthenticatedAdminCmsPagesRoute
+  AuthenticatedAdminCmsSeoRoute: typeof AuthenticatedAdminCmsSeoRoute
+  AuthenticatedAdminCustomersAccountsRoute: typeof AuthenticatedAdminCustomersAccountsRoute
+  AuthenticatedAdminCustomersCompaniesRoute: typeof AuthenticatedAdminCustomersCompaniesRoute
+  AuthenticatedAdminCustomersContactsRoute: typeof AuthenticatedAdminCustomersContactsRoute
+  AuthenticatedAdminCustomersPlansRoute: typeof AuthenticatedAdminCustomersPlansRoute
+  AuthenticatedAdminCustomersUsageRoute: typeof AuthenticatedAdminCustomersUsageRoute
+  AuthenticatedAdminDashboardAlertsRoute: typeof AuthenticatedAdminDashboardAlertsRoute
+  AuthenticatedAdminDashboardGrowthRoute: typeof AuthenticatedAdminDashboardGrowthRoute
+  AuthenticatedAdminDashboardRevenueRoute: typeof AuthenticatedAdminDashboardRevenueRoute
+  AuthenticatedAdminDashboardTrialsRoute: typeof AuthenticatedAdminDashboardTrialsRoute
+  AuthenticatedAdminIntegrationsApisRoute: typeof AuthenticatedAdminIntegrationsApisRoute
+  AuthenticatedAdminIntegrationsEmailRoute: typeof AuthenticatedAdminIntegrationsEmailRoute
+  AuthenticatedAdminIntegrationsPaymentsRoute: typeof AuthenticatedAdminIntegrationsPaymentsRoute
+  AuthenticatedAdminIntegrationsSmsRoute: typeof AuthenticatedAdminIntegrationsSmsRoute
+  AuthenticatedAdminIntegrationsWebhooksRoute: typeof AuthenticatedAdminIntegrationsWebhooksRoute
+  AuthenticatedAdminIntegrationsWhatsappRoute: typeof AuthenticatedAdminIntegrationsWhatsappRoute
+  AuthenticatedAdminLeadsFormsRoute: typeof AuthenticatedAdminLeadsFormsRoute
+  AuthenticatedAdminSupportChatRoute: typeof AuthenticatedAdminSupportChatRoute
+  AuthenticatedAdminSupportKbRoute: typeof AuthenticatedAdminSupportKbRoute
+  AuthenticatedAdminSupportSlaRoute: typeof AuthenticatedAdminSupportSlaRoute
+  AuthenticatedAdminSupportTicketsRoute: typeof AuthenticatedAdminSupportTicketsRoute
+  AuthenticatedAdminSystemAuditLogsRoute: typeof AuthenticatedAdminSystemAuditLogsRoute
+  AuthenticatedAdminSystemBackupsRoute: typeof AuthenticatedAdminSystemBackupsRoute
+  AuthenticatedAdminSystemSecurityRoute: typeof AuthenticatedAdminSystemSecurityRoute
+  AuthenticatedAdminSystemSettingsRoute: typeof AuthenticatedAdminSystemSettingsRoute
+  AuthenticatedAdminWorkforceAttendanceRoute: typeof AuthenticatedAdminWorkforceAttendanceRoute
+  AuthenticatedAdminWorkforceEmployeesRoute: typeof AuthenticatedAdminWorkforceEmployeesRoute
+  AuthenticatedAdminWorkforceHolidaysRoute: typeof AuthenticatedAdminWorkforceHolidaysRoute
+  AuthenticatedAdminWorkforceLeaveRoute: typeof AuthenticatedAdminWorkforceLeaveRoute
+  AuthenticatedAdminWorkforceOvertimeRoute: typeof AuthenticatedAdminWorkforceOvertimeRoute
+  AuthenticatedAdminWorkforceShiftsRoute: typeof AuthenticatedAdminWorkforceShiftsRoute
+  AuthenticatedAdminWorkforceTimesheetsRoute: typeof AuthenticatedAdminWorkforceTimesheetsRoute
+  AuthenticatedAdminLeadsIndexRoute: typeof AuthenticatedAdminLeadsIndexRoute
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+  AuthenticatedAdminAccessPermissionsRoute:
+    AuthenticatedAdminAccessPermissionsRoute,
+  AuthenticatedAdminAccessRolesRoute: AuthenticatedAdminAccessRolesRoute,
+  AuthenticatedAdminAccessTeamsRoute: AuthenticatedAdminAccessTeamsRoute,
+  AuthenticatedAdminAccessUsersRoute: AuthenticatedAdminAccessUsersRoute,
+  AuthenticatedAdminAnalyticsAcquisitionRoute:
+    AuthenticatedAdminAnalyticsAcquisitionRoute,
+  AuthenticatedAdminAnalyticsChurnRoute: AuthenticatedAdminAnalyticsChurnRoute,
+  AuthenticatedAdminAnalyticsFunnelsRoute:
+    AuthenticatedAdminAnalyticsFunnelsRoute,
+  AuthenticatedAdminAnalyticsProductRoute:
+    AuthenticatedAdminAnalyticsProductRoute,
+  AuthenticatedAdminAnalyticsRetentionRoute:
+    AuthenticatedAdminAnalyticsRetentionRoute,
+  AuthenticatedAdminBillingCouponsRoute: AuthenticatedAdminBillingCouponsRoute,
+  AuthenticatedAdminBillingInvoicesRoute:
+    AuthenticatedAdminBillingInvoicesRoute,
+  AuthenticatedAdminBillingPaymentsRoute:
+    AuthenticatedAdminBillingPaymentsRoute,
+  AuthenticatedAdminBillingPlansRoute: AuthenticatedAdminBillingPlansRoute,
+  AuthenticatedAdminBillingSubscriptionsRoute:
+    AuthenticatedAdminBillingSubscriptionsRoute,
+  AuthenticatedAdminBillingTaxesRoute: AuthenticatedAdminBillingTaxesRoute,
+  AuthenticatedAdminCmsBlogsRoute: AuthenticatedAdminCmsBlogsRoute,
+  AuthenticatedAdminCmsCareersRoute: AuthenticatedAdminCmsCareersRoute,
+  AuthenticatedAdminCmsFormsRoute: AuthenticatedAdminCmsFormsRoute,
+  AuthenticatedAdminCmsMediaRoute: AuthenticatedAdminCmsMediaRoute,
+  AuthenticatedAdminCmsPagesRoute: AuthenticatedAdminCmsPagesRoute,
+  AuthenticatedAdminCmsSeoRoute: AuthenticatedAdminCmsSeoRoute,
+  AuthenticatedAdminCustomersAccountsRoute:
+    AuthenticatedAdminCustomersAccountsRoute,
+  AuthenticatedAdminCustomersCompaniesRoute:
+    AuthenticatedAdminCustomersCompaniesRoute,
+  AuthenticatedAdminCustomersContactsRoute:
+    AuthenticatedAdminCustomersContactsRoute,
+  AuthenticatedAdminCustomersPlansRoute: AuthenticatedAdminCustomersPlansRoute,
+  AuthenticatedAdminCustomersUsageRoute: AuthenticatedAdminCustomersUsageRoute,
+  AuthenticatedAdminDashboardAlertsRoute:
+    AuthenticatedAdminDashboardAlertsRoute,
+  AuthenticatedAdminDashboardGrowthRoute:
+    AuthenticatedAdminDashboardGrowthRoute,
+  AuthenticatedAdminDashboardRevenueRoute:
+    AuthenticatedAdminDashboardRevenueRoute,
+  AuthenticatedAdminDashboardTrialsRoute:
+    AuthenticatedAdminDashboardTrialsRoute,
+  AuthenticatedAdminIntegrationsApisRoute:
+    AuthenticatedAdminIntegrationsApisRoute,
+  AuthenticatedAdminIntegrationsEmailRoute:
+    AuthenticatedAdminIntegrationsEmailRoute,
+  AuthenticatedAdminIntegrationsPaymentsRoute:
+    AuthenticatedAdminIntegrationsPaymentsRoute,
+  AuthenticatedAdminIntegrationsSmsRoute:
+    AuthenticatedAdminIntegrationsSmsRoute,
+  AuthenticatedAdminIntegrationsWebhooksRoute:
+    AuthenticatedAdminIntegrationsWebhooksRoute,
+  AuthenticatedAdminIntegrationsWhatsappRoute:
+    AuthenticatedAdminIntegrationsWhatsappRoute,
+  AuthenticatedAdminLeadsFormsRoute: AuthenticatedAdminLeadsFormsRoute,
+  AuthenticatedAdminSupportChatRoute: AuthenticatedAdminSupportChatRoute,
+  AuthenticatedAdminSupportKbRoute: AuthenticatedAdminSupportKbRoute,
+  AuthenticatedAdminSupportSlaRoute: AuthenticatedAdminSupportSlaRoute,
+  AuthenticatedAdminSupportTicketsRoute: AuthenticatedAdminSupportTicketsRoute,
+  AuthenticatedAdminSystemAuditLogsRoute:
+    AuthenticatedAdminSystemAuditLogsRoute,
+  AuthenticatedAdminSystemBackupsRoute: AuthenticatedAdminSystemBackupsRoute,
+  AuthenticatedAdminSystemSecurityRoute: AuthenticatedAdminSystemSecurityRoute,
+  AuthenticatedAdminSystemSettingsRoute: AuthenticatedAdminSystemSettingsRoute,
+  AuthenticatedAdminWorkforceAttendanceRoute:
+    AuthenticatedAdminWorkforceAttendanceRoute,
+  AuthenticatedAdminWorkforceEmployeesRoute:
+    AuthenticatedAdminWorkforceEmployeesRoute,
+  AuthenticatedAdminWorkforceHolidaysRoute:
+    AuthenticatedAdminWorkforceHolidaysRoute,
+  AuthenticatedAdminWorkforceLeaveRoute: AuthenticatedAdminWorkforceLeaveRoute,
+  AuthenticatedAdminWorkforceOvertimeRoute:
+    AuthenticatedAdminWorkforceOvertimeRoute,
+  AuthenticatedAdminWorkforceShiftsRoute:
+    AuthenticatedAdminWorkforceShiftsRoute,
+  AuthenticatedAdminWorkforceTimesheetsRoute:
+    AuthenticatedAdminWorkforceTimesheetsRoute,
+  AuthenticatedAdminLeadsIndexRoute: AuthenticatedAdminLeadsIndexRoute,
 }
 
 const AuthenticatedAdminRouteWithChildren =
@@ -813,3 +2007,12 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}

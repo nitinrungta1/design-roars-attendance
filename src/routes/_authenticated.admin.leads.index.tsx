@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { PlaceholderModule } from "@/components/admin/primitives";
 import { seo } from "@/lib/seo";
 
-export const Route = createFileRoute("/_authenticated/admin/leads")({
+export const Route = createFileRoute("/_authenticated/admin/leads/")({
   head: () => seo({
     title: "Leads Pipeline | Admin",
     description: "Sales pipeline: lead → demo → trial → won/lost.",
