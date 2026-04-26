@@ -6,9 +6,10 @@ import { MapPin, Smartphone, Lock, Wifi, Shield, Globe2 } from "lucide-react";
 
 export const Route = createFileRoute("/gps-attendance-app")({
   head: () => seo({
-    title: "GPS Attendance App — Location-verified check-in · Punchly",
-    description: "GPS attendance app with geo-fencing, offline punches, and accurate field tracking — without surveilling your team.",
+    title: "GPS Attendance App",
+    description: "Punchly GPS attendance app with geo-fencing, offline punches, and accurate field tracking — without surveilling your team.",
     path: "/gps-attendance-app",
+    kind: "product",
   }),
   component: () => (
     <MarketingLayout>

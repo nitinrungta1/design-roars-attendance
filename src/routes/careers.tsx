@@ -6,9 +6,10 @@ import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/careers")({
   head: () => seo({
-    title: "Careers at Punchly — Build the future of workforce management",
-    description: "Join the Punchly team. We're hiring across engineering, design, sales, and customer success — fully remote, async-first.",
+    title: "Careers",
+    description: "Join Oqlio. We're hiring across engineering, design, sales, and customer success — fully remote, async-first.",
     path: "/careers",
+    kind: "company",
   }),
   component: CareersPage,
 });

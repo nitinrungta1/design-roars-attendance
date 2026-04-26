@@ -5,9 +5,10 @@ import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/security")({
   head: () => seo({
-    title: "Security — Punchly",
-    description: "Security-first attendance software: encrypted at rest and in transit, SOC 2 controls, RBAC, audit logs.",
+    title: "Security",
+    description: "Security-first workforce software: encrypted at rest and in transit, SOC 2 controls, role-based access, audit logs.",
     path: "/security",
+    kind: "company",
   }),
   component: () => (
     <MarketingLayout>

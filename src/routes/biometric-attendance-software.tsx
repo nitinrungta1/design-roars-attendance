@@ -6,9 +6,10 @@ import { Fingerprint, ScanFace, Tablet, Lock, Shield, Zap } from "lucide-react";
 
 export const Route = createFileRoute("/biometric-attendance-software")({
   head: () => seo({
-    title: "Biometric Attendance Software — Modern alternative · Punchly",
-    description: "Replace clunky biometric devices with a modern, secure, kiosk + face-ready attendance system that integrates with payroll.",
+    title: "Biometric Attendance Software",
+    description: "Replace clunky biometric devices with Punchly — kiosk + face-ready attendance system that integrates with payroll.",
     path: "/biometric-attendance-software",
+    kind: "product",
   }),
   component: () => (
     <MarketingLayout>

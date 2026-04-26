@@ -10,45 +10,24 @@ import {
   PricingTeaser,
   CtaBanner,
 } from "@/components/home/sections";
-import { seo, SITE_NAME, SITE_URL } from "@/lib/seo";
+import { seo, PUNCHLY_SOFTWARE_JSON_LD } from "@/lib/seo";
 
 export const Route = createFileRoute("/")({
   head: () => {
     const base = seo({
-      title: "Punchly — Smart Attendance & Workforce Management Software",
+      title: "Smart attendance & workforce software",
       description:
-        "Track attendance, shifts, timesheets, overtime, and GPS check-ins from anywhere. The smartest attendance software for modern teams of 5 to 50,000.",
+        "Punchly by Oqlio — track attendance, shifts, timesheets, overtime, and GPS check-ins from anywhere. Built for teams of 5 to 50,000.",
       path: "/",
+      kind: "product",
+      fullTitle: "Punchly by Oqlio — The smartest attendance software for modern teams",
     });
     return {
       ...base,
       scripts: [
         {
           type: "application/ld+json",
-          children: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "SoftwareApplication",
-            name: SITE_NAME,
-            applicationCategory: "BusinessApplication",
-            operatingSystem: "Web, iOS, Android",
-            url: SITE_URL,
-            offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
-            aggregateRating: {
-              "@type": "AggregateRating",
-              ratingValue: "4.9",
-              reviewCount: "1284",
-            },
-          }),
-        },
-        {
-          type: "application/ld+json",
-          children: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "Organization",
-            name: SITE_NAME,
-            url: SITE_URL,
-            logo: `${SITE_URL}/logo.png`,
-          }),
+          children: JSON.stringify(PUNCHLY_SOFTWARE_JSON_LD),
         },
       ],
     };

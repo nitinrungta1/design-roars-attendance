@@ -4,12 +4,11 @@ import { Github, Linkedin, Twitter } from "lucide-react";
 
 const cols: { title: string; links: { to: string; label: string }[] }[] = [
   {
-    title: "Product",
+    title: "Products",
     links: [
-      { to: "/features", label: "Features" },
+      { to: "/features", label: "Punchly — Attendance" },
+      { to: "/mobile-app", label: "Punchly Mobile" },
       { to: "/pricing", label: "Pricing" },
-      { to: "/mobile-app", label: "Mobile App" },
-      { to: "/industries", label: "Industries" },
       { to: "/demo", label: "Book a Demo" },
     ],
   },
@@ -25,12 +24,13 @@ const cols: { title: string; links: { to: string; label: string }[] }[] = [
       { to: "/overtime-management-system", label: "Overtime" },
       { to: "/employee-check-in-app", label: "Check-In App" },
       { to: "/payroll-attendance-integration", label: "Payroll Integration" },
+      { to: "/industries", label: "Industries" },
     ],
   },
   {
     title: "Company",
     links: [
-      { to: "/about", label: "About" },
+      { to: "/about", label: "About Oqlio" },
       { to: "/blog", label: "Blog" },
       { to: "/careers", label: "Careers" },
       { to: "/contact", label: "Contact" },
@@ -57,8 +57,8 @@ export function MarketingFooter() {
           <div className="col-span-2">
             <Logo />
             <p className="mt-4 max-w-xs text-sm text-muted-foreground">
-              The smartest attendance & workforce management software for modern teams.
-              Track, manage, and pay — from anywhere.
+              Oqlio builds workforce software people love. <strong className="text-foreground">Punchly</strong>{" "}
+              is our attendance & time-tracking platform for modern teams.
             </p>
             <div className="mt-6 flex gap-3 text-muted-foreground">
               <a href="#" aria-label="Twitter" className="hover:text-foreground">
@@ -91,7 +91,7 @@ export function MarketingFooter() {
           ))}
         </div>
         <div className="mt-12 flex flex-col items-start justify-between gap-4 border-t border-border pt-6 text-xs text-muted-foreground sm:flex-row sm:items-center">
-          <p>© {new Date().getFullYear()} Punchly. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Oqlio. Punchly is a product of Oqlio.</p>
           <p className="flex items-center gap-2">
             <span className="inline-block h-2 w-2 rounded-full bg-success" />
             All systems operational · 99.99% uptime

@@ -7,9 +7,10 @@ import { Mail, MessageSquare, Phone } from "lucide-react";
 
 export const Route = createFileRoute("/contact")({
   head: () => seo({
-    title: "Contact Punchly — Talk to our team",
-    description: "Get in touch with the Punchly team. Sales, support, partnerships — we usually reply within one business day.",
+    title: "Contact",
+    description: "Get in touch with the Oqlio team. Sales, support, partnerships — we usually reply within one business day.",
     path: "/contact",
+    kind: "company",
   }),
   component: ContactPage,
 });
@@ -33,7 +34,7 @@ function ContactPage() {
           <div className="grid gap-10 lg:grid-cols-[1fr_1fr]">
             <div className="space-y-6">
               {[
-                { icon: Mail, t: "Email", d: "hello@punchly.app" },
+                { icon: Mail, t: "Email", d: "hello@oqlio.com" },
                 { icon: MessageSquare, t: "Live chat", d: "9am – 9pm IST, weekdays" },
                 { icon: Phone, t: "Phone", d: "+1 (415) 555-0142" },
               ].map((c) => (

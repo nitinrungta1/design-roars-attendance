@@ -6,9 +6,10 @@ import { ClipboardList, Calendar, Lock, FileSpreadsheet, Users, Briefcase } from
 
 export const Route = createFileRoute("/employee-timesheet-software")({
   head: () => seo({
-    title: "Employee Timesheet Software — Simple & payroll-ready · Punchly",
-    description: "Modern employee timesheet software. Lock after submit, admin edits with audit trail, billable tracking, and payroll exports.",
+    title: "Employee Timesheet Software",
+    description: "Modern employee timesheet software from Punchly. Lock after submit, audit trails, billable tracking, payroll exports.",
     path: "/employee-timesheet-software",
+    kind: "product",
   }),
   component: () => (
     <MarketingLayout>

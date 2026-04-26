@@ -5,9 +5,10 @@ import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/terms")({
   head: () => seo({
-    title: "Terms of Service — Punchly",
-    description: "Fair-use terms for using the Punchly platform.",
+    title: "Terms of Service",
+    description: "Fair-use terms for using Oqlio products including Punchly.",
     path: "/terms",
+    kind: "company",
   }),
   component: () => (
     <MarketingLayout>
@@ -16,7 +17,7 @@ export const Route = createFileRoute("/terms")({
           <h1 className="text-4xl font-bold tracking-tight">Terms of Service</h1>
           <p className="mt-6 text-lg leading-relaxed text-muted-foreground">
             By using Punchly you agree to fair-use, no abuse, and pay-as-you-go billing terms.
-            Full legal terms available on request to legal@punchly.app.
+            Full legal terms available on request to legal@oqlio.com.
           </p>
           <p className="mt-8 text-sm text-muted-foreground">Last updated: April 2026</p>
         </Container>

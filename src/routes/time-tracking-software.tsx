@@ -6,9 +6,10 @@ import { Clock, ClipboardList, Calendar, BarChart3, Briefcase, FileSpreadsheet }
 
 export const Route = createFileRoute("/time-tracking-software")({
   head: () => seo({
-    title: "Time Tracking Software — Accurate, simple, payroll-ready · Punchly",
-    description: "Time tracking software built for modern teams. Hourly logging, billable hours, project tracking, and one-click payroll exports.",
+    title: "Time Tracking Software",
+    description: "Punchly time tracking — built for modern teams. Hourly logging, billable hours, project tracking, and one-click payroll exports.",
     path: "/time-tracking-software",
+    kind: "product",
   }),
   component: () => (
     <MarketingLayout>
