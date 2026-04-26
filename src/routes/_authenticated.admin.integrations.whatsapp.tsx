@@ -1,20 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { PlaceholderModule } from "@/components/admin/primitives";
+import { IntegrationModule } from "@/components/admin/integration-module";
 import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/_authenticated/admin/integrations/whatsapp")({
-  head: () => seo({
-    title: "WhatsApp Integration | Admin",
-    description: "WhatsApp Cloud API.",
-    kind: "product",
-    path: "/admin/integrations/whatsapp",
-    noindex: true,
-  }),
+  head: () => seo({ title: "WhatsApp integrations | Admin", description: "Cloud API & WhatsApp BSPs.", kind: "product", path: "/admin/integrations/whatsapp", noindex: true }),
   component: () => (
-    <PlaceholderModule
-      title="WhatsApp Integration"
-      description="WhatsApp Cloud API."
-      shippedIn="Batch 9"
-    />
+    <IntegrationModule kind="whatsapp" eyebrow="Integrations" title="WhatsApp" description="Connect WhatsApp Cloud API or a BSP for templated employee notifications."
+      breadcrumbLabel="WhatsApp" emptyHint="Add a WhatsApp Business connection to enable shift reminders & approvals on chat." />
   ),
 });
