@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      api_keys: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          is_active: boolean
+          key_hash: string
+          label: string
+          last_used_at: string | null
+          prefix: string
+          revoked_at: string | null
+          scopes: string[]
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          key_hash: string
+          label: string
+          last_used_at?: string | null
+          prefix: string
+          revoked_at?: string | null
+          scopes?: string[]
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          key_hash?: string
+          label?: string
+          last_used_at?: string | null
+          prefix?: string
+          revoked_at?: string | null
+          scopes?: string[]
+        }
+        Relationships: []
+      }
       attendance_logs: {
         Row: {
           check_in_at: string | null
@@ -145,6 +184,135 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      blog_posts: {
+        Row: {
+          author_id: string | null
+          body: string | null
+          category: string | null
+          cover_url: string | null
+          created_at: string
+          excerpt: string | null
+          id: string
+          published_at: string | null
+          seo_description: string | null
+          seo_title: string | null
+          slug: string
+          status: Database["public"]["Enums"]["post_status"]
+          tags: string[]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author_id?: string | null
+          body?: string | null
+          category?: string | null
+          cover_url?: string | null
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          published_at?: string | null
+          seo_description?: string | null
+          seo_title?: string | null
+          slug: string
+          status?: Database["public"]["Enums"]["post_status"]
+          tags?: string[]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string | null
+          body?: string | null
+          category?: string | null
+          cover_url?: string | null
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          published_at?: string | null
+          seo_description?: string | null
+          seo_title?: string | null
+          slug?: string
+          status?: Database["public"]["Enums"]["post_status"]
+          tags?: string[]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      cms_media: {
+        Row: {
+          alt_text: string | null
+          created_at: string
+          file_name: string
+          id: string
+          mime_type: string | null
+          size_bytes: number
+          uploaded_by: string | null
+          url: string
+        }
+        Insert: {
+          alt_text?: string | null
+          created_at?: string
+          file_name: string
+          id?: string
+          mime_type?: string | null
+          size_bytes?: number
+          uploaded_by?: string | null
+          url: string
+        }
+        Update: {
+          alt_text?: string | null
+          created_at?: string
+          file_name?: string
+          id?: string
+          mime_type?: string | null
+          size_bytes?: number
+          uploaded_by?: string | null
+          url?: string
+        }
+        Relationships: []
+      }
+      cms_pages: {
+        Row: {
+          body: string | null
+          created_at: string
+          id: string
+          noindex: boolean
+          published_at: string | null
+          seo_description: string | null
+          seo_title: string | null
+          slug: string
+          status: Database["public"]["Enums"]["post_status"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          noindex?: boolean
+          published_at?: string | null
+          seo_description?: string | null
+          seo_title?: string | null
+          slug: string
+          status?: Database["public"]["Enums"]["post_status"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          noindex?: boolean
+          published_at?: string | null
+          seo_description?: string | null
+          seo_title?: string | null
+          slug?: string
+          status?: Database["public"]["Enums"]["post_status"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       companies: {
         Row: {
@@ -581,6 +749,41 @@ export type Database = {
           },
         ]
       }
+      form_submissions: {
+        Row: {
+          created_at: string
+          form_id: string | null
+          id: string
+          ip: string | null
+          payload: Json
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          form_id?: string | null
+          id?: string
+          ip?: string | null
+          payload?: Json
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          form_id?: string | null
+          id?: string
+          ip?: string | null
+          payload?: Json
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "form_submissions_form_id_fkey"
+            columns: ["form_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_forms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       holidays: {
         Row: {
           company_id: string
@@ -621,6 +824,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      integrations: {
+        Row: {
+          config: Json
+          created_at: string
+          id: string
+          is_enabled: boolean
+          kind: Database["public"]["Enums"]["integration_kind"]
+          label: string | null
+          last_synced_at: string | null
+          provider: string
+          updated_at: string
+        }
+        Insert: {
+          config?: Json
+          created_at?: string
+          id?: string
+          is_enabled?: boolean
+          kind: Database["public"]["Enums"]["integration_kind"]
+          label?: string | null
+          last_synced_at?: string | null
+          provider: string
+          updated_at?: string
+        }
+        Update: {
+          config?: Json
+          created_at?: string
+          id?: string
+          is_enabled?: boolean
+          kind?: Database["public"]["Enums"]["integration_kind"]
+          label?: string | null
+          last_synced_at?: string | null
+          provider?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       invoices: {
         Row: {
@@ -705,6 +944,51 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      kb_articles: {
+        Row: {
+          author_id: string | null
+          body: string | null
+          category: string | null
+          created_at: string
+          excerpt: string | null
+          id: string
+          published_at: string | null
+          slug: string
+          status: Database["public"]["Enums"]["post_status"]
+          title: string
+          updated_at: string
+          view_count: number
+        }
+        Insert: {
+          author_id?: string | null
+          body?: string | null
+          category?: string | null
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          published_at?: string | null
+          slug: string
+          status?: Database["public"]["Enums"]["post_status"]
+          title: string
+          updated_at?: string
+          view_count?: number
+        }
+        Update: {
+          author_id?: string | null
+          body?: string | null
+          category?: string | null
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          published_at?: string | null
+          slug?: string
+          status?: Database["public"]["Enums"]["post_status"]
+          title?: string
+          updated_at?: string
+          view_count?: number
+        }
+        Relationships: []
       }
       leads: {
         Row: {
@@ -939,6 +1223,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      marketing_forms: {
+        Row: {
+          created_at: string
+          description: string | null
+          fields: Json
+          id: string
+          is_active: boolean
+          name: string
+          slug: string
+          submission_count: number
+          target_email: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          fields?: Json
+          id?: string
+          is_active?: boolean
+          name: string
+          slug: string
+          submission_count?: number
+          target_email?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          fields?: Json
+          id?: string
+          is_active?: boolean
+          name?: string
+          slug?: string
+          submission_count?: number
+          target_email?: string | null
+          updated_at?: string
+        }
+        Relationships: []
       }
       notifications: {
         Row: {
@@ -1208,6 +1531,42 @@ export type Database = {
           },
         ]
       }
+      seo_settings: {
+        Row: {
+          default_description: string | null
+          default_og_image: string | null
+          id: string
+          redirects: Json
+          robots_txt: string | null
+          scope: string
+          sitemap_enabled: boolean
+          title_template: string
+          updated_at: string
+        }
+        Insert: {
+          default_description?: string | null
+          default_og_image?: string | null
+          id?: string
+          redirects?: Json
+          robots_txt?: string | null
+          scope?: string
+          sitemap_enabled?: boolean
+          title_template?: string
+          updated_at?: string
+        }
+        Update: {
+          default_description?: string | null
+          default_og_image?: string | null
+          id?: string
+          redirects?: Json
+          robots_txt?: string | null
+          scope?: string
+          sitemap_enabled?: boolean
+          title_template?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       shift_assignments: {
         Row: {
           company_id: string
@@ -1310,6 +1669,39 @@ export type Database = {
           },
         ]
       }
+      sla_policies: {
+        Row: {
+          created_at: string
+          first_response_minutes: number
+          id: string
+          is_active: boolean
+          name: string
+          priority: Database["public"]["Enums"]["ticket_priority"]
+          resolution_minutes: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          first_response_minutes?: number
+          id?: string
+          is_active?: boolean
+          name: string
+          priority: Database["public"]["Enums"]["ticket_priority"]
+          resolution_minutes?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          first_response_minutes?: number
+          id?: string
+          is_active?: boolean
+          name?: string
+          priority?: Database["public"]["Enums"]["ticket_priority"]
+          resolution_minutes?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       subscribers: {
         Row: {
           created_at: string
@@ -1406,6 +1798,63 @@ export type Database = {
           },
         ]
       }
+      support_tickets: {
+        Row: {
+          assigned_to: string | null
+          body: string | null
+          channel: Database["public"]["Enums"]["ticket_channel"]
+          company_id: string | null
+          created_at: string
+          first_response_at: string | null
+          id: string
+          metadata: Json
+          priority: Database["public"]["Enums"]["ticket_priority"]
+          requester_email: string
+          requester_name: string | null
+          resolved_at: string | null
+          sla_due_at: string | null
+          status: Database["public"]["Enums"]["ticket_status"]
+          subject: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          body?: string | null
+          channel?: Database["public"]["Enums"]["ticket_channel"]
+          company_id?: string | null
+          created_at?: string
+          first_response_at?: string | null
+          id?: string
+          metadata?: Json
+          priority?: Database["public"]["Enums"]["ticket_priority"]
+          requester_email: string
+          requester_name?: string | null
+          resolved_at?: string | null
+          sla_due_at?: string | null
+          status?: Database["public"]["Enums"]["ticket_status"]
+          subject: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          body?: string | null
+          channel?: Database["public"]["Enums"]["ticket_channel"]
+          company_id?: string | null
+          created_at?: string
+          first_response_at?: string | null
+          id?: string
+          metadata?: Json
+          priority?: Database["public"]["Enums"]["ticket_priority"]
+          requester_email?: string
+          requester_name?: string | null
+          resolved_at?: string | null
+          sla_due_at?: string | null
+          status?: Database["public"]["Enums"]["ticket_status"]
+          subject?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       tax_rates: {
         Row: {
           country: string | null
@@ -1441,6 +1890,44 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      ticket_messages: {
+        Row: {
+          author_id: string | null
+          author_name: string | null
+          body: string
+          created_at: string
+          id: string
+          is_internal: boolean
+          ticket_id: string
+        }
+        Insert: {
+          author_id?: string | null
+          author_name?: string | null
+          body: string
+          created_at?: string
+          id?: string
+          is_internal?: boolean
+          ticket_id: string
+        }
+        Update: {
+          author_id?: string | null
+          author_name?: string | null
+          body?: string
+          created_at?: string
+          id?: string
+          is_internal?: boolean
+          ticket_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ticket_messages_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "support_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       timesheets: {
         Row: {
@@ -1582,6 +2069,45 @@ export type Database = {
         }
         Relationships: []
       }
+      webhook_endpoints: {
+        Row: {
+          created_at: string
+          events: string[]
+          id: string
+          is_active: boolean
+          label: string
+          last_called_at: string | null
+          last_status: number | null
+          secret: string | null
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          events?: string[]
+          id?: string
+          is_active?: boolean
+          label: string
+          last_called_at?: string | null
+          last_status?: number | null
+          secret?: string | null
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          created_at?: string
+          events?: string[]
+          id?: string
+          is_active?: boolean
+          label?: string
+          last_called_at?: string | null
+          last_status?: number | null
+          secret?: string | null
+          updated_at?: string
+          url?: string
+        }
+        Relationships: []
+      }
       work_locations: {
         Row: {
           address: string | null
@@ -1694,6 +2220,15 @@ export type Database = {
         | "contract"
         | "intern"
         | "consultant"
+      integration_kind:
+        | "payment"
+        | "email"
+        | "sms"
+        | "whatsapp"
+        | "webhook"
+        | "api"
+        | "storage"
+        | "analytics"
       invoice_status: "draft" | "open" | "paid" | "void" | "uncollectible"
       lead_status:
         | "new"
@@ -1708,6 +2243,7 @@ export type Database = {
       payment_provider: "stripe" | "razorpay" | "paypal" | "manual" | "none"
       payment_status: "pending" | "succeeded" | "failed" | "refunded"
       plan_tier: "free" | "starter" | "growth" | "business" | "enterprise"
+      post_status: "draft" | "scheduled" | "published" | "archived"
       subscription_status:
         | "trialing"
         | "active"
@@ -1715,6 +2251,9 @@ export type Database = {
         | "canceled"
         | "paused"
         | "incomplete"
+      ticket_channel: "email" | "chat" | "portal" | "api" | "whatsapp"
+      ticket_priority: "low" | "normal" | "high" | "urgent"
+      ticket_status: "open" | "pending" | "resolved" | "closed"
       timesheet_status:
         | "draft"
         | "submitted"
@@ -1895,6 +2434,16 @@ export const Constants = {
         "intern",
         "consultant",
       ],
+      integration_kind: [
+        "payment",
+        "email",
+        "sms",
+        "whatsapp",
+        "webhook",
+        "api",
+        "storage",
+        "analytics",
+      ],
       invoice_status: ["draft", "open", "paid", "void", "uncollectible"],
       lead_status: [
         "new",
@@ -1910,6 +2459,7 @@ export const Constants = {
       payment_provider: ["stripe", "razorpay", "paypal", "manual", "none"],
       payment_status: ["pending", "succeeded", "failed", "refunded"],
       plan_tier: ["free", "starter", "growth", "business", "enterprise"],
+      post_status: ["draft", "scheduled", "published", "archived"],
       subscription_status: [
         "trialing",
         "active",
@@ -1918,6 +2468,9 @@ export const Constants = {
         "paused",
         "incomplete",
       ],
+      ticket_channel: ["email", "chat", "portal", "api", "whatsapp"],
+      ticket_priority: ["low", "normal", "high", "urgent"],
+      ticket_status: ["open", "pending", "resolved", "closed"],
       timesheet_status: [
         "draft",
         "submitted",
