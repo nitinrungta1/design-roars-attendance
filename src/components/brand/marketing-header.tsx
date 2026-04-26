@@ -62,10 +62,10 @@ export function MarketingHeader() {
         </nav>
         <div className="hidden items-center gap-2 lg:flex">
           <Button variant="ghost" asChild size="sm">
-            <Link to="/demo">Book demo</Link>
+            <Link to="/login">Sign in</Link>
           </Button>
           <Button asChild size="sm" className="bg-gradient-brand text-primary-foreground hover:opacity-90">
-            <Link to="/demo">Start free trial</Link>
+            <Link to="/signup">Start free trial</Link>
           </Button>
         </div>
         <button
@@ -91,10 +91,10 @@ export function MarketingHeader() {
             ))}
             <div className="flex gap-2 pt-2">
               <Button asChild variant="outline" className="flex-1">
-                <Link to="/demo" onClick={() => setOpen(false)}>Book demo</Link>
+                <Link to="/login" onClick={() => setOpen(false)}>Sign in</Link>
               </Button>
               <Button asChild className="flex-1 bg-gradient-brand text-primary-foreground">
-                <Link to="/demo" onClick={() => setOpen(false)}>Start free</Link>
+                <Link to="/signup" onClick={() => setOpen(false)}>Start free</Link>
               </Button>
             </div>
           </div>

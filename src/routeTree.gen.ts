@@ -12,19 +12,23 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TimeTrackingSoftwareRouteImport } from './routes/time-tracking-software'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as SignupRouteImport } from './routes/signup'
 import { Route as ShiftManagementSoftwareRouteImport } from './routes/shift-management-software'
 import { Route as SecurityRouteImport } from './routes/security'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as RefundPolicyRouteImport } from './routes/refund-policy'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PayrollAttendanceIntegrationRouteImport } from './routes/payroll-attendance-integration'
 import { Route as OvertimeManagementSystemRouteImport } from './routes/overtime-management-system'
 import { Route as MobileAppRouteImport } from './routes/mobile-app'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndustriesRouteImport } from './routes/industries'
 import { Route as HelpRouteImport } from './routes/help'
 import { Route as GpsAttendanceAppRouteImport } from './routes/gps-attendance-app'
 import { Route as GdprRouteImport } from './routes/gdpr'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as FeaturesRouteImport } from './routes/features'
 import { Route as EmployeeTimesheetSoftwareRouteImport } from './routes/employee-timesheet-software'
 import { Route as EmployeeCheckInAppRouteImport } from './routes/employee-check-in-app'
@@ -33,10 +37,14 @@ import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CareersRouteImport } from './routes/careers'
 import { Route as BlogRouteImport } from './routes/blog'
 import { Route as BiometricAttendanceSoftwareRouteImport } from './routes/biometric-attendance-software'
+import { Route as AuthCallbackRouteImport } from './routes/auth-callback'
 import { Route as AttendanceManagementSystemRouteImport } from './routes/attendance-management-system'
 import { Route as AttendanceAppIndiaRouteImport } from './routes/attendance-app-india'
 import { Route as AboutRouteImport } from './routes/about'
+import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated.admin'
+import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated.admin.index'
 
 const TimeTrackingSoftwareRoute = TimeTrackingSoftwareRouteImport.update({
   id: '/time-tracking-software',
@@ -53,6 +61,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SignupRoute = SignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ShiftManagementSoftwareRoute = ShiftManagementSoftwareRouteImport.update({
   id: '/shift-management-software',
   path: '/shift-management-software',
@@ -66,6 +79,11 @@ const SecurityRoute = SecurityRouteImport.update({
 const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
   id: '/robots.txt',
   path: '/robots.txt',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RefundPolicyRoute = RefundPolicyRouteImport.update({
@@ -100,6 +118,11 @@ const MobileAppRoute = MobileAppRouteImport.update({
   path: '/mobile-app',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndustriesRoute = IndustriesRouteImport.update({
   id: '/industries',
   path: '/industries',
@@ -118,6 +141,11 @@ const GpsAttendanceAppRoute = GpsAttendanceAppRouteImport.update({
 const GdprRoute = GdprRouteImport.update({
   id: '/gdpr',
   path: '/gdpr',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FeaturesRoute = FeaturesRouteImport.update({
@@ -162,6 +190,11 @@ const BiometricAttendanceSoftwareRoute =
     path: '/biometric-attendance-software',
     getParentRoute: () => rootRouteImport,
   } as any)
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/auth-callback',
+  path: '/auth-callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AttendanceManagementSystemRoute =
   AttendanceManagementSystemRouteImport.update({
     id: '/attendance-management-system',
@@ -178,10 +211,24 @@ const AboutRoute = AboutRouteImport.update({
   path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRoute = AuthenticatedRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -189,6 +236,7 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/attendance-app-india': typeof AttendanceAppIndiaRoute
   '/attendance-management-system': typeof AttendanceManagementSystemRoute
+  '/auth-callback': typeof AuthCallbackRoute
   '/biometric-attendance-software': typeof BiometricAttendanceSoftwareRoute
   '/blog': typeof BlogRoute
   '/careers': typeof CareersRoute
@@ -197,28 +245,35 @@ export interface FileRoutesByFullPath {
   '/employee-check-in-app': typeof EmployeeCheckInAppRoute
   '/employee-timesheet-software': typeof EmployeeTimesheetSoftwareRoute
   '/features': typeof FeaturesRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/gdpr': typeof GdprRoute
   '/gps-attendance-app': typeof GpsAttendanceAppRoute
   '/help': typeof HelpRoute
   '/industries': typeof IndustriesRoute
+  '/login': typeof LoginRoute
   '/mobile-app': typeof MobileAppRoute
   '/overtime-management-system': typeof OvertimeManagementSystemRoute
   '/payroll-attendance-integration': typeof PayrollAttendanceIntegrationRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/refund-policy': typeof RefundPolicyRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/security': typeof SecurityRoute
   '/shift-management-software': typeof ShiftManagementSoftwareRoute
+  '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/time-tracking-software': typeof TimeTrackingSoftwareRoute
+  '/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/admin/': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/attendance-app-india': typeof AttendanceAppIndiaRoute
   '/attendance-management-system': typeof AttendanceManagementSystemRoute
+  '/auth-callback': typeof AuthCallbackRoute
   '/biometric-attendance-software': typeof BiometricAttendanceSoftwareRoute
   '/blog': typeof BlogRoute
   '/careers': typeof CareersRoute
@@ -227,29 +282,36 @@ export interface FileRoutesByTo {
   '/employee-check-in-app': typeof EmployeeCheckInAppRoute
   '/employee-timesheet-software': typeof EmployeeTimesheetSoftwareRoute
   '/features': typeof FeaturesRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/gdpr': typeof GdprRoute
   '/gps-attendance-app': typeof GpsAttendanceAppRoute
   '/help': typeof HelpRoute
   '/industries': typeof IndustriesRoute
+  '/login': typeof LoginRoute
   '/mobile-app': typeof MobileAppRoute
   '/overtime-management-system': typeof OvertimeManagementSystemRoute
   '/payroll-attendance-integration': typeof PayrollAttendanceIntegrationRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/refund-policy': typeof RefundPolicyRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/security': typeof SecurityRoute
   '/shift-management-software': typeof ShiftManagementSoftwareRoute
+  '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/time-tracking-software': typeof TimeTrackingSoftwareRoute
+  '/admin': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/about': typeof AboutRoute
   '/attendance-app-india': typeof AttendanceAppIndiaRoute
   '/attendance-management-system': typeof AttendanceManagementSystemRoute
+  '/auth-callback': typeof AuthCallbackRoute
   '/biometric-attendance-software': typeof BiometricAttendanceSoftwareRoute
   '/blog': typeof BlogRoute
   '/careers': typeof CareersRoute
@@ -258,22 +320,28 @@ export interface FileRoutesById {
   '/employee-check-in-app': typeof EmployeeCheckInAppRoute
   '/employee-timesheet-software': typeof EmployeeTimesheetSoftwareRoute
   '/features': typeof FeaturesRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/gdpr': typeof GdprRoute
   '/gps-attendance-app': typeof GpsAttendanceAppRoute
   '/help': typeof HelpRoute
   '/industries': typeof IndustriesRoute
+  '/login': typeof LoginRoute
   '/mobile-app': typeof MobileAppRoute
   '/overtime-management-system': typeof OvertimeManagementSystemRoute
   '/payroll-attendance-integration': typeof PayrollAttendanceIntegrationRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/refund-policy': typeof RefundPolicyRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/security': typeof SecurityRoute
   '/shift-management-software': typeof ShiftManagementSoftwareRoute
+  '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/time-tracking-software': typeof TimeTrackingSoftwareRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -282,6 +350,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/attendance-app-india'
     | '/attendance-management-system'
+    | '/auth-callback'
     | '/biometric-attendance-software'
     | '/blog'
     | '/careers'
@@ -290,28 +359,35 @@ export interface FileRouteTypes {
     | '/employee-check-in-app'
     | '/employee-timesheet-software'
     | '/features'
+    | '/forgot-password'
     | '/gdpr'
     | '/gps-attendance-app'
     | '/help'
     | '/industries'
+    | '/login'
     | '/mobile-app'
     | '/overtime-management-system'
     | '/payroll-attendance-integration'
     | '/pricing'
     | '/privacy'
     | '/refund-policy'
+    | '/reset-password'
     | '/robots.txt'
     | '/security'
     | '/shift-management-software'
+    | '/signup'
     | '/sitemap.xml'
     | '/terms'
     | '/time-tracking-software'
+    | '/admin'
+    | '/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/about'
     | '/attendance-app-india'
     | '/attendance-management-system'
+    | '/auth-callback'
     | '/biometric-attendance-software'
     | '/blog'
     | '/careers'
@@ -320,28 +396,35 @@ export interface FileRouteTypes {
     | '/employee-check-in-app'
     | '/employee-timesheet-software'
     | '/features'
+    | '/forgot-password'
     | '/gdpr'
     | '/gps-attendance-app'
     | '/help'
     | '/industries'
+    | '/login'
     | '/mobile-app'
     | '/overtime-management-system'
     | '/payroll-attendance-integration'
     | '/pricing'
     | '/privacy'
     | '/refund-policy'
+    | '/reset-password'
     | '/robots.txt'
     | '/security'
     | '/shift-management-software'
+    | '/signup'
     | '/sitemap.xml'
     | '/terms'
     | '/time-tracking-software'
+    | '/admin'
   id:
     | '__root__'
     | '/'
+    | '/_authenticated'
     | '/about'
     | '/attendance-app-india'
     | '/attendance-management-system'
+    | '/auth-callback'
     | '/biometric-attendance-software'
     | '/blog'
     | '/careers'
@@ -350,29 +433,37 @@ export interface FileRouteTypes {
     | '/employee-check-in-app'
     | '/employee-timesheet-software'
     | '/features'
+    | '/forgot-password'
     | '/gdpr'
     | '/gps-attendance-app'
     | '/help'
     | '/industries'
+    | '/login'
     | '/mobile-app'
     | '/overtime-management-system'
     | '/payroll-attendance-integration'
     | '/pricing'
     | '/privacy'
     | '/refund-policy'
+    | '/reset-password'
     | '/robots.txt'
     | '/security'
     | '/shift-management-software'
+    | '/signup'
     | '/sitemap.xml'
     | '/terms'
     | '/time-tracking-software'
+    | '/_authenticated/admin'
+    | '/_authenticated/admin/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   AboutRoute: typeof AboutRoute
   AttendanceAppIndiaRoute: typeof AttendanceAppIndiaRoute
   AttendanceManagementSystemRoute: typeof AttendanceManagementSystemRoute
+  AuthCallbackRoute: typeof AuthCallbackRoute
   BiometricAttendanceSoftwareRoute: typeof BiometricAttendanceSoftwareRoute
   BlogRoute: typeof BlogRoute
   CareersRoute: typeof CareersRoute
@@ -381,19 +472,23 @@ export interface RootRouteChildren {
   EmployeeCheckInAppRoute: typeof EmployeeCheckInAppRoute
   EmployeeTimesheetSoftwareRoute: typeof EmployeeTimesheetSoftwareRoute
   FeaturesRoute: typeof FeaturesRoute
+  ForgotPasswordRoute: typeof ForgotPasswordRoute
   GdprRoute: typeof GdprRoute
   GpsAttendanceAppRoute: typeof GpsAttendanceAppRoute
   HelpRoute: typeof HelpRoute
   IndustriesRoute: typeof IndustriesRoute
+  LoginRoute: typeof LoginRoute
   MobileAppRoute: typeof MobileAppRoute
   OvertimeManagementSystemRoute: typeof OvertimeManagementSystemRoute
   PayrollAttendanceIntegrationRoute: typeof PayrollAttendanceIntegrationRoute
   PricingRoute: typeof PricingRoute
   PrivacyRoute: typeof PrivacyRoute
   RefundPolicyRoute: typeof RefundPolicyRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
   SecurityRoute: typeof SecurityRoute
   ShiftManagementSoftwareRoute: typeof ShiftManagementSoftwareRoute
+  SignupRoute: typeof SignupRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
   TimeTrackingSoftwareRoute: typeof TimeTrackingSoftwareRoute
@@ -422,6 +517,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/shift-management-software': {
       id: '/shift-management-software'
       path: '/shift-management-software'
@@ -441,6 +543,13 @@ declare module '@tanstack/react-router' {
       path: '/robots.txt'
       fullPath: '/robots.txt'
       preLoaderRoute: typeof RobotsDottxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/refund-policy': {
@@ -485,6 +594,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MobileAppRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/industries': {
       id: '/industries'
       path: '/industries'
@@ -511,6 +627,13 @@ declare module '@tanstack/react-router' {
       path: '/gdpr'
       fullPath: '/gdpr'
       preLoaderRoute: typeof GdprRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/features': {
@@ -569,6 +692,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BiometricAttendanceSoftwareRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth-callback': {
+      id: '/auth-callback'
+      path: '/auth-callback'
+      fullPath: '/auth-callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/attendance-management-system': {
       id: '/attendance-management-system'
       path: '/attendance-management-system'
@@ -590,6 +720,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -597,14 +734,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/admin/': {
+      id: '/_authenticated/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
   }
 }
 
+interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+}
+
+const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+}
+
+const AuthenticatedAdminRouteWithChildren =
+  AuthenticatedAdminRoute._addFileChildren(AuthenticatedAdminRouteChildren)
+
+interface AuthenticatedRouteChildren {
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
+}
+
+const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
+}
+
+const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
+  AuthenticatedRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRoute: AuthenticatedRouteWithChildren,
   AboutRoute: AboutRoute,
   AttendanceAppIndiaRoute: AttendanceAppIndiaRoute,
   AttendanceManagementSystemRoute: AttendanceManagementSystemRoute,
+  AuthCallbackRoute: AuthCallbackRoute,
   BiometricAttendanceSoftwareRoute: BiometricAttendanceSoftwareRoute,
   BlogRoute: BlogRoute,
   CareersRoute: CareersRoute,
@@ -613,19 +789,23 @@ const rootRouteChildren: RootRouteChildren = {
   EmployeeCheckInAppRoute: EmployeeCheckInAppRoute,
   EmployeeTimesheetSoftwareRoute: EmployeeTimesheetSoftwareRoute,
   FeaturesRoute: FeaturesRoute,
+  ForgotPasswordRoute: ForgotPasswordRoute,
   GdprRoute: GdprRoute,
   GpsAttendanceAppRoute: GpsAttendanceAppRoute,
   HelpRoute: HelpRoute,
   IndustriesRoute: IndustriesRoute,
+  LoginRoute: LoginRoute,
   MobileAppRoute: MobileAppRoute,
   OvertimeManagementSystemRoute: OvertimeManagementSystemRoute,
   PayrollAttendanceIntegrationRoute: PayrollAttendanceIntegrationRoute,
   PricingRoute: PricingRoute,
   PrivacyRoute: PrivacyRoute,
   RefundPolicyRoute: RefundPolicyRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
   SecurityRoute: SecurityRoute,
   ShiftManagementSoftwareRoute: ShiftManagementSoftwareRoute,
+  SignupRoute: SignupRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
   TimeTrackingSoftwareRoute: TimeTrackingSoftwareRoute,
