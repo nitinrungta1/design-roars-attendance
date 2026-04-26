@@ -7,9 +7,10 @@ import { Search } from "lucide-react";
 
 export const Route = createFileRoute("/help")({
   head: () => seo({
-    title: "Help Center — Punchly",
+    title: "Help Center",
     description: "Guides, FAQs, and onboarding videos to get the most out of Punchly.",
     path: "/help",
+    kind: "company",
   }),
   component: HelpPage,
 });

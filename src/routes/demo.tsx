@@ -7,9 +7,10 @@ import { Check } from "lucide-react";
 
 export const Route = createFileRoute("/demo")({
   head: () => seo({
-    title: "Book a Demo — See Punchly live · Punchly",
-    description: "Book a personalized 30-minute demo. See GPS check-in, kiosk mode, timesheets, and payroll integrations in action — tailored to your team.",
+    title: "Book a Demo",
+    description: "Book a personalized 30-minute demo of Punchly. See GPS check-in, kiosk mode, timesheets, and payroll integrations live.",
     path: "/demo",
+    kind: "product",
   }),
   component: DemoPage,
 });

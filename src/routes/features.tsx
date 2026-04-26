@@ -12,9 +12,10 @@ import {
 
 export const Route = createFileRoute("/features")({
   head: () => seo({
-    title: "Features — Punchly Attendance & Workforce Software",
+    title: "Features",
     description: "Explore every Punchly feature: GPS check-in, kiosk mode, timesheets, shift planning, overtime, payroll integration, reports, mobile app and more.",
     path: "/features",
+    kind: "product",
   }),
   component: FeaturesPage,
 });

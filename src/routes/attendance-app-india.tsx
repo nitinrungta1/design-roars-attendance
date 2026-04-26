@@ -6,9 +6,10 @@ import { Smartphone, MapPin, Wallet, FileSpreadsheet, Globe2, Zap } from "lucide
 
 export const Route = createFileRoute("/attendance-app-india")({
   head: () => seo({
-    title: "Best Attendance App in India — GST-ready, multi-language · Punchly",
-    description: "The best attendance app for Indian SMBs and enterprises. UPI billing, GST invoices, Hindi/Tamil/Telugu support, Razorpay payroll integration.",
+    title: "Best Attendance App in India",
+    description: "The best attendance app for Indian SMBs and enterprises. Punchly: UPI billing, GST invoices, Hindi/Tamil/Telugu support, Razorpay payroll integration.",
     path: "/attendance-app-india",
+    kind: "product",
   }),
   component: () => (
     <MarketingLayout>

@@ -10,9 +10,10 @@ import {
 
 export const Route = createFileRoute("/industries")({
   head: () => seo({
-    title: "Industries — Attendance software for every workforce · Punchly",
-    description: "Punchly is built for retail, factories, hospitals, schools, logistics, agencies, remote teams, and enterprises. See how each industry uses Punchly.",
+    title: "Industries",
+    description: "Punchly is built for retail, factories, hospitals, schools, logistics, agencies, remote teams, and enterprises.",
     path: "/industries",
+    kind: "product",
   }),
   component: IndustriesPage,
 });

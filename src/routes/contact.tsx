@@ -7,9 +7,10 @@ import { Mail, MessageSquare, Phone } from "lucide-react";
 
 export const Route = createFileRoute("/contact")({
   head: () => seo({
-    title: "Contact Punchly — Talk to our team",
-    description: "Get in touch with the Punchly team. Sales, support, partnerships — we usually reply within one business day.",
+    title: "Contact",
+    description: "Get in touch with the Oqlio team. Sales, support, partnerships — we usually reply within one business day.",
     path: "/contact",
+    kind: "company",
   }),
   component: ContactPage,
 });

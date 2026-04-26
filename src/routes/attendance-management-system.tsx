@@ -6,9 +6,10 @@ import { Fingerprint, Smartphone, MapPin, Tablet, BarChart3, ClipboardList } fro
 
 export const Route = createFileRoute("/attendance-management-system")({
   head: () => seo({
-    title: "Attendance Management System — Modern, fast, accurate · Punchly",
+    title: "Attendance Management System",
     description: "Punchly is a modern attendance management system for SMBs and enterprises. One-tap check-in, GPS, kiosk, timesheets, and payroll integration.",
     path: "/attendance-management-system",
+    kind: "product",
   }),
   component: () => (
     <MarketingLayout>

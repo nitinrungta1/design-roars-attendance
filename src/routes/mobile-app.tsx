@@ -8,9 +8,10 @@ import { Apple, Smartphone, Wifi, MapPin, Bell, ScanLine } from "lucide-react";
 
 export const Route = createFileRoute("/mobile-app")({
   head: () => seo({
-    title: "Mobile App — iOS & Android attendance app · Punchly",
+    title: "Mobile App",
     description: "Punchly's mobile app brings one-tap check-in, GPS verification, offline support, leave requests, and timesheets to every employee's pocket.",
     path: "/mobile-app",
+    kind: "product",
   }),
   component: MobileAppPage,
 });

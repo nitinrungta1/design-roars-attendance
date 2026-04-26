@@ -8,9 +8,10 @@ import { Check, Minus } from "lucide-react";
 
 export const Route = createFileRoute("/pricing")({
   head: () => seo({
-    title: "Pricing — Honest, scalable plans · Punchly",
-    description: "Free for up to 10 users. Paid plans from $2/user/month. Compare Free, Starter, Growth, Business and Enterprise — billed monthly or yearly. No hidden fees.",
+    title: "Pricing",
+    description: "Honest, scalable pricing for Punchly. Free for up to 10 users. Paid plans from $2/user/month. Compare Free, Starter, Growth, Business, Enterprise.",
     path: "/pricing",
+    kind: "product",
   }),
   component: PricingPage,
 });

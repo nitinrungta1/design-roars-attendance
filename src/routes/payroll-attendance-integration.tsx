@@ -6,9 +6,10 @@ import { Wallet, FileSpreadsheet, RefreshCw, Lock, Zap, Shield } from "lucide-re
 
 export const Route = createFileRoute("/payroll-attendance-integration")({
   head: () => seo({
-    title: "Payroll & Attendance Integration — Sync in one click · Punchly",
-    description: "Send attendance, overtime, and leave straight to your payroll system. Integrations with Razorpay, Zoho, ADP, Gusto, and CSV.",
+    title: "Payroll & Attendance Integration",
+    description: "Send Punchly attendance, overtime, and leave straight to your payroll system. Razorpay, Zoho, ADP, Gusto, and CSV.",
     path: "/payroll-attendance-integration",
+    kind: "product",
   }),
   component: () => (
     <MarketingLayout>

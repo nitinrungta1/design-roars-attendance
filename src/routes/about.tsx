@@ -6,9 +6,10 @@ import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/about")({
   head: () => seo({
-    title: "About Punchly — Building the future of workforce management",
-    description: "Punchly is on a mission to give every team — from a 10-person shop to a 100,000-person enterprise — beautiful, fast, honest attendance software.",
+    title: "About Oqlio",
+    description: "Oqlio builds workforce software people love. Meet the team behind Punchly — the smartest attendance & time-tracking platform for modern teams.",
     path: "/about",
+    kind: "company",
   }),
   component: AboutPage,
 });

@@ -6,9 +6,10 @@ import { Smartphone, MapPin, Wifi, Bell, ScanLine, Fingerprint } from "lucide-re
 
 export const Route = createFileRoute("/employee-check-in-app")({
   head: () => seo({
-    title: "Employee Check-In App — Fast, simple, accurate · Punchly",
-    description: "An employee check-in app that takes 2 seconds. GPS-verified, offline-first, and loved by both employees and managers.",
+    title: "Employee Check-In App",
+    description: "An employee check-in app that takes 2 seconds. Punchly is GPS-verified, offline-first, and loved by employees and managers.",
     path: "/employee-check-in-app",
+    kind: "product",
   }),
   component: () => (
     <MarketingLayout>

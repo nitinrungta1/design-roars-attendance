@@ -6,9 +6,10 @@ import { Zap, FileSpreadsheet, Bell, Users, BarChart3, ClipboardList } from "luc
 
 export const Route = createFileRoute("/overtime-management-system")({
   head: () => seo({
-    title: "Overtime Management System — Rule-based, auditable · Punchly",
-    description: "Configure overtime rules per region, role, or shift. Auto-detect, route for manager approval, and export payroll-ready reports.",
+    title: "Overtime Management System",
+    description: "Configure overtime rules per region, role, or shift. Punchly auto-detects, routes approvals, and exports payroll-ready reports.",
     path: "/overtime-management-system",
+    kind: "product",
   }),
   component: () => (
     <MarketingLayout>

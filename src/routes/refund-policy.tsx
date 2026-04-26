@@ -5,9 +5,10 @@ import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/refund-policy")({
   head: () => seo({
-    title: "Refund Policy — Punchly",
+    title: "Refund Policy",
     description: "Annual plans are refundable pro-rata within the first 30 days.",
     path: "/refund-policy",
+    kind: "company",
   }),
   component: () => (
     <MarketingLayout>

@@ -6,9 +6,10 @@ import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/blog")({
   head: () => seo({
-    title: "Blog — Workforce, attendance & people-ops insights · Punchly",
-    description: "Guides, playbooks and templates on attendance tracking, time management, hybrid work, payroll, and HR operations.",
+    title: "Blog",
+    description: "Guides, playbooks, and templates on attendance tracking, time management, hybrid work, payroll, and HR operations.",
     path: "/blog",
+    kind: "company",
   }),
   component: BlogIndex,
 });

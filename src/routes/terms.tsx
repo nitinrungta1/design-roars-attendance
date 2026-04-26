@@ -5,9 +5,10 @@ import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/terms")({
   head: () => seo({
-    title: "Terms of Service — Punchly",
-    description: "Fair-use terms for using the Punchly platform.",
+    title: "Terms of Service",
+    description: "Fair-use terms for using Oqlio products including Punchly.",
     path: "/terms",
+    kind: "company",
   }),
   component: () => (
     <MarketingLayout>

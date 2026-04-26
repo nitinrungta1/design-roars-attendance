@@ -5,9 +5,10 @@ import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/privacy")({
   head: () => seo({
-    title: "Privacy Policy — Punchly",
-    description: "We respect your privacy. We collect only what is needed to run the service and never sell your data.",
+    title: "Privacy Policy",
+    description: "Oqlio respects your privacy. We collect only what is needed to run the service and never sell your data.",
     path: "/privacy",
+    kind: "company",
   }),
   component: () => (
     <MarketingLayout>

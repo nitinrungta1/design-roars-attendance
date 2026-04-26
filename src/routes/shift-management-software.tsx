@@ -6,9 +6,10 @@ import { CalendarClock, RefreshCw, Moon, Bell, Users, Zap } from "lucide-react";
 
 export const Route = createFileRoute("/shift-management-software")({
   head: () => seo({
-    title: "Shift Management Software — Rotational, night, dynamic · Punchly",
-    description: "Plan, publish, and swap shifts in minutes. Rotational shifts, night-shift rules, dynamic rosters, and grace-time policies.",
+    title: "Shift Management Software",
+    description: "Plan, publish, and swap shifts in minutes with Punchly. Rotational, night, dynamic rosters, and grace-time policies.",
     path: "/shift-management-software",
+    kind: "product",
   }),
   component: () => (
     <MarketingLayout>

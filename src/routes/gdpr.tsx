@@ -5,9 +5,10 @@ import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/gdpr")({
   head: () => seo({
-    title: "GDPR Compliance — Punchly",
-    description: "Punchly is GDPR-ready. We act as a data processor for our customers.",
+    title: "GDPR Compliance",
+    description: "Oqlio is GDPR-ready. We act as a data processor for our customers.",
     path: "/gdpr",
+    kind: "company",
   }),
   component: () => (
     <MarketingLayout>
