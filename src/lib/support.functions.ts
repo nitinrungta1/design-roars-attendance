@@ -90,7 +90,11 @@ export const patchTicket = createServerFn({ method: "POST" })
   .inputValidator((input) => PatchTicketSchema.parse(input))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
-    const patch: Record<string, unknown> = {};
+    const patch: {
+      status?: TicketStatus;
+      priority?: TicketPriority;
+      resolved_at?: string;
+    } = {};
     if (data.status) {
       patch.status = data.status;
       if (data.status === "resolved" || data.status === "closed") {
