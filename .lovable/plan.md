@@ -1,149 +1,74 @@
-## Vision
+# Brand model lock-in + rebrand pass + Phase 2 kickoff
 
-Transform this project into a world-class Attendance & Workforce Management SaaS — premium brand, conversion-focused marketing site, enterprise-grade product, and an installable mobile PWA. We will **port and upgrade** the attendance backend from "Design Roars Launchpad" (not copy-paste) and reorganize it into a clean SaaS architecture.
+## Decisions captured (saved as Core memory rules)
 
-## Brand & Design System
+- **Oqlio** = company / website / legal entity. Owns the header logo, footer, About, Careers, Contact, legal pages.
+- **Punchly** = the attendance product. Owns feature pages, pricing, dashboard, mobile app, admin shell, kiosk.
+- **Canonical domain**: `https://oqlio.com` (apex, no www). All `og:url`, canonical `<link>`, sitemap entries, robots.txt sitemap pointer use this host.
+- **Title format**: `Punchly — {Page} | Oqlio` for product pages. `Oqlio — {Page}` for company pages (About, Careers, Contact, legal).
 
-- **Name placeholder**: *Punchly* (we'll rename once you pick a final brand)
-- **Positioning**: Smart, modern, scalable attendance for SMEs → enterprises, remote teams, retail, factories, schools, hospitals
-- **Color system**: Indigo primary, electric blue accent, deep slate dark mode, white/cream light mode (HSL tokens in `styles.css`)
-- **Type**: Geist / Inter (display + body), tabular numerals for time data
-- **Style**: Premium SaaS — generous whitespace, soft shadows, subtle glassmorphism, micro-animations, no clutter
-- **Tone**: Confident, simple, benefit-first
-- *Inspired by category leaders but 100% original — no copied design or copy*
+## 1. Memory rules (so this never drifts)
 
----
+Create:
+- `mem://index.md` — Core section with the brand hierarchy + canonical domain rules.
+- `mem://brand/naming.md` — full guidance: when to use Oqlio vs Punchly in copy, headers, meta titles, schema.org types, email From names.
 
-## Phase 1 — Foundation, Brand & Marketing Site (this turn)
+## 2. Rebrand the existing surface
 
-### 1. Brand foundation
-- New design tokens in `styles.css` (semantic HSL colors, dark mode, radius, shadows, gradients)
-- Logo mark + wordmark (SVG)
-- Reusable primitives: `Section`, `Container`, `GradientText`, `GlassCard`, `Marquee`, `StatCounter`, `MotionReveal`
-- Sticky marketing header (nav + Login + Start Free Trial CTA), footer with sitemap, mobile sticky bottom CTA
-- Cookie consent + theme toggle
+**Logo & header** (`src/components/brand/logo.tsx`, `marketing-header.tsx`)
+- Wordmark renders **Oqlio** (with the gradient on the last two letters), not Punchly.
+- Add a small "Punchly · Attendance OS" eyebrow next to the logo on product pages only (features, pricing, mobile-app, all SEO landing pages, demo).
+- Company pages (about, careers, contact, legal) show only the Oqlio wordmark.
 
-### 2. Homepage `/`
-- Hero: headline, sub, dual CTA (Start Free Trial / Book Demo), product mockup with subtle motion
-- Trust bar (logo marquee + uptime/security badges)
-- Key benefits grid (one-tap, GPS, kiosk, payroll-ready, timesheets, shifts, reports, mobile)
-- Animated product showcase (tabs: Web app / Mobile / Kiosk)
-- Industry strip (SMB, Enterprise, Retail, Factory, Remote, Schools, Hospitals)
-- Testimonials (text + video placeholder)
-- Pricing teaser (4 tiers)
-- Final CTA band
+**SEO module** (`src/lib/seo.ts`)
+- `SITE_NAME = "Oqlio"`, `PRODUCT_NAME = "Punchly"`, `SITE_URL = "https://oqlio.com"`.
+- Add a `kind: "product" | "company"` field to `seo()` so it auto-formats titles:
+  - product → `Punchly — {title} | Oqlio`
+  - company → `{title} | Oqlio`
+- `og:site_name` = `"Oqlio"` everywhere.
+- Default OG image filename stays the same; just hosted under oqlio.com.
 
-### 3. Core marketing routes
-- `/features` — overview hub
-- `/pricing` — Free / Starter / Growth / Business / Enterprise + comparison table + FAQ
-- `/industries` — overview + per-industry sub-pages later
-- `/mobile-app` — mobile showcase + install PWA prompt
-- `/about`, `/contact` (with form → leads table), `/demo` (Calendly-style booking placeholder)
-- `/help`, `/blog`, `/careers` (shells, populated in Phase 4)
-- Legal: `/privacy`, `/terms`, `/security`, `/gdpr`, `/refund-policy`
+**Structured data**
+- Root route: emit `Organization` JSON-LD for Oqlio (name, url, logo, sameAs).
+- Product pages: emit `SoftwareApplication` JSON-LD with `name: "Punchly"`, `brand: { @type: Organization, name: "Oqlio" }`.
+- Pricing page: `Offer` array tied to the Punchly SoftwareApplication.
 
-### 4. SEO architecture (technical + landing pages)
-Per-route head() with unique title/description/og:title/og:description/og:image, JSON-LD (Organization, SoftwareApplication, FAQPage, BreadcrumbList), `sitemap.xml`, `robots.txt`, RSS for blog, canonicals, internal linking.
+**Sitemap & robots** (`src/routes/sitemap[.]xml.tsx`, `src/routes/robots[.]txt.tsx`)
+- Switch host from `punchly.app` to `https://oqlio.com`.
+- Robots: `Sitemap: https://oqlio.com/sitemap.xml`.
 
-**SEO ranking pages (each one a real route, not anchors):**
-- `/attendance-management-system`
-- `/time-tracking-software`
-- `/employee-timesheet-software`
-- `/gps-attendance-app`
-- `/biometric-attendance-software`
-- `/shift-management-software`
-- `/overtime-management-system`
-- `/employee-check-in-app`
-- `/payroll-attendance-integration`
-- `/attendance-app-india`
+**Footer** (`src/components/brand/marketing-footer.tsx`)
+- Copyright: `© {year} Oqlio. Punchly is a product of Oqlio.`
+- Add small "Products" column listing Punchly (room to add more later — this is why you wanted the two-name model).
 
-**Programmatic SEO scaffolding** (templates ready, content generated later):
-- `/attendance-software/$city` and `/gps-attendance/$city` dynamic routes
+**Page-by-page copy sweep**
+- Update every existing route file's `head()` so titles follow the new format. Files touched: `index.tsx`, `features.tsx`, `pricing.tsx`, `industries.tsx`, `mobile-app.tsx`, `demo.tsx`, `contact.tsx`, `about.tsx`, `careers.tsx`, `blog.tsx`, `help.tsx`, `privacy.tsx`, `terms.tsx`, `gdpr.tsx`, `security.tsx`, `refund-policy.tsx`, and the 10 SEO landing pages (`attendance-management-system`, `time-tracking-software`, `employee-timesheet-software`, `gps-attendance-app`, `biometric-attendance-software`, `shift-management-software`, `overtime-management-system`, `employee-check-in-app`, `payroll-attendance-integration`, `attendance-app-india`).
+- About page rewritten as **Oqlio's** story (the company), with a "Our products" section featuring Punchly.
+- Hero on `/` keeps Punchly as the headline product but adds "from Oqlio" eyebrow.
 
-### 5. Lead gen
-- Contact form, demo booking form, newsletter subscribe → `leads`, `subscribers`, `demo_requests` tables
-- Sticky mobile CTA, optional exit-intent modal
-- Basic analytics events (signup_clicked, demo_booked, pricing_viewed)
+**Asset rename (logical, not file rename)**
+- `logo-mark.png` keeps its filename but is treated as the Oqlio mark.
+- Add a small Punchly product mark variant for use inside the (future) product UI / admin shell — generated as `src/assets/punchly-mark.png`.
 
----
+## 3. Fix the current runtime error
 
-## Phase 2 — Auth, Roles & Admin Shell (foundation for the product)
+`makeRoute(...) is not a function` is from a stale `routeTree.gen.ts`. The rebrand pass touches enough route files that the regeneration on next dev/build will clear it; if it persists I'll force a regen by touching a route file last.
 
-- Lovable Cloud email/password + Google sign-in
-- `/login`, `/signup`, `/reset-password`, `/verify`
-- `profiles` table + auto-create trigger on signup
-- `app_role` enum (`super_admin`, `admin`, `hr`, `manager`, `reviewer`, `employee`) + `user_roles` table + `has_role()` security definer
-- Permissions per module (view/edit/approve/export/admin) — Amazon Seller Central style matrix
-- `_authenticated` and `_authenticated/_admin` route guards
-- Admin shell: sidebar nav, breadcrumbs, command palette, notifications, user menu
-- `companies` (multi-tenant ready) + `employees` table with FK to `auth.users`
+## 4. Phase 2 (auth + admin shell) — now branded correctly from day one
 
----
+Same plan you already approved, with these brand-aware tweaks:
+- Auth screens (`/login`, `/forgot-password`, `/reset-password`, `/auth-callback`) live under the **Punchly** product surface — header shows "Punchly" wordmark, "by Oqlio" eyebrow.
+- Admin shell at `/admin` is fully Punchly-branded (sidebar logo = Punchly mark, topbar title = "Punchly Admin").
+- Email templates (sent later via the email scaffolding tool) use From name **"Punchly (Oqlio)"** and footer with Oqlio legal address.
+- Database: `companies`, `profiles`, `user_roles`, `app_role` enum, `has_role()`/`is_attendance_admin()`/`needs_bootstrap()` security-definer functions, auto-profile trigger, first-user-as-super-admin bootstrap. (Unchanged from prior plan.)
+- Google OAuth enabled via Lovable Cloud.
+- Protected routing via `_authenticated.tsx` and `admin.tsx` layouts; user management at `/admin/access/users` and `/admin/access/roles`.
 
-## Phase 3 — Port & Upgrade Attendance Backend (the core product)
+## Acceptance criteria
 
-Port from "Design Roars Launchpad" with fresh, cleaner schema and migrations in **this** project's Lovable Cloud DB. Re-implement, don't blind-copy.
-
-### Database (migrations)
-- `employees`, `teams`, `departments`, `managers`
-- `attendance_logs`, `attendance_corrections`, `attendance_audit`
-- `attendance_devices`, `attendance_geo_zones`, `attendance_holidays`, `attendance_policies`
-- `shifts`, `shift_assignments`, `shift_rotations`
-- `timesheets`, `timesheet_entries`, `projects`, `clients`
-- `overtime_rules`, `overtime_records`
-- `leave_types`, `leave_requests`, `leave_balances`
-- `approvals`, `notifications`, `announcements`
-- Full RLS using `has_role()` + `is_attendance_admin()` + `is_attendance_manager_of()` security-definer functions (no recursion)
-
-### Admin product routes (`/admin/*`)
-Overview, Live Status, Daily Log, Timesheets (list + calendar + detail), Projects & Clients, Employees, Shifts, Approvals, Reports, Devices, Geo Zones, Holidays, Policies, Leave, Announcements, Permissions, Integrations, Settings.
-
-### Server functions / public APIs
-Check-in/out, breaks, overtime, kiosk, set-PIN, QR scan, geo-fenced punch, IP restriction, auto-shift-detection — all `createServerFn` + `/api/public/attendance/*` routes with signature/auth verification.
-
-### Reports & exports
-Daily attendance, late comers, absentees, overtime, productivity, timesheet gaps. Export CSV / Excel / PDF.
-
----
-
-## Phase 4 — Employee & Manager Experience + Mobile PWA
-
-- Employee portal: `/me/attendance`, `/me/timesheets`, `/me/leave`, `/me/payslips` (placeholder)
-- Manager portal: team dashboard, approvals inbox, alerts, reports
-- **Kiosk mode**: `/kiosk` tablet UI with PIN/QR/face-ready check-in
-- **PWA**: installable on iOS/Android, offline-first check-in queue, push notifications, app icons + splash, GPS check-in
-- *Note: Native iOS/Android apps (App Store/Play) aren't supported in Lovable's web stack — the PWA is the mobile delivery. A Capacitor/React Native shell can be built outside Lovable later if you need true native.*
-
----
-
-## Phase 5 — Content, Help Center, Blog, Polish
-
-- Blog engine (already partially exists in source) with topics: tracking attendance, best apps, overtime guide, hybrid policy, payroll mistakes
-- Help Center: knowledge base, FAQs, onboarding videos
-- Status / Uptime page
-- Performance pass: lazy loading, image optimization, prefetching, Core Web Vitals tuning
-- Final SEO pass: schema validation, internal linking audit, canonical sweep
-
----
-
-## Phase 6 — Monetization & Integrations
-
-- Stripe (Lovable Payments) — Free / Starter / Growth / Business / Enterprise plans + trial + billing portal
-- Subscription gating per module
-- Payroll integration stubs (Razorpay Payroll, Zoho Payroll, generic CSV)
-- Slack / WhatsApp / Email notification integrations
-- Webhooks + public API for enterprise
-
----
-
-## What we'll do *right now* if you approve
-
-**Phase 1 in full**: brand, design system, homepage, all marketing routes, all 10 SEO landing pages, programmatic-SEO scaffolding, contact/demo forms with Lovable Cloud DB, sitemap/robots/JSON-LD, dark mode, sticky CTAs.
-
-Phases 2–6 each ship as a separate approved batch so you see real progress and can steer.
-
-## Out of scope / clarifications
-- True native iOS/Android binaries → PWA delivered; native shell is a separate, non-Lovable project
-- Face recognition → UI + "ready" state in Phase 4; ML model integration is a Phase 6+ add-on (third-party API like AWS Rekognition)
-- White-label / multi-region → architected for it (multi-tenant `companies` table from Phase 2), full tenant theming in a later phase
-- Final brand name/logo → using *Punchly* placeholder; tell me your preferred name anytime and we'll swap globally
+1. Header on `/` shows **Oqlio** wordmark; product pages show Oqlio wordmark + "Punchly · Attendance OS" eyebrow.
+2. Browser tab on `/pricing` reads `Punchly — Pricing | Oqlio`. Browser tab on `/about` reads `About | Oqlio`.
+3. View-source on `/` shows `og:site_name = Oqlio`, canonical `https://oqlio.com/`, an `Organization` JSON-LD for Oqlio, and a `SoftwareApplication` JSON-LD for Punchly.
+4. `/sitemap.xml` and `/robots.txt` only contain `https://oqlio.com/...` URLs.
+5. `makeRoute` runtime error is gone.
+6. Sign up → first user becomes super_admin → lands on `/admin` (Punchly-branded shell). A second signup is a plain employee until promoted.
