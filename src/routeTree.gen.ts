@@ -9,8 +9,175 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TimeTrackingSoftwareRouteImport } from './routes/time-tracking-software'
+import { Route as TermsRouteImport } from './routes/terms'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as ShiftManagementSoftwareRouteImport } from './routes/shift-management-software'
+import { Route as SecurityRouteImport } from './routes/security'
+import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
+import { Route as RefundPolicyRouteImport } from './routes/refund-policy'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as PayrollAttendanceIntegrationRouteImport } from './routes/payroll-attendance-integration'
+import { Route as OvertimeManagementSystemRouteImport } from './routes/overtime-management-system'
+import { Route as MobileAppRouteImport } from './routes/mobile-app'
+import { Route as IndustriesRouteImport } from './routes/industries'
+import { Route as HelpRouteImport } from './routes/help'
+import { Route as GpsAttendanceAppRouteImport } from './routes/gps-attendance-app'
+import { Route as GdprRouteImport } from './routes/gdpr'
+import { Route as FeaturesRouteImport } from './routes/features'
+import { Route as EmployeeTimesheetSoftwareRouteImport } from './routes/employee-timesheet-software'
+import { Route as EmployeeCheckInAppRouteImport } from './routes/employee-check-in-app'
+import { Route as DemoRouteImport } from './routes/demo'
+import { Route as ContactRouteImport } from './routes/contact'
+import { Route as CareersRouteImport } from './routes/careers'
+import { Route as BlogRouteImport } from './routes/blog'
+import { Route as BiometricAttendanceSoftwareRouteImport } from './routes/biometric-attendance-software'
+import { Route as AttendanceManagementSystemRouteImport } from './routes/attendance-management-system'
+import { Route as AttendanceAppIndiaRouteImport } from './routes/attendance-app-india'
+import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 
+const TimeTrackingSoftwareRoute = TimeTrackingSoftwareRouteImport.update({
+  id: '/time-tracking-software',
+  path: '/time-tracking-software',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShiftManagementSoftwareRoute = ShiftManagementSoftwareRouteImport.update({
+  id: '/shift-management-software',
+  path: '/shift-management-software',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SecurityRoute = SecurityRouteImport.update({
+  id: '/security',
+  path: '/security',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
+  id: '/robots.txt',
+  path: '/robots.txt',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RefundPolicyRoute = RefundPolicyRouteImport.update({
+  id: '/refund-policy',
+  path: '/refund-policy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PayrollAttendanceIntegrationRoute =
+  PayrollAttendanceIntegrationRouteImport.update({
+    id: '/payroll-attendance-integration',
+    path: '/payroll-attendance-integration',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const OvertimeManagementSystemRoute =
+  OvertimeManagementSystemRouteImport.update({
+    id: '/overtime-management-system',
+    path: '/overtime-management-system',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const MobileAppRoute = MobileAppRouteImport.update({
+  id: '/mobile-app',
+  path: '/mobile-app',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IndustriesRoute = IndustriesRouteImport.update({
+  id: '/industries',
+  path: '/industries',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HelpRoute = HelpRouteImport.update({
+  id: '/help',
+  path: '/help',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GpsAttendanceAppRoute = GpsAttendanceAppRouteImport.update({
+  id: '/gps-attendance-app',
+  path: '/gps-attendance-app',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GdprRoute = GdprRouteImport.update({
+  id: '/gdpr',
+  path: '/gdpr',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeaturesRoute = FeaturesRouteImport.update({
+  id: '/features',
+  path: '/features',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EmployeeTimesheetSoftwareRoute =
+  EmployeeTimesheetSoftwareRouteImport.update({
+    id: '/employee-timesheet-software',
+    path: '/employee-timesheet-software',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const EmployeeCheckInAppRoute = EmployeeCheckInAppRouteImport.update({
+  id: '/employee-check-in-app',
+  path: '/employee-check-in-app',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoRoute = DemoRouteImport.update({
+  id: '/demo',
+  path: '/demo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CareersRoute = CareersRouteImport.update({
+  id: '/careers',
+  path: '/careers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogRoute = BlogRouteImport.update({
+  id: '/blog',
+  path: '/blog',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BiometricAttendanceSoftwareRoute =
+  BiometricAttendanceSoftwareRouteImport.update({
+    id: '/biometric-attendance-software',
+    path: '/biometric-attendance-software',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const AttendanceManagementSystemRoute =
+  AttendanceManagementSystemRouteImport.update({
+    id: '/attendance-management-system',
+    path: '/attendance-management-system',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const AttendanceAppIndiaRoute = AttendanceAppIndiaRouteImport.update({
+  id: '/attendance-app-india',
+  path: '/attendance-app-india',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -19,28 +186,410 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/attendance-app-india': typeof AttendanceAppIndiaRoute
+  '/attendance-management-system': typeof AttendanceManagementSystemRoute
+  '/biometric-attendance-software': typeof BiometricAttendanceSoftwareRoute
+  '/blog': typeof BlogRoute
+  '/careers': typeof CareersRoute
+  '/contact': typeof ContactRoute
+  '/demo': typeof DemoRoute
+  '/employee-check-in-app': typeof EmployeeCheckInAppRoute
+  '/employee-timesheet-software': typeof EmployeeTimesheetSoftwareRoute
+  '/features': typeof FeaturesRoute
+  '/gdpr': typeof GdprRoute
+  '/gps-attendance-app': typeof GpsAttendanceAppRoute
+  '/help': typeof HelpRoute
+  '/industries': typeof IndustriesRoute
+  '/mobile-app': typeof MobileAppRoute
+  '/overtime-management-system': typeof OvertimeManagementSystemRoute
+  '/payroll-attendance-integration': typeof PayrollAttendanceIntegrationRoute
+  '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
+  '/refund-policy': typeof RefundPolicyRoute
+  '/robots.txt': typeof RobotsDottxtRoute
+  '/security': typeof SecurityRoute
+  '/shift-management-software': typeof ShiftManagementSoftwareRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/terms': typeof TermsRoute
+  '/time-tracking-software': typeof TimeTrackingSoftwareRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/attendance-app-india': typeof AttendanceAppIndiaRoute
+  '/attendance-management-system': typeof AttendanceManagementSystemRoute
+  '/biometric-attendance-software': typeof BiometricAttendanceSoftwareRoute
+  '/blog': typeof BlogRoute
+  '/careers': typeof CareersRoute
+  '/contact': typeof ContactRoute
+  '/demo': typeof DemoRoute
+  '/employee-check-in-app': typeof EmployeeCheckInAppRoute
+  '/employee-timesheet-software': typeof EmployeeTimesheetSoftwareRoute
+  '/features': typeof FeaturesRoute
+  '/gdpr': typeof GdprRoute
+  '/gps-attendance-app': typeof GpsAttendanceAppRoute
+  '/help': typeof HelpRoute
+  '/industries': typeof IndustriesRoute
+  '/mobile-app': typeof MobileAppRoute
+  '/overtime-management-system': typeof OvertimeManagementSystemRoute
+  '/payroll-attendance-integration': typeof PayrollAttendanceIntegrationRoute
+  '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
+  '/refund-policy': typeof RefundPolicyRoute
+  '/robots.txt': typeof RobotsDottxtRoute
+  '/security': typeof SecurityRoute
+  '/shift-management-software': typeof ShiftManagementSoftwareRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/terms': typeof TermsRoute
+  '/time-tracking-software': typeof TimeTrackingSoftwareRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/attendance-app-india': typeof AttendanceAppIndiaRoute
+  '/attendance-management-system': typeof AttendanceManagementSystemRoute
+  '/biometric-attendance-software': typeof BiometricAttendanceSoftwareRoute
+  '/blog': typeof BlogRoute
+  '/careers': typeof CareersRoute
+  '/contact': typeof ContactRoute
+  '/demo': typeof DemoRoute
+  '/employee-check-in-app': typeof EmployeeCheckInAppRoute
+  '/employee-timesheet-software': typeof EmployeeTimesheetSoftwareRoute
+  '/features': typeof FeaturesRoute
+  '/gdpr': typeof GdprRoute
+  '/gps-attendance-app': typeof GpsAttendanceAppRoute
+  '/help': typeof HelpRoute
+  '/industries': typeof IndustriesRoute
+  '/mobile-app': typeof MobileAppRoute
+  '/overtime-management-system': typeof OvertimeManagementSystemRoute
+  '/payroll-attendance-integration': typeof PayrollAttendanceIntegrationRoute
+  '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
+  '/refund-policy': typeof RefundPolicyRoute
+  '/robots.txt': typeof RobotsDottxtRoute
+  '/security': typeof SecurityRoute
+  '/shift-management-software': typeof ShiftManagementSoftwareRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/terms': typeof TermsRoute
+  '/time-tracking-software': typeof TimeTrackingSoftwareRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/attendance-app-india'
+    | '/attendance-management-system'
+    | '/biometric-attendance-software'
+    | '/blog'
+    | '/careers'
+    | '/contact'
+    | '/demo'
+    | '/employee-check-in-app'
+    | '/employee-timesheet-software'
+    | '/features'
+    | '/gdpr'
+    | '/gps-attendance-app'
+    | '/help'
+    | '/industries'
+    | '/mobile-app'
+    | '/overtime-management-system'
+    | '/payroll-attendance-integration'
+    | '/pricing'
+    | '/privacy'
+    | '/refund-policy'
+    | '/robots.txt'
+    | '/security'
+    | '/shift-management-software'
+    | '/sitemap.xml'
+    | '/terms'
+    | '/time-tracking-software'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/about'
+    | '/attendance-app-india'
+    | '/attendance-management-system'
+    | '/biometric-attendance-software'
+    | '/blog'
+    | '/careers'
+    | '/contact'
+    | '/demo'
+    | '/employee-check-in-app'
+    | '/employee-timesheet-software'
+    | '/features'
+    | '/gdpr'
+    | '/gps-attendance-app'
+    | '/help'
+    | '/industries'
+    | '/mobile-app'
+    | '/overtime-management-system'
+    | '/payroll-attendance-integration'
+    | '/pricing'
+    | '/privacy'
+    | '/refund-policy'
+    | '/robots.txt'
+    | '/security'
+    | '/shift-management-software'
+    | '/sitemap.xml'
+    | '/terms'
+    | '/time-tracking-software'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/attendance-app-india'
+    | '/attendance-management-system'
+    | '/biometric-attendance-software'
+    | '/blog'
+    | '/careers'
+    | '/contact'
+    | '/demo'
+    | '/employee-check-in-app'
+    | '/employee-timesheet-software'
+    | '/features'
+    | '/gdpr'
+    | '/gps-attendance-app'
+    | '/help'
+    | '/industries'
+    | '/mobile-app'
+    | '/overtime-management-system'
+    | '/payroll-attendance-integration'
+    | '/pricing'
+    | '/privacy'
+    | '/refund-policy'
+    | '/robots.txt'
+    | '/security'
+    | '/shift-management-software'
+    | '/sitemap.xml'
+    | '/terms'
+    | '/time-tracking-software'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AboutRoute: typeof AboutRoute
+  AttendanceAppIndiaRoute: typeof AttendanceAppIndiaRoute
+  AttendanceManagementSystemRoute: typeof AttendanceManagementSystemRoute
+  BiometricAttendanceSoftwareRoute: typeof BiometricAttendanceSoftwareRoute
+  BlogRoute: typeof BlogRoute
+  CareersRoute: typeof CareersRoute
+  ContactRoute: typeof ContactRoute
+  DemoRoute: typeof DemoRoute
+  EmployeeCheckInAppRoute: typeof EmployeeCheckInAppRoute
+  EmployeeTimesheetSoftwareRoute: typeof EmployeeTimesheetSoftwareRoute
+  FeaturesRoute: typeof FeaturesRoute
+  GdprRoute: typeof GdprRoute
+  GpsAttendanceAppRoute: typeof GpsAttendanceAppRoute
+  HelpRoute: typeof HelpRoute
+  IndustriesRoute: typeof IndustriesRoute
+  MobileAppRoute: typeof MobileAppRoute
+  OvertimeManagementSystemRoute: typeof OvertimeManagementSystemRoute
+  PayrollAttendanceIntegrationRoute: typeof PayrollAttendanceIntegrationRoute
+  PricingRoute: typeof PricingRoute
+  PrivacyRoute: typeof PrivacyRoute
+  RefundPolicyRoute: typeof RefundPolicyRoute
+  RobotsDottxtRoute: typeof RobotsDottxtRoute
+  SecurityRoute: typeof SecurityRoute
+  ShiftManagementSoftwareRoute: typeof ShiftManagementSoftwareRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  TermsRoute: typeof TermsRoute
+  TimeTrackingSoftwareRoute: typeof TimeTrackingSoftwareRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/time-tracking-software': {
+      id: '/time-tracking-software'
+      path: '/time-tracking-software'
+      fullPath: '/time-tracking-software'
+      preLoaderRoute: typeof TimeTrackingSoftwareRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/shift-management-software': {
+      id: '/shift-management-software'
+      path: '/shift-management-software'
+      fullPath: '/shift-management-software'
+      preLoaderRoute: typeof ShiftManagementSoftwareRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/security': {
+      id: '/security'
+      path: '/security'
+      fullPath: '/security'
+      preLoaderRoute: typeof SecurityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/robots.txt': {
+      id: '/robots.txt'
+      path: '/robots.txt'
+      fullPath: '/robots.txt'
+      preLoaderRoute: typeof RobotsDottxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/refund-policy': {
+      id: '/refund-policy'
+      path: '/refund-policy'
+      fullPath: '/refund-policy'
+      preLoaderRoute: typeof RefundPolicyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/payroll-attendance-integration': {
+      id: '/payroll-attendance-integration'
+      path: '/payroll-attendance-integration'
+      fullPath: '/payroll-attendance-integration'
+      preLoaderRoute: typeof PayrollAttendanceIntegrationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/overtime-management-system': {
+      id: '/overtime-management-system'
+      path: '/overtime-management-system'
+      fullPath: '/overtime-management-system'
+      preLoaderRoute: typeof OvertimeManagementSystemRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mobile-app': {
+      id: '/mobile-app'
+      path: '/mobile-app'
+      fullPath: '/mobile-app'
+      preLoaderRoute: typeof MobileAppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/industries': {
+      id: '/industries'
+      path: '/industries'
+      fullPath: '/industries'
+      preLoaderRoute: typeof IndustriesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/help': {
+      id: '/help'
+      path: '/help'
+      fullPath: '/help'
+      preLoaderRoute: typeof HelpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/gps-attendance-app': {
+      id: '/gps-attendance-app'
+      path: '/gps-attendance-app'
+      fullPath: '/gps-attendance-app'
+      preLoaderRoute: typeof GpsAttendanceAppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/gdpr': {
+      id: '/gdpr'
+      path: '/gdpr'
+      fullPath: '/gdpr'
+      preLoaderRoute: typeof GdprRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/features': {
+      id: '/features'
+      path: '/features'
+      fullPath: '/features'
+      preLoaderRoute: typeof FeaturesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/employee-timesheet-software': {
+      id: '/employee-timesheet-software'
+      path: '/employee-timesheet-software'
+      fullPath: '/employee-timesheet-software'
+      preLoaderRoute: typeof EmployeeTimesheetSoftwareRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/employee-check-in-app': {
+      id: '/employee-check-in-app'
+      path: '/employee-check-in-app'
+      fullPath: '/employee-check-in-app'
+      preLoaderRoute: typeof EmployeeCheckInAppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo': {
+      id: '/demo'
+      path: '/demo'
+      fullPath: '/demo'
+      preLoaderRoute: typeof DemoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/careers': {
+      id: '/careers'
+      path: '/careers'
+      fullPath: '/careers'
+      preLoaderRoute: typeof CareersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog': {
+      id: '/blog'
+      path: '/blog'
+      fullPath: '/blog'
+      preLoaderRoute: typeof BlogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/biometric-attendance-software': {
+      id: '/biometric-attendance-software'
+      path: '/biometric-attendance-software'
+      fullPath: '/biometric-attendance-software'
+      preLoaderRoute: typeof BiometricAttendanceSoftwareRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/attendance-management-system': {
+      id: '/attendance-management-system'
+      path: '/attendance-management-system'
+      fullPath: '/attendance-management-system'
+      preLoaderRoute: typeof AttendanceManagementSystemRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/attendance-app-india': {
+      id: '/attendance-app-india'
+      path: '/attendance-app-india'
+      fullPath: '/attendance-app-india'
+      preLoaderRoute: typeof AttendanceAppIndiaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -53,6 +602,33 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AboutRoute: AboutRoute,
+  AttendanceAppIndiaRoute: AttendanceAppIndiaRoute,
+  AttendanceManagementSystemRoute: AttendanceManagementSystemRoute,
+  BiometricAttendanceSoftwareRoute: BiometricAttendanceSoftwareRoute,
+  BlogRoute: BlogRoute,
+  CareersRoute: CareersRoute,
+  ContactRoute: ContactRoute,
+  DemoRoute: DemoRoute,
+  EmployeeCheckInAppRoute: EmployeeCheckInAppRoute,
+  EmployeeTimesheetSoftwareRoute: EmployeeTimesheetSoftwareRoute,
+  FeaturesRoute: FeaturesRoute,
+  GdprRoute: GdprRoute,
+  GpsAttendanceAppRoute: GpsAttendanceAppRoute,
+  HelpRoute: HelpRoute,
+  IndustriesRoute: IndustriesRoute,
+  MobileAppRoute: MobileAppRoute,
+  OvertimeManagementSystemRoute: OvertimeManagementSystemRoute,
+  PayrollAttendanceIntegrationRoute: PayrollAttendanceIntegrationRoute,
+  PricingRoute: PricingRoute,
+  PrivacyRoute: PrivacyRoute,
+  RefundPolicyRoute: RefundPolicyRoute,
+  RobotsDottxtRoute: RobotsDottxtRoute,
+  SecurityRoute: SecurityRoute,
+  ShiftManagementSoftwareRoute: ShiftManagementSoftwareRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
+  TermsRoute: TermsRoute,
+  TimeTrackingSoftwareRoute: TimeTrackingSoftwareRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

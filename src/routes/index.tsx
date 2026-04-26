@@ -1,26 +1,72 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { MarketingLayout } from "@/components/brand/marketing-layout";
+import {
+  HomeHero,
+  TrustBar,
+  BenefitsGrid,
+  ProductShowcase,
+  IndustriesStrip,
+  Testimonials,
+  PricingTeaser,
+  CtaBanner,
+} from "@/components/home/sections";
+import { seo, SITE_NAME, SITE_URL } from "@/lib/seo";
 
 export const Route = createFileRoute("/")({
-  component: Index,
+  head: () => {
+    const base = seo({
+      title: "Punchly — Smart Attendance & Workforce Management Software",
+      description:
+        "Track attendance, shifts, timesheets, overtime, and GPS check-ins from anywhere. The smartest attendance software for modern teams of 5 to 50,000.",
+      path: "/",
+    });
+    return {
+      ...base,
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "SoftwareApplication",
+            name: SITE_NAME,
+            applicationCategory: "BusinessApplication",
+            operatingSystem: "Web, iOS, Android",
+            url: SITE_URL,
+            offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+            aggregateRating: {
+              "@type": "AggregateRating",
+              ratingValue: "4.9",
+              reviewCount: "1284",
+            },
+          }),
+        },
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            name: SITE_NAME,
+            url: SITE_URL,
+            logo: `${SITE_URL}/logo.png`,
+          }),
+        },
+      ],
+    };
+  },
+  component: HomePage,
 });
 
-// IMPORTANT: Replace this placeholder. For sites with multiple pages (About, Services, Contact, etc.),
-// create separate route files (about.tsx, services.tsx, contact.tsx) — don't put all pages in this file.
-function PlaceholderIndex() {
+function HomePage() {
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
+    <MarketingLayout>
+      <HomeHero />
+      <TrustBar />
+      <BenefitsGrid />
+      <ProductShowcase />
+      <IndustriesStrip />
+      <Testimonials />
+      <PricingTeaser />
+      <CtaBanner />
+    </MarketingLayout>
   );
-}
-
-function Index() {
-  return <PlaceholderIndex />;
 }
