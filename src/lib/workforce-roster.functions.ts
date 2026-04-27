@@ -263,16 +263,24 @@ export const assignRosterEntry = createServerFn({ method: "POST" })
     // Conflict detection: same employee + same date in any other schedule
     const { data: conflicts } = await supabase
       .from("schedule_entries")
-      .select("id, schedule_id, schedules(name, status)")
+      .select("id, schedule_id")
       .eq("employee_id", data.employee_id)
       .eq("work_date", data.work_date)
       .neq("schedule_id", data.schedule_id)
-      .limit(5);
-
-    const blockingConflicts = (conflicts ?? []).filter(
-      (c) =>
-        (c.schedules as { status?: string } | null)?.status === "published",
+      .limit(10);
+    const conflictScheduleIds = Array.from(
+      new Set((conflicts ?? []).map((c) => c.schedule_id)),
     );
+    let blockingNames: string[] = [];
+    if (conflictScheduleIds.length > 0) {
+      const { data: schedRows } = await supabase
+        .from("schedules")
+        .select("id, name, status")
+        .in("id", conflictScheduleIds);
+      blockingNames = (schedRows ?? [])
+        .filter((s) => s.status === "published")
+        .map((s) => s.name);
+    }
 
     // Upsert by composite (schedule_id, employee_id, work_date)
     const { data: existing } = await supabase
