@@ -233,49 +233,58 @@ function PricingPage() {
 
 function BillingToggle({ cycle, onChange }: { cycle: Cycle; onChange: (c: Cycle) => void }) {
   return (
-    <div className="relative inline-flex items-center rounded-full border border-border bg-card p-1 shadow-soft">
-      <button
-        type="button"
-        onClick={() => onChange("monthly")}
-        className={cn(
-          "relative z-10 rounded-full px-5 py-2 text-sm font-medium transition-colors",
-          cycle === "monthly" ? "text-primary-foreground" : "text-muted-foreground hover:text-foreground",
-        )}
-        aria-pressed={cycle === "monthly"}
+    <div className="inline-flex flex-wrap items-center justify-center gap-2 sm:gap-3">
+      <div
+        role="tablist"
+        aria-label="Billing cycle"
+        className="relative grid grid-cols-2 items-center rounded-full border border-border bg-card p-1 shadow-soft"
       >
-        Monthly
-      </button>
-      <button
-        type="button"
-        onClick={() => onChange("yearly")}
-        className={cn(
-          "relative z-10 inline-flex items-center gap-2 rounded-full px-5 py-2 text-sm font-medium transition-colors",
-          cycle === "yearly" ? "text-primary-foreground" : "text-muted-foreground hover:text-foreground",
-        )}
-        aria-pressed={cycle === "yearly"}
-      >
-        Yearly
+        {/* Sliding pill — sits behind the buttons inside the same grid track */}
         <span
+          aria-hidden
           className={cn(
-            "rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide",
-            cycle === "yearly"
-              ? "bg-primary-foreground/20 text-primary-foreground"
-              : "bg-success/15 text-success",
+            "pointer-events-none absolute inset-y-1 w-[calc(50%-0.25rem)] rounded-full bg-gradient-brand shadow-sm transition-transform duration-300 ease-out",
+            cycle === "monthly" ? "translate-x-1" : "translate-x-[calc(100%+0.25rem)]",
           )}
+        />
+        <button
+          type="button"
+          role="tab"
+          onClick={() => onChange("monthly")}
+          className={cn(
+            "relative z-10 rounded-full px-5 py-2 text-sm font-medium transition-colors whitespace-nowrap",
+            cycle === "monthly"
+              ? "text-primary-foreground"
+              : "text-muted-foreground hover:text-foreground",
+          )}
+          aria-pressed={cycle === "monthly"}
         >
-          Save 20%
-        </span>
-      </button>
-      {/* Sliding pill */}
+          Monthly
+        </button>
+        <button
+          type="button"
+          role="tab"
+          onClick={() => onChange("yearly")}
+          className={cn(
+            "relative z-10 rounded-full px-5 py-2 text-sm font-medium transition-colors whitespace-nowrap",
+            cycle === "yearly"
+              ? "text-primary-foreground"
+              : "text-muted-foreground hover:text-foreground",
+          )}
+          aria-pressed={cycle === "yearly"}
+        >
+          Yearly
+        </button>
+      </div>
+      {/* Save badge sits OUTSIDE the toggle so it can't break alignment */}
       <span
-        aria-hidden
         className={cn(
-          "absolute inset-y-1 rounded-full bg-gradient-brand transition-all duration-300 ease-out",
-          cycle === "monthly"
-            ? "left-1 right-[calc(50%+2px)]"
-            : "left-[calc(50%-2px)] right-1",
+          "inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide transition-colors",
+          "bg-success/15 text-success",
         )}
-      />
+      >
+        Save 20%
+      </span>
     </div>
   );
 }
