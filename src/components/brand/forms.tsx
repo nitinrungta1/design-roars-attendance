@@ -220,6 +220,8 @@ export function TicketForm() {
   const fn = useServerFn(submitSupportTicket);
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState<{ id: string } | null>(null);
+  const [subject, setSubject] = useState("");
+  const [suggested, setSuggested] = useState<string[]>([]);
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -233,6 +235,7 @@ export function TicketForm() {
           requester_email: String(fd.get("email") || ""),
           requester_name: String(fd.get("name") || ""),
           priority: (String(fd.get("priority") || "normal") as "low" | "normal" | "high" | "urgent"),
+          suggested_articles: suggested.length ? suggested : undefined,
         },
       });
       if (res.ok) {
@@ -274,8 +277,22 @@ export function TicketForm() {
       </div>
       <div>
         <Label htmlFor="t-subject">Subject</Label>
-        <Input id="t-subject" name="subject" required maxLength={300} placeholder="Brief summary of the issue" />
+        <Input
+          id="t-subject"
+          name="subject"
+          required
+          maxLength={300}
+          placeholder="Brief summary of the issue"
+          value={subject}
+          onChange={(e) => setSubject(e.target.value)}
+        />
       </div>
+
+      <DeflectionSuggestions
+        query={subject}
+        onSelect={(slug) => setSuggested((s) => (s.includes(slug) ? s : [...s, slug]))}
+      />
+
       <div>
         <Label htmlFor="t-priority">Priority</Label>
         <select
