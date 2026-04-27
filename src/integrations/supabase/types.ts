@@ -1321,6 +1321,69 @@ export type Database = {
           },
         ]
       }
+      job_postings: {
+        Row: {
+          apply_url: string | null
+          created_at: string
+          created_by: string | null
+          department: string | null
+          description: string | null
+          employment_type: Database["public"]["Enums"]["job_employment_type"]
+          id: string
+          location: string | null
+          order_index: number
+          published_at: string | null
+          salary_currency: string | null
+          salary_max: number | null
+          salary_min: number | null
+          slug: string
+          status: Database["public"]["Enums"]["job_posting_status"]
+          summary: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          apply_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          department?: string | null
+          description?: string | null
+          employment_type?: Database["public"]["Enums"]["job_employment_type"]
+          id?: string
+          location?: string | null
+          order_index?: number
+          published_at?: string | null
+          salary_currency?: string | null
+          salary_max?: number | null
+          salary_min?: number | null
+          slug: string
+          status?: Database["public"]["Enums"]["job_posting_status"]
+          summary?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          apply_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          department?: string | null
+          description?: string | null
+          employment_type?: Database["public"]["Enums"]["job_employment_type"]
+          id?: string
+          location?: string | null
+          order_index?: number
+          published_at?: string | null
+          salary_currency?: string | null
+          salary_max?: number | null
+          salary_min?: number | null
+          slug?: string
+          status?: Database["public"]["Enums"]["job_posting_status"]
+          summary?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       kb_articles: {
         Row: {
           author_id: string | null
@@ -3106,6 +3169,8 @@ export type Database = {
         | "storage"
         | "analytics"
       invoice_status: "draft" | "open" | "paid" | "void" | "uncollectible"
+      job_employment_type: "full_time" | "part_time" | "contract" | "internship"
+      job_posting_status: "draft" | "published" | "archived" | "closed"
       lead_status:
         | "new"
         | "contacted"
@@ -3336,6 +3401,8 @@ export const Constants = {
         "analytics",
       ],
       invoice_status: ["draft", "open", "paid", "void", "uncollectible"],
+      job_employment_type: ["full_time", "part_time", "contract", "internship"],
+      job_posting_status: ["draft", "published", "archived", "closed"],
       lead_status: [
         "new",
         "contacted",
