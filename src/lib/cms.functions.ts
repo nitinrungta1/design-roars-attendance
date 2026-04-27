@@ -623,3 +623,42 @@ export const getPublicJob = createServerFn({ method: "POST" })
       .maybeSingle();
     return { job: (row ?? null) as JobDetail | null };
   });
+
+const jobApplicationSchema = z.object({
+  job_id: z.string().uuid(),
+  job_slug: z.string().min(1).max(160),
+  job_title: z.string().min(1).max(200),
+  full_name: z.string().min(1).max(200),
+  email: z.string().email().max(320),
+  phone: z.string().max(40).optional().default(""),
+  linkedin: z.string().max(500).optional().default(""),
+  cover_letter: z.string().max(4000).optional().default(""),
+});
+
+export const submitJobApplication = createServerFn({ method: "POST" })
+  .inputValidator((input) => jobApplicationSchema.parse(input))
+  .handler(async ({ data }): Promise<{ ok: true }> => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.from("form_submissions").insert({
+      form_id: null,
+      payload: { kind: "job_application", ...data },
+    } as never);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+// ============================================================
+// Generic published cms_pages by slug (catch-all)
+// ============================================================
+export const getPublicPage = createServerFn({ method: "POST" })
+  .inputValidator((input) => z.object({ slug: z.string().min(1).max(200) }).parse(input))
+  .handler(async ({ data }): Promise<{ page: PageDetail | null }> => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: row } = await supabaseAdmin
+      .from("cms_pages")
+      .select("id, slug, title, body, status, seo_title, seo_description, noindex, published_at, updated_at")
+      .eq("slug", data.slug)
+      .eq("status", "published")
+      .maybeSingle();
+    return { page: (row ?? null) as PageDetail | null };
+  });
