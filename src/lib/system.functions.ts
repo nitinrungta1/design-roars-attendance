@@ -30,7 +30,7 @@ export interface PlatformSettings {
     require_number: boolean;
     hibp_check: boolean;
   };
-  email: Record<string, unknown>;
+  email: Json;
   updated_at: string;
 }
 
@@ -72,7 +72,7 @@ export const getPlatformSettings = createServerFn({ method: "POST" })
         primary_color: data.primary_color,
         role_labels: (data.role_labels as Record<string, string>) ?? {},
         security: { ...DEFAULT_SECURITY, ...((data.security as object) ?? {}) },
-        email: (data.email as Record<string, unknown>) ?? {},
+        email: (data.email as Json) ?? {},
         updated_at: data.updated_at as string,
       },
     };
@@ -118,7 +118,7 @@ export const updatePlatformSettings = createServerFn({ method: "POST" })
     await supabase.rpc("log_audit", {
       _action: "settings.updated",
       _entity_type: "platform_settings",
-      _diff: data.patch as Record<string, unknown>,
+      _diff: data.patch as Json,
     });
     return { ok: true };
   });
@@ -137,7 +137,7 @@ export interface AuditLogRow {
   action: string;
   entity_type: string | null;
   entity_id: string | null;
-  diff: Record<string, unknown> | null;
+  diff: Json | null;
   ip: string | null;
   user_agent: string | null;
 }
@@ -194,7 +194,7 @@ export const listAuditLogs = createServerFn({ method: "POST" })
           action: r.action,
           entity_type: r.entity_type,
           entity_id: r.entity_id,
-          diff: (r.diff as Record<string, unknown>) ?? null,
+          diff: (r.diff as Json) ?? null,
           ip: r.ip,
           user_agent: r.user_agent,
         };
@@ -282,7 +282,7 @@ export interface FeatureFlagRow {
   id: string;
   key: string;
   enabled: boolean;
-  payload: Record<string, unknown>;
+  payload: Json;
   company_id: string | null;
   updated_at: string;
 }
@@ -304,7 +304,7 @@ export const listFeatureFlags = createServerFn({ method: "POST" })
         id: f.id,
         key: f.key,
         enabled: f.enabled,
-        payload: (f.payload as Record<string, unknown>) ?? {},
+        payload: (f.payload as Json) ?? {},
         company_id: f.company_id,
         updated_at: f.updated_at as string,
       })),
