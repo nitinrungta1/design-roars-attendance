@@ -52,6 +52,7 @@ import { Route as AuthenticatedAdminWorkforceTeamsRouteImport } from './routes/_
 import { Route as AuthenticatedAdminWorkforceShiftsRouteImport } from './routes/_authenticated.admin.workforce.shifts'
 import { Route as AuthenticatedAdminWorkforceRulesRouteImport } from './routes/_authenticated.admin.workforce.rules'
 import { Route as AuthenticatedAdminWorkforceRosterRouteImport } from './routes/_authenticated.admin.workforce.roster'
+import { Route as AuthenticatedAdminWorkforceProductivityRouteImport } from './routes/_authenticated.admin.workforce.productivity'
 import { Route as AuthenticatedAdminWorkforceOvertimeRouteImport } from './routes/_authenticated.admin.workforce.overtime'
 import { Route as AuthenticatedAdminWorkforceLeaveRouteImport } from './routes/_authenticated.admin.workforce.leave'
 import { Route as AuthenticatedAdminWorkforceHolidaysRouteImport } from './routes/_authenticated.admin.workforce.holidays'
@@ -330,6 +331,12 @@ const AuthenticatedAdminWorkforceRosterRoute =
   AuthenticatedAdminWorkforceRosterRouteImport.update({
     id: '/workforce/roster',
     path: '/workforce/roster',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminWorkforceProductivityRoute =
+  AuthenticatedAdminWorkforceProductivityRouteImport.update({
+    id: '/workforce/productivity',
+    path: '/workforce/productivity',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminWorkforceOvertimeRoute =
@@ -740,6 +747,7 @@ export interface FileRoutesByFullPath {
   '/admin/workforce/holidays': typeof AuthenticatedAdminWorkforceHolidaysRoute
   '/admin/workforce/leave': typeof AuthenticatedAdminWorkforceLeaveRoute
   '/admin/workforce/overtime': typeof AuthenticatedAdminWorkforceOvertimeRoute
+  '/admin/workforce/productivity': typeof AuthenticatedAdminWorkforceProductivityRoute
   '/admin/workforce/roster': typeof AuthenticatedAdminWorkforceRosterRoute
   '/admin/workforce/rules': typeof AuthenticatedAdminWorkforceRulesRoute
   '/admin/workforce/shifts': typeof AuthenticatedAdminWorkforceShiftsRoute
@@ -836,6 +844,7 @@ export interface FileRoutesByTo {
   '/admin/workforce/holidays': typeof AuthenticatedAdminWorkforceHolidaysRoute
   '/admin/workforce/leave': typeof AuthenticatedAdminWorkforceLeaveRoute
   '/admin/workforce/overtime': typeof AuthenticatedAdminWorkforceOvertimeRoute
+  '/admin/workforce/productivity': typeof AuthenticatedAdminWorkforceProductivityRoute
   '/admin/workforce/roster': typeof AuthenticatedAdminWorkforceRosterRoute
   '/admin/workforce/rules': typeof AuthenticatedAdminWorkforceRulesRoute
   '/admin/workforce/shifts': typeof AuthenticatedAdminWorkforceShiftsRoute
@@ -935,6 +944,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/workforce/holidays': typeof AuthenticatedAdminWorkforceHolidaysRoute
   '/_authenticated/admin/workforce/leave': typeof AuthenticatedAdminWorkforceLeaveRoute
   '/_authenticated/admin/workforce/overtime': typeof AuthenticatedAdminWorkforceOvertimeRoute
+  '/_authenticated/admin/workforce/productivity': typeof AuthenticatedAdminWorkforceProductivityRoute
   '/_authenticated/admin/workforce/roster': typeof AuthenticatedAdminWorkforceRosterRoute
   '/_authenticated/admin/workforce/rules': typeof AuthenticatedAdminWorkforceRulesRoute
   '/_authenticated/admin/workforce/shifts': typeof AuthenticatedAdminWorkforceShiftsRoute
@@ -1034,6 +1044,7 @@ export interface FileRouteTypes {
     | '/admin/workforce/holidays'
     | '/admin/workforce/leave'
     | '/admin/workforce/overtime'
+    | '/admin/workforce/productivity'
     | '/admin/workforce/roster'
     | '/admin/workforce/rules'
     | '/admin/workforce/shifts'
@@ -1130,6 +1141,7 @@ export interface FileRouteTypes {
     | '/admin/workforce/holidays'
     | '/admin/workforce/leave'
     | '/admin/workforce/overtime'
+    | '/admin/workforce/productivity'
     | '/admin/workforce/roster'
     | '/admin/workforce/rules'
     | '/admin/workforce/shifts'
@@ -1228,6 +1240,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/workforce/holidays'
     | '/_authenticated/admin/workforce/leave'
     | '/_authenticated/admin/workforce/overtime'
+    | '/_authenticated/admin/workforce/productivity'
     | '/_authenticated/admin/workforce/roster'
     | '/_authenticated/admin/workforce/rules'
     | '/_authenticated/admin/workforce/shifts'
@@ -1575,6 +1588,13 @@ declare module '@tanstack/react-router' {
       path: '/workforce/roster'
       fullPath: '/admin/workforce/roster'
       preLoaderRoute: typeof AuthenticatedAdminWorkforceRosterRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/workforce/productivity': {
+      id: '/_authenticated/admin/workforce/productivity'
+      path: '/workforce/productivity'
+      fullPath: '/admin/workforce/productivity'
+      preLoaderRoute: typeof AuthenticatedAdminWorkforceProductivityRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/workforce/overtime': {
@@ -2006,6 +2026,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminWorkforceHolidaysRoute: typeof AuthenticatedAdminWorkforceHolidaysRoute
   AuthenticatedAdminWorkforceLeaveRoute: typeof AuthenticatedAdminWorkforceLeaveRoute
   AuthenticatedAdminWorkforceOvertimeRoute: typeof AuthenticatedAdminWorkforceOvertimeRoute
+  AuthenticatedAdminWorkforceProductivityRoute: typeof AuthenticatedAdminWorkforceProductivityRoute
   AuthenticatedAdminWorkforceRosterRoute: typeof AuthenticatedAdminWorkforceRosterRoute
   AuthenticatedAdminWorkforceRulesRoute: typeof AuthenticatedAdminWorkforceRulesRoute
   AuthenticatedAdminWorkforceShiftsRoute: typeof AuthenticatedAdminWorkforceShiftsRoute
@@ -2099,6 +2120,8 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminWorkforceLeaveRoute: AuthenticatedAdminWorkforceLeaveRoute,
   AuthenticatedAdminWorkforceOvertimeRoute:
     AuthenticatedAdminWorkforceOvertimeRoute,
+  AuthenticatedAdminWorkforceProductivityRoute:
+    AuthenticatedAdminWorkforceProductivityRoute,
   AuthenticatedAdminWorkforceRosterRoute:
     AuthenticatedAdminWorkforceRosterRoute,
   AuthenticatedAdminWorkforceRulesRoute: AuthenticatedAdminWorkforceRulesRoute,
