@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { ORG_JSON_LD } from "@/lib/seo";
 import { AuthProvider } from "@/lib/auth";
 import { CurrencyProvider } from "@/lib/currency";
+import { TrackingProvider } from "@/components/tracking-provider";
 
 import appCss from "../styles.css?url";
 
@@ -100,5 +101,10 @@ function RootShell({ children }: { children: React.ReactNode }) {
 }
 
 function RootComponent() {
-  return <Outlet />;
+  return (
+    <>
+      <TrackingProvider />
+      <Outlet />
+    </>
+  );
 }
