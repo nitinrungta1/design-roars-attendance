@@ -172,7 +172,7 @@ export interface CmsPageRow {
   updated_at: string;
 }
 
-export interface CmsPageDetail extends CmsPageRow {
+export interface CmsCmsPageDetail extends CmsPageRow {
   body: string | null;
   seo_title: string | null;
   seo_description: string | null;
@@ -194,7 +194,7 @@ export const listCmsPages = createServerFn({ method: "POST" })
 export const getCmsPage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => z.object({ id: z.string().uuid() }).parse(input))
-  .handler(async ({ data, context }): Promise<{ page: CmsPageDetail | null }> => {
+  .handler(async ({ data, context }): Promise<{ page: CmsCmsPageDetail | null }> => {
     const { supabase } = context;
     const { data: row, error } = await supabase
       .from("cms_pages")
@@ -202,7 +202,7 @@ export const getCmsPage = createServerFn({ method: "POST" })
       .eq("id", data.id)
       .maybeSingle();
     if (error) return { page: null };
-    return { page: (row ?? null) as CmsPageDetail | null };
+    return { page: (row ?? null) as CmsCmsPageDetail | null };
   });
 
 const UpsertPageSchema = z.object({
@@ -652,7 +652,7 @@ export const submitJobApplication = createServerFn({ method: "POST" })
 // ============================================================
 export const getPublicPage = createServerFn({ method: "POST" })
   .inputValidator((input) => z.object({ slug: z.string().min(1).max(200) }).parse(input))
-  .handler(async ({ data }): Promise<{ page: PageDetail | null }> => {
+  .handler(async ({ data }): Promise<{ page: CmsPageDetail | null }> => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: row } = await supabaseAdmin
       .from("cms_pages")
@@ -660,5 +660,5 @@ export const getPublicPage = createServerFn({ method: "POST" })
       .eq("slug", data.slug)
       .eq("status", "published")
       .maybeSingle();
-    return { page: (row ?? null) as PageDetail | null };
+    return { page: (row ?? null) as CmsPageDetail | null };
   });
