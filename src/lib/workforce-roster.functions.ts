@@ -379,14 +379,9 @@ export const bulkAssignWeekday = createServerFn({ method: "POST" })
 // Audit helper + bulk roster operations
 // ============================================================
 
-type SupabaseLike = {
-  from: (t: string) => {
-    insert: (rows: Record<string, unknown> | Record<string, unknown>[]) => Promise<unknown>;
-  };
-};
-
 async function writeAudit(
-  supabase: SupabaseLike,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  supabase: any,
   actorId: string | null | undefined,
   companyId: string | null,
   action: string,
