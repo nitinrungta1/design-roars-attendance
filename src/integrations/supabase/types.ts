@@ -185,6 +185,45 @@ export type Database = {
           },
         ]
       }
+      backup_snapshots: {
+        Row: {
+          completed_at: string | null
+          download_url: string | null
+          error: string | null
+          id: string
+          requested_at: string
+          requested_by: string | null
+          row_count: number | null
+          size_bytes: number | null
+          status: string
+          table_count: number | null
+        }
+        Insert: {
+          completed_at?: string | null
+          download_url?: string | null
+          error?: string | null
+          id?: string
+          requested_at?: string
+          requested_by?: string | null
+          row_count?: number | null
+          size_bytes?: number | null
+          status?: string
+          table_count?: number | null
+        }
+        Update: {
+          completed_at?: string | null
+          download_url?: string | null
+          error?: string | null
+          id?: string
+          requested_at?: string
+          requested_by?: string | null
+          row_count?: number | null
+          size_bytes?: number | null
+          status?: string
+          table_count?: number | null
+        }
+        Relationships: []
+      }
       blog_posts: {
         Row: {
           author_id: string | null
@@ -1430,6 +1469,39 @@ export type Database = {
           },
         ]
       }
+      permissions: {
+        Row: {
+          action: string
+          created_at: string
+          description: string | null
+          id: string
+          key: string
+          label: string
+          module: string
+          sort_order: number
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          key: string
+          label: string
+          module: string
+          sort_order?: number
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          key?: string
+          label?: string
+          module?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
       plans: {
         Row: {
           code: string
@@ -1487,6 +1559,63 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_settings: {
+        Row: {
+          brand_name: string
+          created_at: string
+          default_currency: string
+          default_plan_code: string | null
+          default_timezone: string
+          email: Json
+          id: string
+          logo_url: string | null
+          primary_color: string | null
+          product_name: string
+          role_labels: Json
+          security: Json
+          singleton: boolean
+          support_email: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          brand_name?: string
+          created_at?: string
+          default_currency?: string
+          default_plan_code?: string | null
+          default_timezone?: string
+          email?: Json
+          id?: string
+          logo_url?: string | null
+          primary_color?: string | null
+          product_name?: string
+          role_labels?: Json
+          security?: Json
+          singleton?: boolean
+          support_email?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          brand_name?: string
+          created_at?: string
+          default_currency?: string
+          default_plan_code?: string | null
+          default_timezone?: string
+          email?: Json
+          id?: string
+          logo_url?: string | null
+          primary_color?: string | null
+          product_name?: string
+          role_labels?: Json
+          security?: Json
+          singleton?: boolean
+          support_email?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -1528,6 +1657,38 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "companies"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      role_permissions: {
+        Row: {
+          granted_at: string
+          granted_by: string | null
+          id: string
+          permission_key: string
+          role: Database["public"]["Enums"]["app_role"]
+        }
+        Insert: {
+          granted_at?: string
+          granted_by?: string | null
+          id?: string
+          permission_key: string
+          role: Database["public"]["Enums"]["app_role"]
+        }
+        Update: {
+          granted_at?: string
+          granted_by?: string | null
+          id?: string
+          permission_key?: string
+          role?: Database["public"]["Enums"]["app_role"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "role_permissions_permission_key_fkey"
+            columns: ["permission_key"]
+            isOneToOne: false
+            referencedRelation: "permissions"
+            referencedColumns: ["key"]
           },
         ]
       }
@@ -1891,6 +2052,80 @@ export type Database = {
         }
         Relationships: []
       }
+      team_members: {
+        Row: {
+          added_at: string
+          added_by: string | null
+          id: string
+          is_lead: boolean
+          team_id: string
+          user_id: string
+        }
+        Insert: {
+          added_at?: string
+          added_by?: string | null
+          id?: string
+          is_lead?: boolean
+          team_id: string
+          user_id: string
+        }
+        Update: {
+          added_at?: string
+          added_by?: string | null
+          id?: string
+          is_lead?: boolean
+          team_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_members_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      teams: {
+        Row: {
+          color: string | null
+          company_id: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          lead_user_id: string | null
+          name: string
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          color?: string | null
+          company_id: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          lead_user_id?: string | null
+          name: string
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          color?: string | null
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          lead_user_id?: string | null
+          name?: string
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       ticket_messages: {
         Row: {
           author_id: string | null
@@ -2164,6 +2399,10 @@ export type Database = {
     }
     Functions: {
       current_company_id: { Args: never; Returns: string }
+      has_permission: {
+        Args: { _key: string; _user_id: string }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -2175,7 +2414,22 @@ export type Database = {
       is_attendance_admin: { Args: { _user_id: string }; Returns: boolean }
       is_member_of: { Args: { _company_id: string }; Returns: boolean }
       is_super_admin: { Args: { _user_id: string }; Returns: boolean }
+      is_team_lead: {
+        Args: { _team_id: string; _user_id: string }
+        Returns: boolean
+      }
+      log_audit: {
+        Args: {
+          _action: string
+          _company_id?: string
+          _diff?: Json
+          _entity_id?: string
+          _entity_type?: string
+        }
+        Returns: string
+      }
       needs_bootstrap: { Args: never; Returns: boolean }
+      team_company_id: { Args: { _team_id: string }; Returns: string }
     }
     Enums: {
       app_role:
