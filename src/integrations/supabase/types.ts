@@ -14,6 +14,177 @@ export type Database = {
   }
   public: {
     Tables: {
+      analytics_events: {
+        Row: {
+          created_at: string
+          event_name: string
+          id: string
+          occurred_at: string
+          page_path: string | null
+          page_url: string | null
+          props: Json
+          referrer: string | null
+          session_id: string | null
+          visitor_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_name: string
+          id?: string
+          occurred_at?: string
+          page_path?: string | null
+          page_url?: string | null
+          props?: Json
+          referrer?: string | null
+          session_id?: string | null
+          visitor_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_name?: string
+          id?: string
+          occurred_at?: string
+          page_path?: string | null
+          page_url?: string | null
+          props?: Json
+          referrer?: string | null
+          session_id?: string | null
+          visitor_id?: string | null
+        }
+        Relationships: []
+      }
+      analytics_sessions: {
+        Row: {
+          browser: string | null
+          city: string | null
+          country: string | null
+          created_at: string
+          device: string | null
+          ended_at: string | null
+          exit_url: string | null
+          landing_url: string | null
+          last_touch: Json
+          os: string | null
+          page_count: number
+          referrer: string | null
+          session_id: string
+          started_at: string
+          updated_at: string
+          visitor_id: string
+        }
+        Insert: {
+          browser?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          device?: string | null
+          ended_at?: string | null
+          exit_url?: string | null
+          landing_url?: string | null
+          last_touch?: Json
+          os?: string | null
+          page_count?: number
+          referrer?: string | null
+          session_id: string
+          started_at?: string
+          updated_at?: string
+          visitor_id: string
+        }
+        Update: {
+          browser?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          device?: string | null
+          ended_at?: string | null
+          exit_url?: string | null
+          landing_url?: string | null
+          last_touch?: Json
+          os?: string | null
+          page_count?: number
+          referrer?: string | null
+          session_id?: string
+          started_at?: string
+          updated_at?: string
+          visitor_id?: string
+        }
+        Relationships: []
+      }
+      analytics_settings: {
+        Row: {
+          clarity_id: string | null
+          cookie_consent_required: boolean
+          ga4_id: string | null
+          gtm_id: string | null
+          id: number
+          meta_pixel_id: string | null
+          reports_enabled: boolean
+          reports_from_email: string | null
+          retention_days: number
+          updated_at: string
+        }
+        Insert: {
+          clarity_id?: string | null
+          cookie_consent_required?: boolean
+          ga4_id?: string | null
+          gtm_id?: string | null
+          id?: number
+          meta_pixel_id?: string | null
+          reports_enabled?: boolean
+          reports_from_email?: string | null
+          retention_days?: number
+          updated_at?: string
+        }
+        Update: {
+          clarity_id?: string | null
+          cookie_consent_required?: boolean
+          ga4_id?: string | null
+          gtm_id?: string | null
+          id?: number
+          meta_pixel_id?: string | null
+          reports_enabled?: boolean
+          reports_from_email?: string | null
+          retention_days?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      analytics_visitors: {
+        Row: {
+          city: string | null
+          country: string | null
+          created_at: string
+          first_seen: string
+          first_touch: Json
+          last_seen: string
+          total_leads: number
+          total_sessions: number
+          visitor_id: string
+        }
+        Insert: {
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          first_seen?: string
+          first_touch?: Json
+          last_seen?: string
+          total_leads?: number
+          total_sessions?: number
+          visitor_id: string
+        }
+        Update: {
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          first_seen?: string
+          first_touch?: Json
+          last_seen?: string
+          total_leads?: number
+          total_sessions?: number
+          visitor_id?: string
+        }
+        Relationships: []
+      }
       announcement_reads: {
         Row: {
           announcement_id: string
@@ -1435,51 +1606,93 @@ export type Database = {
           company: string | null
           company_id: string | null
           created_at: string
+          creative_type: string | null
+          device: string | null
           email: string
+          fbclid: string | null
+          gclid: string | null
           id: string
+          landing_url: string | null
           message: string | null
           metadata: Json | null
           name: string
           notes: string | null
           phone: string | null
+          placement: string | null
           plan_interest: string | null
+          referrer: string | null
+          session_id: string | null
           source: string | null
           status: Database["public"]["Enums"]["lead_status"]
           updated_at: string
+          utm_campaign: string | null
+          utm_content: string | null
+          utm_medium: string | null
+          utm_source: string | null
+          utm_term: string | null
+          visitor_id: string | null
         }
         Insert: {
           assigned_to?: string | null
           company?: string | null
           company_id?: string | null
           created_at?: string
+          creative_type?: string | null
+          device?: string | null
           email: string
+          fbclid?: string | null
+          gclid?: string | null
           id?: string
+          landing_url?: string | null
           message?: string | null
           metadata?: Json | null
           name: string
           notes?: string | null
           phone?: string | null
+          placement?: string | null
           plan_interest?: string | null
+          referrer?: string | null
+          session_id?: string | null
           source?: string | null
           status?: Database["public"]["Enums"]["lead_status"]
           updated_at?: string
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
+          visitor_id?: string | null
         }
         Update: {
           assigned_to?: string | null
           company?: string | null
           company_id?: string | null
           created_at?: string
+          creative_type?: string | null
+          device?: string | null
           email?: string
+          fbclid?: string | null
+          gclid?: string | null
           id?: string
+          landing_url?: string | null
           message?: string | null
           metadata?: Json | null
           name?: string
           notes?: string | null
           phone?: string | null
+          placement?: string | null
           plan_interest?: string | null
+          referrer?: string | null
+          session_id?: string | null
           source?: string | null
           status?: Database["public"]["Enums"]["lead_status"]
           updated_at?: string
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
+          visitor_id?: string | null
         }
         Relationships: [
           {
@@ -3069,7 +3282,30 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      analytics_settings_public: {
+        Row: {
+          clarity_id: string | null
+          cookie_consent_required: boolean | null
+          ga4_id: string | null
+          gtm_id: string | null
+          meta_pixel_id: string | null
+        }
+        Insert: {
+          clarity_id?: string | null
+          cookie_consent_required?: boolean | null
+          ga4_id?: string | null
+          gtm_id?: string | null
+          meta_pixel_id?: string | null
+        }
+        Update: {
+          clarity_id?: string | null
+          cookie_consent_required?: boolean | null
+          ga4_id?: string | null
+          gtm_id?: string | null
+          meta_pixel_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       current_company_id: { Args: never; Returns: string }
