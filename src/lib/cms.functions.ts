@@ -172,7 +172,7 @@ export interface CmsPageRow {
   updated_at: string;
 }
 
-export interface CmsCmsPageDetail extends CmsPageRow {
+export interface CmsPageDetail extends CmsPageRow {
   body: string | null;
   seo_title: string | null;
   seo_description: string | null;
@@ -194,7 +194,7 @@ export const listCmsPages = createServerFn({ method: "POST" })
 export const getCmsPage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => z.object({ id: z.string().uuid() }).parse(input))
-  .handler(async ({ data, context }): Promise<{ page: CmsCmsPageDetail | null }> => {
+  .handler(async ({ data, context }): Promise<{ page: CmsPageDetail | null }> => {
     const { supabase } = context;
     const { data: row, error } = await supabase
       .from("cms_pages")
@@ -202,7 +202,7 @@ export const getCmsPage = createServerFn({ method: "POST" })
       .eq("id", data.id)
       .maybeSingle();
     if (error) return { page: null };
-    return { page: (row ?? null) as CmsCmsPageDetail | null };
+    return { page: (row ?? null) as CmsPageDetail | null };
   });
 
 const UpsertPageSchema = z.object({
