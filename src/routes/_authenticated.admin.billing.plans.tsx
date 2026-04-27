@@ -144,9 +144,18 @@ function PlansPage() {
 function EditPlanDialog({ plan, onClose }: { plan: PlanRow; onClose: () => void }) {
   const qc = useQueryClient();
   const [name, setName] = useState(plan.name);
+  const [tagline, setTagline] = useState((plan as PlanRow & { tagline?: string }).tagline ?? "");
   const [description, setDescription] = useState(plan.description ?? "");
   const [monthly, setMonthly] = useState(plan.price_monthly);
   const [yearly, setYearly] = useState(plan.price_yearly);
+  const [trialDays, setTrialDays] = useState(plan.trial_days);
+  const [employeeLimit, setEmployeeLimit] = useState<number | "">(plan.employee_limit ?? "");
+  const [popular, setPopular] = useState(
+    Boolean((plan as PlanRow & { popular?: boolean }).popular),
+  );
+  const [ctaLabel, setCtaLabel] = useState(
+    (plan as PlanRow & { cta_label?: string | null }).cta_label ?? "",
+  );
 
   const mut = useMutation({
     mutationFn: () =>
@@ -154,9 +163,14 @@ function EditPlanDialog({ plan, onClose }: { plan: PlanRow; onClose: () => void 
         data: {
           id: plan.id,
           name,
+          tagline,
           description,
           price_monthly: monthly,
           price_yearly: yearly,
+          trial_days: trialDays,
+          employee_limit: employeeLimit === "" ? null : Number(employeeLimit),
+          popular,
+          cta_label: ctaLabel,
         },
       }),
     onSuccess: (res) => {
@@ -169,15 +183,25 @@ function EditPlanDialog({ plan, onClose }: { plan: PlanRow; onClose: () => void 
   });
 
   return (
-    <DialogContent>
+    <DialogContent className="max-w-lg">
       <DialogHeader>
         <DialogTitle>Edit {plan.name}</DialogTitle>
-        <DialogDescription>Update plan details and pricing.</DialogDescription>
+        <DialogDescription>
+          Update plan details, pricing, and marketing fields shown on /pricing.
+        </DialogDescription>
       </DialogHeader>
-      <div className="space-y-3">
+      <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
         <div>
           <Label>Name</Label>
           <Input value={name} onChange={(e) => setName(e.target.value)} />
+        </div>
+        <div>
+          <Label>Tagline (shown under plan name)</Label>
+          <Input
+            value={tagline}
+            onChange={(e) => setTagline(e.target.value)}
+            placeholder="For scaling teams with shifts and OT."
+          />
         </div>
         <div>
           <Label>Description</Label>
@@ -204,6 +228,43 @@ function EditPlanDialog({ plan, onClose }: { plan: PlanRow; onClose: () => void 
               onChange={(e) => setYearly(Number(e.target.value))}
             />
           </div>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <Label>Trial days</Label>
+            <Input
+              type="number"
+              value={trialDays}
+              onChange={(e) => setTrialDays(Number(e.target.value))}
+            />
+          </div>
+          <div>
+            <Label>Employee limit (blank = unlimited)</Label>
+            <Input
+              type="number"
+              value={employeeLimit}
+              onChange={(e) =>
+                setEmployeeLimit(e.target.value === "" ? "" : Number(e.target.value))
+              }
+            />
+          </div>
+        </div>
+        <div>
+          <Label>CTA button label</Label>
+          <Input
+            value={ctaLabel}
+            onChange={(e) => setCtaLabel(e.target.value)}
+            placeholder="Start Free Trial"
+          />
+        </div>
+        <div className="flex items-center justify-between rounded-lg border border-border bg-muted/30 px-3 py-2">
+          <div>
+            <div className="text-sm font-medium">Most popular badge</div>
+            <div className="text-xs text-muted-foreground">
+              Highlights this plan on the pricing page.
+            </div>
+          </div>
+          <Switch checked={popular} onCheckedChange={setPopular} />
         </div>
       </div>
       <DialogFooter>
