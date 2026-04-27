@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TimeTrackingSoftwareRouteImport } from './routes/time-tracking-software'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as SitemapHelpDotxmlRouteImport } from './routes/sitemap-help[.]xml'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as ShiftManagementSoftwareRouteImport } from './routes/shift-management-software'
 import { Route as SecurityRouteImport } from './routes/security'
@@ -130,6 +131,11 @@ const TermsRoute = TermsRouteImport.update({
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapHelpDotxmlRoute = SitemapHelpDotxmlRouteImport.update({
+  id: '/sitemap-help.xml',
+  path: '/sitemap-help.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SignupRoute = SignupRouteImport.update({
@@ -755,6 +761,7 @@ export interface FileRoutesByFullPath {
   '/security': typeof SecurityRoute
   '/shift-management-software': typeof ShiftManagementSoftwareRoute
   '/signup': typeof SignupRoute
+  '/sitemap-help.xml': typeof SitemapHelpDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/time-tracking-software': typeof TimeTrackingSoftwareRoute
@@ -863,6 +870,7 @@ export interface FileRoutesByTo {
   '/security': typeof SecurityRoute
   '/shift-management-software': typeof ShiftManagementSoftwareRoute
   '/signup': typeof SignupRoute
+  '/sitemap-help.xml': typeof SitemapHelpDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/time-tracking-software': typeof TimeTrackingSoftwareRoute
@@ -971,6 +979,7 @@ export interface FileRoutesById {
   '/security': typeof SecurityRoute
   '/shift-management-software': typeof ShiftManagementSoftwareRoute
   '/signup': typeof SignupRoute
+  '/sitemap-help.xml': typeof SitemapHelpDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/time-tracking-software': typeof TimeTrackingSoftwareRoute
@@ -1081,6 +1090,7 @@ export interface FileRouteTypes {
     | '/security'
     | '/shift-management-software'
     | '/signup'
+    | '/sitemap-help.xml'
     | '/sitemap.xml'
     | '/terms'
     | '/time-tracking-software'
@@ -1189,6 +1199,7 @@ export interface FileRouteTypes {
     | '/security'
     | '/shift-management-software'
     | '/signup'
+    | '/sitemap-help.xml'
     | '/sitemap.xml'
     | '/terms'
     | '/time-tracking-software'
@@ -1296,6 +1307,7 @@ export interface FileRouteTypes {
     | '/security'
     | '/shift-management-software'
     | '/signup'
+    | '/sitemap-help.xml'
     | '/sitemap.xml'
     | '/terms'
     | '/time-tracking-software'
@@ -1406,6 +1418,7 @@ export interface RootRouteChildren {
   SecurityRoute: typeof SecurityRoute
   ShiftManagementSoftwareRoute: typeof ShiftManagementSoftwareRoute
   SignupRoute: typeof SignupRoute
+  SitemapHelpDotxmlRoute: typeof SitemapHelpDotxmlRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
   TimeTrackingSoftwareRoute: typeof TimeTrackingSoftwareRoute
@@ -1433,6 +1446,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap-help.xml': {
+      id: '/sitemap-help.xml'
+      path: '/sitemap-help.xml'
+      fullPath: '/sitemap-help.xml'
+      preLoaderRoute: typeof SitemapHelpDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/signup': {
@@ -2436,6 +2456,7 @@ const rootRouteChildren: RootRouteChildren = {
   SecurityRoute: SecurityRoute,
   ShiftManagementSoftwareRoute: ShiftManagementSoftwareRoute,
   SignupRoute: SignupRoute,
+  SitemapHelpDotxmlRoute: SitemapHelpDotxmlRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
   TimeTrackingSoftwareRoute: TimeTrackingSoftwareRoute,
