@@ -1560,13 +1560,19 @@ export type Database = {
           author_id: string | null
           body: string | null
           category: string | null
+          category_id: string | null
           created_at: string
           excerpt: string | null
+          helpful_count: number
           id: string
+          position: number
           published_at: string | null
+          seo_description: string | null
+          seo_title: string | null
           slug: string
           status: Database["public"]["Enums"]["post_status"]
           title: string
+          unhelpful_count: number
           updated_at: string
           view_count: number
         }
@@ -1574,13 +1580,19 @@ export type Database = {
           author_id?: string | null
           body?: string | null
           category?: string | null
+          category_id?: string | null
           created_at?: string
           excerpt?: string | null
+          helpful_count?: number
           id?: string
+          position?: number
           published_at?: string | null
+          seo_description?: string | null
+          seo_title?: string | null
           slug: string
           status?: Database["public"]["Enums"]["post_status"]
           title: string
+          unhelpful_count?: number
           updated_at?: string
           view_count?: number
         }
@@ -1588,15 +1600,59 @@ export type Database = {
           author_id?: string | null
           body?: string | null
           category?: string | null
+          category_id?: string | null
           created_at?: string
           excerpt?: string | null
+          helpful_count?: number
           id?: string
+          position?: number
           published_at?: string | null
+          seo_description?: string | null
+          seo_title?: string | null
           slug?: string
           status?: Database["public"]["Enums"]["post_status"]
           title?: string
+          unhelpful_count?: number
           updated_at?: string
           view_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kb_articles_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "kb_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      kb_categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          position: number
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          position?: number
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          position?: number
+          slug?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -2846,11 +2902,125 @@ export type Database = {
           },
         ]
       }
+      support_macros: {
+        Row: {
+          body: string
+          created_at: string
+          created_by: string | null
+          id: string
+          name: string
+          tags: string[]
+          updated_at: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name: string
+          tags?: string[]
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name?: string
+          tags?: string[]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      support_sla_policies: {
+        Row: {
+          business_hours: Json
+          created_at: string
+          first_response_minutes: number
+          id: string
+          is_active: boolean
+          is_default: boolean
+          name: string
+          priority: Database["public"]["Enums"]["ticket_priority"]
+          resolution_minutes: number
+          updated_at: string
+        }
+        Insert: {
+          business_hours?: Json
+          created_at?: string
+          first_response_minutes?: number
+          id?: string
+          is_active?: boolean
+          is_default?: boolean
+          name: string
+          priority: Database["public"]["Enums"]["ticket_priority"]
+          resolution_minutes?: number
+          updated_at?: string
+        }
+        Update: {
+          business_hours?: Json
+          created_at?: string
+          first_response_minutes?: number
+          id?: string
+          is_active?: boolean
+          is_default?: boolean
+          name?: string
+          priority?: Database["public"]["Enums"]["ticket_priority"]
+          resolution_minutes?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      support_ticket_messages: {
+        Row: {
+          attachments: Json
+          author_email: string | null
+          author_id: string | null
+          author_name: string | null
+          body: string
+          created_at: string
+          id: string
+          is_internal: boolean
+          ticket_id: string
+        }
+        Insert: {
+          attachments?: Json
+          author_email?: string | null
+          author_id?: string | null
+          author_name?: string | null
+          body: string
+          created_at?: string
+          id?: string
+          is_internal?: boolean
+          ticket_id: string
+        }
+        Update: {
+          attachments?: Json
+          author_email?: string | null
+          author_id?: string | null
+          author_name?: string | null
+          body?: string
+          created_at?: string
+          id?: string
+          is_internal?: boolean
+          ticket_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_ticket_messages_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "support_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       support_tickets: {
         Row: {
           assigned_to: string | null
           body: string | null
           channel: Database["public"]["Enums"]["ticket_channel"]
+          closed_at: string | null
           company_id: string | null
           created_at: string
           first_response_at: string | null
@@ -2859,16 +3029,19 @@ export type Database = {
           priority: Database["public"]["Enums"]["ticket_priority"]
           requester_email: string
           requester_name: string | null
+          requester_user_id: string | null
           resolved_at: string | null
           sla_due_at: string | null
           status: Database["public"]["Enums"]["ticket_status"]
           subject: string
+          tags: string[]
           updated_at: string
         }
         Insert: {
           assigned_to?: string | null
           body?: string | null
           channel?: Database["public"]["Enums"]["ticket_channel"]
+          closed_at?: string | null
           company_id?: string | null
           created_at?: string
           first_response_at?: string | null
@@ -2877,16 +3050,19 @@ export type Database = {
           priority?: Database["public"]["Enums"]["ticket_priority"]
           requester_email: string
           requester_name?: string | null
+          requester_user_id?: string | null
           resolved_at?: string | null
           sla_due_at?: string | null
           status?: Database["public"]["Enums"]["ticket_status"]
           subject: string
+          tags?: string[]
           updated_at?: string
         }
         Update: {
           assigned_to?: string | null
           body?: string | null
           channel?: Database["public"]["Enums"]["ticket_channel"]
+          closed_at?: string | null
           company_id?: string | null
           created_at?: string
           first_response_at?: string | null
@@ -2895,10 +3071,12 @@ export type Database = {
           priority?: Database["public"]["Enums"]["ticket_priority"]
           requester_email?: string
           requester_name?: string | null
+          requester_user_id?: string | null
           resolved_at?: string | null
           sla_due_at?: string | null
           status?: Database["public"]["Enums"]["ticket_status"]
           subject?: string
+          tags?: string[]
           updated_at?: string
         }
         Relationships: []
@@ -3327,6 +3505,11 @@ export type Database = {
       is_team_lead: {
         Args: { _team_id: string; _user_id: string }
         Returns: boolean
+      }
+      kb_record_view: { Args: { _slug: string }; Returns: undefined }
+      kb_record_vote: {
+        Args: { _helpful: boolean; _slug: string }
+        Returns: undefined
       }
       log_audit: {
         Args: {
