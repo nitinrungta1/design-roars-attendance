@@ -110,9 +110,11 @@ export const updatePlatformSettings = createServerFn({ method: "POST" })
   )
   .handler(async ({ context, data }): Promise<{ ok: boolean; error?: string }> => {
     const { supabase, userId } = context;
+    const patch = data.patch as Record<string, unknown>;
     const { error } = await supabase
       .from("platform_settings")
-      .update({ ...data.patch, updated_by: userId })
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .update({ ...(patch as any), updated_by: userId })
       .eq("singleton", true);
     if (error) return { ok: false, error: error.message };
     await supabase.rpc("log_audit", {
