@@ -45,6 +45,7 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated.admin'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated.admin.index'
+import { Route as AuthenticatedAdminWorkforceIndexRouteImport } from './routes/_authenticated.admin.workforce.index'
 import { Route as AuthenticatedAdminLeadsIndexRouteImport } from './routes/_authenticated.admin.leads.index'
 import { Route as AuthenticatedAdminWorkforceTimesheetsRouteImport } from './routes/_authenticated.admin.workforce.timesheets'
 import { Route as AuthenticatedAdminWorkforceShiftsRouteImport } from './routes/_authenticated.admin.workforce.shifts'
@@ -283,6 +284,12 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const AuthenticatedAdminWorkforceIndexRoute =
+  AuthenticatedAdminWorkforceIndexRouteImport.update({
+    id: '/workforce/',
+    path: '/workforce/',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminLeadsIndexRoute =
   AuthenticatedAdminLeadsIndexRouteImport.update({
     id: '/leads/',
@@ -691,6 +698,7 @@ export interface FileRoutesByFullPath {
   '/admin/workforce/shifts': typeof AuthenticatedAdminWorkforceShiftsRoute
   '/admin/workforce/timesheets': typeof AuthenticatedAdminWorkforceTimesheetsRoute
   '/admin/leads/': typeof AuthenticatedAdminLeadsIndexRoute
+  '/admin/workforce/': typeof AuthenticatedAdminWorkforceIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -780,6 +788,7 @@ export interface FileRoutesByTo {
   '/admin/workforce/shifts': typeof AuthenticatedAdminWorkforceShiftsRoute
   '/admin/workforce/timesheets': typeof AuthenticatedAdminWorkforceTimesheetsRoute
   '/admin/leads': typeof AuthenticatedAdminLeadsIndexRoute
+  '/admin/workforce': typeof AuthenticatedAdminWorkforceIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -872,6 +881,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/workforce/shifts': typeof AuthenticatedAdminWorkforceShiftsRoute
   '/_authenticated/admin/workforce/timesheets': typeof AuthenticatedAdminWorkforceTimesheetsRoute
   '/_authenticated/admin/leads/': typeof AuthenticatedAdminLeadsIndexRoute
+  '/_authenticated/admin/workforce/': typeof AuthenticatedAdminWorkforceIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -964,6 +974,7 @@ export interface FileRouteTypes {
     | '/admin/workforce/shifts'
     | '/admin/workforce/timesheets'
     | '/admin/leads/'
+    | '/admin/workforce/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -1053,6 +1064,7 @@ export interface FileRouteTypes {
     | '/admin/workforce/shifts'
     | '/admin/workforce/timesheets'
     | '/admin/leads'
+    | '/admin/workforce'
   id:
     | '__root__'
     | '/'
@@ -1144,6 +1156,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/workforce/shifts'
     | '/_authenticated/admin/workforce/timesheets'
     | '/_authenticated/admin/leads/'
+    | '/_authenticated/admin/workforce/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1435,6 +1448,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/admin/'
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/workforce/': {
+      id: '/_authenticated/admin/workforce/'
+      path: '/workforce'
+      fullPath: '/admin/workforce/'
+      preLoaderRoute: typeof AuthenticatedAdminWorkforceIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/leads/': {
@@ -1866,6 +1886,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminWorkforceShiftsRoute: typeof AuthenticatedAdminWorkforceShiftsRoute
   AuthenticatedAdminWorkforceTimesheetsRoute: typeof AuthenticatedAdminWorkforceTimesheetsRoute
   AuthenticatedAdminLeadsIndexRoute: typeof AuthenticatedAdminLeadsIndexRoute
+  AuthenticatedAdminWorkforceIndexRoute: typeof AuthenticatedAdminWorkforceIndexRoute
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
@@ -1951,6 +1972,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminWorkforceTimesheetsRoute:
     AuthenticatedAdminWorkforceTimesheetsRoute,
   AuthenticatedAdminLeadsIndexRoute: AuthenticatedAdminLeadsIndexRoute,
+  AuthenticatedAdminWorkforceIndexRoute: AuthenticatedAdminWorkforceIndexRoute,
 }
 
 const AuthenticatedAdminRouteWithChildren =
