@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { Logo } from "./logo";
 import { Button } from "@/components/ui/button";
+import { CurrencySwitcher } from "@/components/brand/currency-switcher";
 import { cn } from "@/lib/utils";
 
 const nav = [
@@ -61,6 +62,7 @@ export function MarketingHeader() {
           ))}
         </nav>
         <div className="hidden items-center gap-2 lg:flex">
+          <CurrencySwitcher />
           <Button variant="ghost" asChild size="sm">
             <Link to="/login">Sign in</Link>
           </Button>
@@ -68,13 +70,16 @@ export function MarketingHeader() {
             <Link to="/signup">Start free trial</Link>
           </Button>
         </div>
-        <button
-          className="lg:hidden inline-flex h-10 w-10 items-center justify-center rounded-md hover:bg-accent"
-          onClick={() => setOpen((v) => !v)}
-          aria-label="Toggle menu"
-        >
-          {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-        </button>
+        <div className="flex items-center gap-1 lg:hidden">
+          <CurrencySwitcher compact />
+          <button
+            className="inline-flex h-10 w-10 items-center justify-center rounded-md hover:bg-accent"
+            onClick={() => setOpen((v) => !v)}
+            aria-label="Toggle menu"
+          >
+            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+        </div>
       </div>
       {open && (
         <div className="lg:hidden border-t border-border bg-background/95 backdrop-blur">

@@ -3,6 +3,8 @@ import { MarketingLayout } from "@/components/brand/marketing-layout";
 import { Container, Section, Eyebrow, GradientText } from "@/components/brand/primitives";
 import { Button } from "@/components/ui/button";
 import { CtaBanner } from "@/components/brand/marketing-sections";
+import { CurrencySwitcher } from "@/components/brand/currency-switcher";
+import { useCurrency } from "@/lib/currency";
 import { seo } from "@/lib/seo";
 import { Check, Minus } from "lucide-react";
 
@@ -16,12 +18,13 @@ export const Route = createFileRoute("/pricing")({
   component: PricingPage,
 });
 
-const tiers = [
-  { name: "Free", price: "$0", per: "Up to 10 users forever", cta: "Start free", highlight: false },
-  { name: "Starter", price: "$2", per: "per user / month", cta: "Choose Starter", highlight: false },
-  { name: "Growth", price: "$4", per: "per user / month", cta: "Choose Growth", highlight: true },
-  { name: "Business", price: "$7", per: "per user / month", cta: "Choose Business", highlight: false },
-  { name: "Enterprise", price: "Custom", per: "Volume + SLA + SSO", cta: "Talk to sales", highlight: false },
+// USD base prices (per user / month). null = custom or free.
+const tiers: { name: string; usd: number | null; per: string; cta: string; highlight: boolean; custom?: string }[] = [
+  { name: "Free", usd: 0, per: "Up to 10 users forever", cta: "Start free", highlight: false },
+  { name: "Starter", usd: 2, per: "per user / month", cta: "Choose Starter", highlight: false },
+  { name: "Growth", usd: 4, per: "per user / month", cta: "Choose Growth", highlight: true },
+  { name: "Business", usd: 7, per: "per user / month", cta: "Choose Business", highlight: false },
+  { name: "Enterprise", usd: null, per: "Volume + SLA + SSO", cta: "Talk to sales", highlight: false, custom: "Custom" },
 ];
 
 const matrix: { feature: string; values: (boolean | string)[] }[] = [
@@ -52,6 +55,7 @@ const faqs = [
 ];
 
 function PricingPage() {
+  const { format, meta, isLoading } = useCurrency();
   return (
     <MarketingLayout>
       <Section className="bg-gradient-hero pb-10 pt-12 sm:pt-16 lg:pt-24">
@@ -63,6 +67,11 @@ function PricingPage() {
           <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
             Start free, scale as you grow. No setup fees. Cancel anytime.
           </p>
+          <div className="mt-6 flex items-center justify-center gap-2 text-sm text-muted-foreground">
+            <span>Showing prices in</span>
+            <CurrencySwitcher variant="outline" />
+            <span className="hidden sm:inline">· {meta.name}</span>
+          </div>
         </Container>
       </Section>
 
@@ -83,7 +92,13 @@ function PricingPage() {
                 )}
                 <h3 className="text-lg font-semibold">{t.name}</h3>
                 <div className="mt-2 flex items-baseline gap-1">
-                  <span className="text-3xl font-bold tabular">{t.price}</span>
+                  <span className="text-3xl font-bold tabular">
+                    {t.usd === null
+                      ? t.custom
+                      : isLoading
+                        ? "…"
+                        : format(t.usd)}
+                  </span>
                 </div>
                 <p className="text-sm text-muted-foreground">{t.per}</p>
                 <Button
@@ -96,6 +111,9 @@ function PricingPage() {
               </div>
             ))}
           </div>
+          <p className="mt-4 text-center text-xs text-muted-foreground">
+            Prices auto-converted from USD using live rates. Billing always in your local currency.
+          </p>
         </Container>
       </Section>
 

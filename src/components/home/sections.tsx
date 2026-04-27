@@ -24,6 +24,7 @@ import {
   GlassCard,
 } from "@/components/brand/primitives";
 import { CtaBanner } from "@/components/brand/marketing-sections";
+import { useCurrency } from "@/lib/currency";
 import heroImg from "@/assets/hero-dashboard.jpg";
 import mobileImg from "@/assets/mobile-showcase.jpg";
 import kioskImg from "@/assets/kiosk-mode.jpg";
@@ -83,11 +84,11 @@ const testimonials = [
   },
 ];
 
-const pricingTiers = [
-  { name: "Free", price: "$0", desc: "For up to 10 users", features: ["Web check-in", "Basic reports", "1 admin"] },
-  { name: "Starter", price: "$2", desc: "Per user / month", features: ["Mobile + GPS", "Timesheets", "Email support"], highlight: false },
-  { name: "Growth", price: "$4", desc: "Per user / month", features: ["Shifts + Overtime", "Kiosk mode", "Priority support"], highlight: true },
-  { name: "Business", price: "$7", desc: "Per user / month", features: ["Payroll integrations", "Advanced reports", "SSO"] },
+const pricingTiers: { name: string; usd: number; desc: string; features: string[]; highlight?: boolean }[] = [
+  { name: "Free", usd: 0, desc: "For up to 10 users", features: ["Web check-in", "Basic reports", "1 admin"] },
+  { name: "Starter", usd: 2, desc: "Per user / month", features: ["Mobile + GPS", "Timesheets", "Email support"], highlight: false },
+  { name: "Growth", usd: 4, desc: "Per user / month", features: ["Shifts + Overtime", "Kiosk mode", "Priority support"], highlight: true },
+  { name: "Business", usd: 7, desc: "Per user / month", features: ["Payroll integrations", "Advanced reports", "SSO"] },
 ];
 
 export function HomeHero() {
@@ -301,6 +302,7 @@ export function Testimonials() {
 }
 
 export function PricingTeaser() {
+  const { format, isLoading } = useCurrency();
   return (
     <Section className="bg-card/30">
       <Container>
@@ -330,7 +332,9 @@ export function PricingTeaser() {
               )}
               <h3 className="text-lg font-semibold">{t.name}</h3>
               <div className="mt-2 flex items-baseline gap-1">
-                <span className="text-3xl font-bold tabular">{t.price}</span>
+                <span className="text-3xl font-bold tabular">
+                  {isLoading ? "…" : format(t.usd)}
+                </span>
                 <span className="text-sm text-muted-foreground">/ month</span>
               </div>
               <p className="text-sm text-muted-foreground">{t.desc}</p>
