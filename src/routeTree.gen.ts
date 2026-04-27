@@ -42,6 +42,7 @@ import { Route as AttendanceManagementSystemRouteImport } from './routes/attenda
 import { Route as AttendanceAppIndiaRouteImport } from './routes/attendance-app-india'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
+import { Route as PageSlugRouteImport } from './routes/$pageSlug'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CareersSlugRouteImport } from './routes/careers.$slug'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
@@ -282,6 +283,11 @@ const AboutRoute = AboutRouteImport.update({
 } as any)
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
   id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PageSlugRoute = PageSlugRouteImport.update({
+  id: '/$pageSlug',
+  path: '/$pageSlug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -713,6 +719,7 @@ const AuthenticatedAdminAccessPermissionsRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/$pageSlug': typeof PageSlugRoute
   '/about': typeof AboutRoute
   '/attendance-app-india': typeof AttendanceAppIndiaRoute
   '/attendance-management-system': typeof AttendanceManagementSystemRoute
@@ -819,6 +826,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/$pageSlug': typeof PageSlugRoute
   '/about': typeof AboutRoute
   '/attendance-app-india': typeof AttendanceAppIndiaRoute
   '/attendance-management-system': typeof AttendanceManagementSystemRoute
@@ -924,6 +932,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/$pageSlug': typeof PageSlugRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/about': typeof AboutRoute
   '/attendance-app-india': typeof AttendanceAppIndiaRoute
@@ -1033,6 +1042,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/$pageSlug'
     | '/about'
     | '/attendance-app-india'
     | '/attendance-management-system'
@@ -1139,6 +1149,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/$pageSlug'
     | '/about'
     | '/attendance-app-india'
     | '/attendance-management-system'
@@ -1243,6 +1254,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/$pageSlug'
     | '/_authenticated'
     | '/about'
     | '/attendance-app-india'
@@ -1351,6 +1363,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  PageSlugRoute: typeof PageSlugRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   AboutRoute: typeof AboutRoute
   AttendanceAppIndiaRoute: typeof AttendanceAppIndiaRoute
@@ -1618,6 +1631,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/$pageSlug': {
+      id: '/$pageSlug'
+      path: '/$pageSlug'
+      fullPath: '/$pageSlug'
+      preLoaderRoute: typeof PageSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -2356,6 +2376,7 @@ const CareersRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  PageSlugRoute: PageSlugRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   AboutRoute: AboutRoute,
   AttendanceAppIndiaRoute: AttendanceAppIndiaRoute,
