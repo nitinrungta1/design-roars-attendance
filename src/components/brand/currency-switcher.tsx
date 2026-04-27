@@ -8,7 +8,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { CURRENCY_LIST, useCurrency } from "@/lib/currency";
+import { CURRENCY_LIST, formatCurrency, useCurrency } from "@/lib/currency";
 
 interface Props {
   align?: "start" | "center" | "end";
@@ -23,7 +23,7 @@ export function CurrencySwitcher({
   variant = "ghost",
   compact = false,
 }: Props) {
-  const { currency, meta, setCurrency } = useCurrency();
+  const { currency, meta, setCurrency, rates } = useCurrency();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
 
@@ -75,6 +75,11 @@ export function CurrencySwitcher({
           ) : (
             filtered.map((c) => {
               const active = c.code === currency;
+              // Live preview: $4 USD reference rendered in this currency.
+              const rate = rates?.rates[c.code] ?? 1;
+              const preview = formatCurrency(4 * rate, c.code, {
+                compact: rate * 4 >= 1000,
+              });
               return (
                 <button
                   key={c.code}
@@ -95,8 +100,8 @@ export function CurrencySwitcher({
                   <span className="flex-1 truncate text-muted-foreground text-xs">
                     {c.name}
                   </span>
-                  <span className="w-6 text-right text-xs text-muted-foreground">
-                    {c.symbol}
+                  <span className="min-w-[3.5rem] text-right text-[11px] tabular text-muted-foreground/80">
+                    {preview}
                   </span>
                   {active && <Check className="ml-1 h-3.5 w-3.5 text-primary" />}
                 </button>

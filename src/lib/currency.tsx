@@ -23,7 +23,7 @@ interface CurrencyMeta {
   symbol: string;
   name: string;
   flag: string;
-  // How to round prices nicely in this currency
+  /** ISO-4217 minor unit count — drives Intl rounding. */
   decimals: number;
 }
 
@@ -83,16 +83,60 @@ export const CURRENCY_LIST: CurrencyMeta[] = SUPPORTED_CURRENCIES.map(
   (c) => CURRENCY_META[c]
 );
 
+/**
+ * Per-currency BCP-47 locale used for `Intl.NumberFormat`. Choosing a locale
+ * that natively uses the currency drives correct grouping (Indian lakh/crore
+ * for INR, German `1.380,00 €` trailing-symbol for EUR, RTL marks for AED),
+ * digit shaping, and decimal symbols — handled by CLDR, not us.
+ */
+export const LOCALE_BY_CURRENCY: Record<Currency, string> = {
+  USD: "en-US", EUR: "de-DE", GBP: "en-GB", INR: "en-IN",
+  AUD: "en-AU", CAD: "en-CA", SGD: "en-SG", AED: "ar-AE",
+  JPY: "ja-JP", CNY: "zh-CN", CHF: "de-CH", SEK: "sv-SE",
+  NOK: "nb-NO", DKK: "da-DK", NZD: "en-NZ", ZAR: "en-ZA",
+  BRL: "pt-BR", MXN: "es-MX", HKD: "en-HK", KRW: "ko-KR",
+  IDR: "id-ID", MYR: "ms-MY", PHP: "en-PH", THB: "th-TH",
+  VND: "vi-VN", TRY: "tr-TR", PLN: "pl-PL", CZK: "cs-CZ",
+  HUF: "hu-HU", ILS: "he-IL", SAR: "ar-SA", QAR: "ar-QA",
+  KWD: "ar-KW", BHD: "ar-BH", OMR: "ar-OM", EGP: "ar-EG",
+  NGN: "en-NG", KES: "en-KE", PKR: "en-PK", BDT: "bn-BD",
+  LKR: "si-LK", NPR: "ne-NP", RUB: "ru-RU", UAH: "uk-UA",
+  ARS: "es-AR", CLP: "es-CL", COP: "es-CO", PEN: "es-PE",
+  TWD: "zh-TW",
+};
+
+interface FormatOptions {
+  /** When false, returns the number portion only (no currency symbol). */
+  withSymbol?: boolean;
+  /** Compact notation: $12K, ₹10L, etc. */
+  compact?: boolean;
+  /** Override fraction digits (defaults to currency minor units). */
+  decimals?: number;
+}
+
 interface CurrencyContextValue {
   currency: Currency;
   meta: CurrencyMeta;
+  locale: string;
   setCurrency: (c: Currency) => void;
   rates: FxRates | undefined;
   isLoading: boolean;
   /** Convert a USD amount to the active currency. */
   convert: (usdAmount: number) => number;
-  /** Format a USD price as a localized string. */
-  format: (usdAmount: number, opts?: { withSymbol?: boolean }) => string;
+  /** Format a USD amount as a localized currency string. */
+  format: (usdAmount: number, opts?: FormatOptions) => string;
+  /** Compact formatting (e.g. $1.2K, ₹10L). */
+  formatCompact: (usdAmount: number) => string;
+  /** Localized range string between two USD amounts. */
+  formatRange: (minUsd: number, maxUsd: number) => string;
+  /** Structured parts for custom layouts (split symbol/integer/fraction). */
+  parts: (usdAmount: number) => {
+    symbol: string;
+    integer: string;
+    decimal: string;
+    fraction: string;
+    currency: Currency;
+  };
   /** Has the user explicitly chosen a currency? */
   isUserSelected: boolean;
 }
@@ -101,6 +145,116 @@ const CurrencyContext = createContext<CurrencyContextValue | null>(null);
 
 function isSupported(c: string | null | undefined): c is Currency {
   return !!c && (SUPPORTED_CURRENCIES as readonly string[]).includes(c);
+}
+
+/**
+ * Pure formatter — exported for tests and any non-React caller. Uses
+ * `Intl.NumberFormat` with `style: "currency"` so symbol placement,
+ * grouping, and minor units come from CLDR (not hand-rolled).
+ */
+export function formatCurrency(
+  amount: number,
+  currency: Currency,
+  opts: FormatOptions = {}
+): string {
+  const meta = CURRENCY_META[currency];
+  const locale = LOCALE_BY_CURRENCY[currency] ?? "en-US";
+  const decimals = opts.decimals ?? meta.decimals;
+  try {
+    const nf = new Intl.NumberFormat(locale, {
+      style: opts.withSymbol === false ? "decimal" : "currency",
+      currency,
+      currencyDisplay: "narrowSymbol",
+      notation: opts.compact ? "compact" : "standard",
+      minimumFractionDigits: opts.compact ? 0 : decimals,
+      maximumFractionDigits: opts.compact ? 1 : decimals,
+    });
+    return nf.format(amount);
+  } catch {
+    // Fallback for runtimes/locales lacking the currency in their CLDR data.
+    const rounded =
+      decimals === 0
+        ? Math.round(amount)
+        : Math.round(amount * 10 ** decimals) / 10 ** decimals;
+    const num = rounded.toLocaleString(locale, {
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals,
+    });
+    return opts.withSymbol === false ? num : `${meta.symbol}${num}`;
+  }
+}
+
+export function formatCurrencyRange(
+  min: number,
+  max: number,
+  currency: Currency
+): string {
+  const meta = CURRENCY_META[currency];
+  const locale = LOCALE_BY_CURRENCY[currency] ?? "en-US";
+  try {
+    const nf = new Intl.NumberFormat(locale, {
+      style: "currency",
+      currency,
+      currencyDisplay: "narrowSymbol",
+      minimumFractionDigits: meta.decimals,
+      maximumFractionDigits: meta.decimals,
+    });
+    // formatRange exists in modern engines (V8/SM 2022+, Node 20+, all browsers since 2023)
+    const maybe = (nf as unknown as {
+      formatRange?: (a: number, b: number) => string;
+    }).formatRange;
+    if (typeof maybe === "function") return maybe.call(nf, min, max);
+    return `${nf.format(min)} – ${nf.format(max)}`;
+  } catch {
+    return `${formatCurrency(min, currency)} – ${formatCurrency(max, currency)}`;
+  }
+}
+
+/** Returns structured currency parts for custom hero layouts. */
+export function getCurrencyParts(amount: number, currency: Currency) {
+  const meta = CURRENCY_META[currency];
+  const locale = LOCALE_BY_CURRENCY[currency] ?? "en-US";
+  try {
+    const nf = new Intl.NumberFormat(locale, {
+      style: "currency",
+      currency,
+      currencyDisplay: "narrowSymbol",
+      minimumFractionDigits: meta.decimals,
+      maximumFractionDigits: meta.decimals,
+    });
+    const parts = nf.formatToParts(amount);
+    let symbol = "";
+    let integer = "";
+    let decimal = "";
+    let fraction = "";
+    for (const p of parts) {
+      switch (p.type) {
+        case "currency":
+          symbol = p.value;
+          break;
+        case "integer":
+        case "group":
+          integer += p.value;
+          break;
+        case "decimal":
+          decimal = p.value;
+          break;
+        case "fraction":
+          fraction = p.value;
+          break;
+      }
+    }
+    return { symbol, integer, decimal, fraction, currency };
+  } catch {
+    const rounded = Math.round(amount).toLocaleString(locale);
+    return {
+      symbol: meta.symbol,
+      integer: rounded,
+      decimal: "",
+      fraction: "",
+      currency,
+    };
+  }
 }
 
 export function CurrencyProvider({ children }: { children: ReactNode }) {
@@ -164,22 +318,25 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
   );
 
   const format = useCallback(
-    (usdAmount: number, opts?: { withSymbol?: boolean }) => {
-      const meta = CURRENCY_META[currency];
-      const value = convert(usdAmount);
-      // Pretty rounding for display (e.g. 165.6 → 166 for INR, 2.04 → 2 for low decimals)
-      const rounded = (() => {
-        if (meta.decimals === 0) return Math.round(value);
-        const factor = 10 ** meta.decimals;
-        return Math.round(value * factor) / factor;
-      })();
-      const formatted = new Intl.NumberFormat(undefined, {
-        minimumFractionDigits: 0,
-        maximumFractionDigits: meta.decimals,
-      }).format(rounded);
-      if (opts?.withSymbol === false) return formatted;
-      return `${meta.symbol}${formatted}`;
-    },
+    (usdAmount: number, opts?: FormatOptions) =>
+      formatCurrency(convert(usdAmount), currency, opts),
+    [convert, currency]
+  );
+
+  const formatCompact = useCallback(
+    (usdAmount: number) =>
+      formatCurrency(convert(usdAmount), currency, { compact: true }),
+    [convert, currency]
+  );
+
+  const formatRange = useCallback(
+    (minUsd: number, maxUsd: number) =>
+      formatCurrencyRange(convert(minUsd), convert(maxUsd), currency),
+    [convert, currency]
+  );
+
+  const parts = useCallback(
+    (usdAmount: number) => getCurrencyParts(convert(usdAmount), currency),
     [convert, currency]
   );
 
@@ -187,14 +344,29 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
     () => ({
       currency,
       meta: CURRENCY_META[currency],
+      locale: LOCALE_BY_CURRENCY[currency] ?? "en-US",
       setCurrency,
       rates,
       isLoading,
       convert,
       format,
+      formatCompact,
+      formatRange,
+      parts,
       isUserSelected,
     }),
-    [currency, setCurrency, rates, isLoading, convert, format, isUserSelected]
+    [
+      currency,
+      setCurrency,
+      rates,
+      isLoading,
+      convert,
+      format,
+      formatCompact,
+      formatRange,
+      parts,
+      isUserSelected,
+    ]
   );
 
   return (

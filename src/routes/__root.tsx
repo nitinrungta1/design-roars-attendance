@@ -70,21 +70,7 @@ export const Route = createRootRoute({
 });
 
 function RootShell({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="en">
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        {children}
-        <Toaster position="top-center" richColors />
-        <Scripts />
-      </body>
-    </html>
-  );
-}
-
-function RootComponent() {
+  // Fresh QueryClient per request (SSR-safe; never module-level singleton).
   const [queryClient] = useState(
     () =>
       new QueryClient({
@@ -94,12 +80,25 @@ function RootComponent() {
       })
   );
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <CurrencyProvider>
-          <Outlet />
-        </CurrencyProvider>
-      </AuthProvider>
-    </QueryClientProvider>
+    <html lang="en">
+      <head>
+        <HeadContent />
+      </head>
+      <body>
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            <CurrencyProvider>
+              {children}
+            </CurrencyProvider>
+          </AuthProvider>
+        </QueryClientProvider>
+        <Toaster position="top-center" richColors />
+        <Scripts />
+      </body>
+    </html>
   );
+}
+
+function RootComponent() {
+  return <Outlet />;
 }
