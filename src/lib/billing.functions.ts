@@ -9,12 +9,16 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 export const PLAN_TIERS = ["free", "starter", "growth", "business", "enterprise"] as const;
 export type PlanTier = (typeof PLAN_TIERS)[number];
 
+export const SUPPORTED_CURRENCIES = ["INR", "USD", "GBP", "EUR", "AED", "SGD", "AUD"] as const;
+export type SupportedCurrency = (typeof SUPPORTED_CURRENCIES)[number];
+
 export interface PlanRow {
   id: string;
   code: string;
   name: string;
   tier: PlanTier;
   description: string | null;
+  tagline: string | null;
   price_monthly: number;
   price_yearly: number;
   currency: string;
@@ -23,7 +27,18 @@ export interface PlanRow {
   features: string[];
   is_active: boolean;
   is_public: boolean;
+  popular: boolean;
+  cta_label: string | null;
   sort_order: number;
+  /** Computed: percent saved on yearly vs monthly×12. */
+  yearly_discount_pct: number;
+}
+
+function computeYearlyDiscount(monthly: number, yearly: number): number {
+  if (!monthly || monthly <= 0) return 0;
+  const annualFromMonthly = monthly * 12;
+  if (yearly >= annualFromMonthly || yearly <= 0) return 0;
+  return Math.round(((annualFromMonthly - yearly) / annualFromMonthly) * 100);
 }
 
 export const listPlans = createServerFn({ method: "POST" })
@@ -33,7 +48,7 @@ export const listPlans = createServerFn({ method: "POST" })
     const { data, error } = await supabase
       .from("plans")
       .select(
-        "id, code, name, tier, description, price_monthly, price_yearly, currency, employee_limit, trial_days, features, is_active, is_public, sort_order",
+        "id, code, name, tier, description, tagline, price_monthly, price_yearly, currency, employee_limit, trial_days, features, is_active, is_public, popular, cta_label, sort_order",
       )
       .order("sort_order", { ascending: true });
     if (error) {
@@ -41,22 +56,30 @@ export const listPlans = createServerFn({ method: "POST" })
       return { plans: [] };
     }
     return {
-      plans: (data ?? []).map((p) => ({
-        id: p.id,
-        code: p.code,
-        name: p.name,
-        tier: p.tier as PlanTier,
-        description: p.description,
-        price_monthly: Number(p.price_monthly),
-        price_yearly: Number(p.price_yearly),
-        currency: p.currency,
-        employee_limit: p.employee_limit,
-        trial_days: p.trial_days,
-        features: Array.isArray(p.features) ? (p.features as string[]) : [],
-        is_active: p.is_active,
-        is_public: p.is_public,
-        sort_order: p.sort_order,
-      })),
+      plans: (data ?? []).map((p) => {
+        const monthly = Number(p.price_monthly);
+        const yearly = Number(p.price_yearly);
+        return {
+          id: p.id,
+          code: p.code,
+          name: p.name,
+          tier: p.tier as PlanTier,
+          description: p.description,
+          tagline: (p as { tagline: string | null }).tagline ?? null,
+          price_monthly: monthly,
+          price_yearly: yearly,
+          currency: p.currency,
+          employee_limit: p.employee_limit,
+          trial_days: p.trial_days,
+          features: Array.isArray(p.features) ? (p.features as string[]) : [],
+          is_active: p.is_active,
+          is_public: p.is_public,
+          popular: Boolean((p as { popular: boolean | null }).popular),
+          cta_label: (p as { cta_label: string | null }).cta_label ?? null,
+          sort_order: p.sort_order,
+          yearly_discount_pct: computeYearlyDiscount(monthly, yearly),
+        };
+      }),
     };
   });
 
@@ -73,6 +96,10 @@ const UpdatePlanSchema = z.object({
   is_public: z.boolean().optional(),
   popular: z.boolean().optional(),
   cta_label: z.string().max(60).optional(),
+  currency: z.enum(SUPPORTED_CURRENCIES).optional(),
+  features: z.array(z.string().trim().min(1).max(200)).max(40).optional(),
+  /** Convenience: when set with price_monthly, server computes price_yearly = monthly*12*(1-pct/100). */
+  yearly_discount_pct: z.number().min(0).max(95).optional(),
 });
 
 export const updatePlan = createServerFn({ method: "POST" })
@@ -92,6 +119,19 @@ export const updatePlan = createServerFn({ method: "POST" })
     if (typeof data.is_public === "boolean") patch.is_public = data.is_public;
     if (typeof data.popular === "boolean") patch.popular = data.popular;
     if (typeof data.cta_label === "string") patch.cta_label = data.cta_label;
+    if (typeof data.currency === "string") patch.currency = data.currency;
+    if (Array.isArray(data.features)) patch.features = data.features;
+
+    // Auto-derive yearly price from monthly + discount % when yearly not explicitly set.
+    if (
+      typeof data.yearly_discount_pct === "number" &&
+      typeof data.price_monthly === "number" &&
+      typeof data.price_yearly !== "number"
+    ) {
+      const annual = data.price_monthly * 12;
+      patch.price_yearly = Math.round(annual * (1 - data.yearly_discount_pct / 100));
+    }
+
     const { error } = await supabase
       .from("plans")
       .update(patch as never)
