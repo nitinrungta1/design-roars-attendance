@@ -59,6 +59,7 @@ import { Route as AuthenticatedAdminWorkforceEmployeesRouteImport } from './rout
 import { Route as AuthenticatedAdminWorkforceDesignationsRouteImport } from './routes/_authenticated.admin.workforce.designations'
 import { Route as AuthenticatedAdminWorkforceDepartmentsRouteImport } from './routes/_authenticated.admin.workforce.departments'
 import { Route as AuthenticatedAdminWorkforceAttendanceRouteImport } from './routes/_authenticated.admin.workforce.attendance'
+import { Route as AuthenticatedAdminWorkforceApprovalsRouteImport } from './routes/_authenticated.admin.workforce.approvals'
 import { Route as AuthenticatedAdminSystemSettingsRouteImport } from './routes/_authenticated.admin.system.settings'
 import { Route as AuthenticatedAdminSystemSecurityRouteImport } from './routes/_authenticated.admin.system.security'
 import { Route as AuthenticatedAdminSystemBackupsRouteImport } from './routes/_authenticated.admin.system.backups'
@@ -371,6 +372,12 @@ const AuthenticatedAdminWorkforceAttendanceRoute =
   AuthenticatedAdminWorkforceAttendanceRouteImport.update({
     id: '/workforce/attendance',
     path: '/workforce/attendance',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminWorkforceApprovalsRoute =
+  AuthenticatedAdminWorkforceApprovalsRouteImport.update({
+    id: '/workforce/approvals',
+    path: '/workforce/approvals',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminSystemSettingsRoute =
@@ -725,6 +732,7 @@ export interface FileRoutesByFullPath {
   '/admin/system/backups': typeof AuthenticatedAdminSystemBackupsRoute
   '/admin/system/security': typeof AuthenticatedAdminSystemSecurityRoute
   '/admin/system/settings': typeof AuthenticatedAdminSystemSettingsRoute
+  '/admin/workforce/approvals': typeof AuthenticatedAdminWorkforceApprovalsRoute
   '/admin/workforce/attendance': typeof AuthenticatedAdminWorkforceAttendanceRoute
   '/admin/workforce/departments': typeof AuthenticatedAdminWorkforceDepartmentsRoute
   '/admin/workforce/designations': typeof AuthenticatedAdminWorkforceDesignationsRoute
@@ -820,6 +828,7 @@ export interface FileRoutesByTo {
   '/admin/system/backups': typeof AuthenticatedAdminSystemBackupsRoute
   '/admin/system/security': typeof AuthenticatedAdminSystemSecurityRoute
   '/admin/system/settings': typeof AuthenticatedAdminSystemSettingsRoute
+  '/admin/workforce/approvals': typeof AuthenticatedAdminWorkforceApprovalsRoute
   '/admin/workforce/attendance': typeof AuthenticatedAdminWorkforceAttendanceRoute
   '/admin/workforce/departments': typeof AuthenticatedAdminWorkforceDepartmentsRoute
   '/admin/workforce/designations': typeof AuthenticatedAdminWorkforceDesignationsRoute
@@ -918,6 +927,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/system/backups': typeof AuthenticatedAdminSystemBackupsRoute
   '/_authenticated/admin/system/security': typeof AuthenticatedAdminSystemSecurityRoute
   '/_authenticated/admin/system/settings': typeof AuthenticatedAdminSystemSettingsRoute
+  '/_authenticated/admin/workforce/approvals': typeof AuthenticatedAdminWorkforceApprovalsRoute
   '/_authenticated/admin/workforce/attendance': typeof AuthenticatedAdminWorkforceAttendanceRoute
   '/_authenticated/admin/workforce/departments': typeof AuthenticatedAdminWorkforceDepartmentsRoute
   '/_authenticated/admin/workforce/designations': typeof AuthenticatedAdminWorkforceDesignationsRoute
@@ -1016,6 +1026,7 @@ export interface FileRouteTypes {
     | '/admin/system/backups'
     | '/admin/system/security'
     | '/admin/system/settings'
+    | '/admin/workforce/approvals'
     | '/admin/workforce/attendance'
     | '/admin/workforce/departments'
     | '/admin/workforce/designations'
@@ -1111,6 +1122,7 @@ export interface FileRouteTypes {
     | '/admin/system/backups'
     | '/admin/system/security'
     | '/admin/system/settings'
+    | '/admin/workforce/approvals'
     | '/admin/workforce/attendance'
     | '/admin/workforce/departments'
     | '/admin/workforce/designations'
@@ -1208,6 +1220,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/system/backups'
     | '/_authenticated/admin/system/security'
     | '/_authenticated/admin/system/settings'
+    | '/_authenticated/admin/workforce/approvals'
     | '/_authenticated/admin/workforce/attendance'
     | '/_authenticated/admin/workforce/departments'
     | '/_authenticated/admin/workforce/designations'
@@ -1613,6 +1626,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminWorkforceAttendanceRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/workforce/approvals': {
+      id: '/_authenticated/admin/workforce/approvals'
+      path: '/workforce/approvals'
+      fullPath: '/admin/workforce/approvals'
+      preLoaderRoute: typeof AuthenticatedAdminWorkforceApprovalsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/system/settings': {
       id: '/_authenticated/admin/system/settings'
       path: '/system/settings'
@@ -1978,6 +1998,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminSystemBackupsRoute: typeof AuthenticatedAdminSystemBackupsRoute
   AuthenticatedAdminSystemSecurityRoute: typeof AuthenticatedAdminSystemSecurityRoute
   AuthenticatedAdminSystemSettingsRoute: typeof AuthenticatedAdminSystemSettingsRoute
+  AuthenticatedAdminWorkforceApprovalsRoute: typeof AuthenticatedAdminWorkforceApprovalsRoute
   AuthenticatedAdminWorkforceAttendanceRoute: typeof AuthenticatedAdminWorkforceAttendanceRoute
   AuthenticatedAdminWorkforceDepartmentsRoute: typeof AuthenticatedAdminWorkforceDepartmentsRoute
   AuthenticatedAdminWorkforceDesignationsRoute: typeof AuthenticatedAdminWorkforceDesignationsRoute
@@ -2063,6 +2084,8 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminSystemBackupsRoute: AuthenticatedAdminSystemBackupsRoute,
   AuthenticatedAdminSystemSecurityRoute: AuthenticatedAdminSystemSecurityRoute,
   AuthenticatedAdminSystemSettingsRoute: AuthenticatedAdminSystemSettingsRoute,
+  AuthenticatedAdminWorkforceApprovalsRoute:
+    AuthenticatedAdminWorkforceApprovalsRoute,
   AuthenticatedAdminWorkforceAttendanceRoute:
     AuthenticatedAdminWorkforceAttendanceRoute,
   AuthenticatedAdminWorkforceDepartmentsRoute:

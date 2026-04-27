@@ -39,6 +39,7 @@ import {
   Sparkles,
   Bell,
   Sun,
+  Inbox,
   type LucideIcon,
 } from "lucide-react";
 import type { AppRole } from "@/lib/auth";
