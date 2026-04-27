@@ -50,6 +50,24 @@ export const getSaasOverview = createServerFn({ method: "POST" })
     const since30 = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
     const since7 = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
 
+    async function safe<T>(label: string, p: PromiseLike<T>, fallback: T): Promise<T> {
+      try {
+        const res = await p;
+        // supabase responses include { error }
+        const maybe = res as unknown as { error?: { message?: string } | null };
+        if (maybe && maybe.error) {
+          console.error(`[saas-overview] ${label}`, maybe.error);
+        }
+        return res;
+      } catch (err) {
+        console.error(`[saas-overview] ${label} threw`, err);
+        return fallback;
+      }
+    }
+
+    const emptyCount = { count: null as number | null, error: null, data: null } as never;
+    const emptyList = { data: [] as never[], error: null } as never;
+
     const [
       companies,
       activeCompanies,
@@ -58,29 +76,46 @@ export const getSaasOverview = createServerFn({ method: "POST" })
       auditRecent,
       recentLeads,
     ] = await Promise.all([
-      supabase.from("companies").select("id", { count: "exact", head: true }),
-      supabase
-        .from("companies")
-        .select("id", { count: "exact", head: true })
-        .neq("plan", "free"),
-      supabase
-        .from("leads")
-        .select("id, created_at, source")
-        .gte("created_at", since30),
-      supabase
-        .from("demo_requests")
-        .select("id", { count: "exact", head: true })
-        .gte("created_at", since7),
-      supabase
-        .from("audit_logs")
-        .select("id, action, entity_type, actor_id, created_at")
-        .order("created_at", { ascending: false })
-        .limit(10),
-      supabase
-        .from("leads")
-        .select("id, name, email, company, source, created_at")
-        .order("created_at", { ascending: false })
-        .limit(8),
+      safe("companies", supabase.from("companies").select("id", { count: "exact", head: true }), emptyCount),
+      safe(
+        "activeCompanies",
+        supabase
+          .from("companies")
+          .select("id", { count: "exact", head: true })
+          .neq("plan", "free"),
+        emptyCount,
+      ),
+      safe(
+        "leads30d",
+        supabase.from("leads").select("id, created_at, source").gte("created_at", since30),
+        emptyList,
+      ),
+      safe(
+        "demos7d",
+        supabase
+          .from("demo_requests")
+          .select("id", { count: "exact", head: true })
+          .gte("created_at", since7),
+        emptyCount,
+      ),
+      safe(
+        "auditRecent",
+        supabase
+          .from("audit_logs")
+          .select("id, action, entity_type, actor_id, created_at")
+          .order("created_at", { ascending: false })
+          .limit(10),
+        emptyList,
+      ),
+      safe(
+        "recentLeads",
+        supabase
+          .from("leads")
+          .select("id, name, email, company, source, created_at")
+          .order("created_at", { ascending: false })
+          .limit(8),
+        emptyList,
+      ),
     ]);
 
     // Build daily signup trend (leads as proxy for signups until subscriptions ship)
