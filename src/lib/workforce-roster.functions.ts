@@ -349,7 +349,7 @@ export const bulkAssignWeekday = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ context, data }) => {
-    const { supabase } = context;
+    const { supabase, userId } = context;
     const rows = data.days.map((d) => ({
       schedule_id: data.schedule_id,
       company_id: data.company_id,
@@ -367,5 +367,171 @@ export const bulkAssignWeekday = createServerFn({ method: "POST" })
       .in("work_date", data.days);
     const { error } = await supabase.from("schedule_entries").insert(rows);
     if (error) return { ok: false as const, error: error.message };
+    await writeAudit(supabase, userId, data.company_id, "roster.bulk_fill_row", "schedule", data.schedule_id, {
+      employee_id: data.employee_id,
+      shift_id: data.shift_id,
+      days: data.days.length,
+    });
     return { ok: true as const, inserted: rows.length };
+  });
+
+// ============================================================
+// Audit helper + bulk roster operations
+// ============================================================
+
+type SupabaseLike = {
+  from: (t: string) => {
+    insert: (rows: Record<string, unknown> | Record<string, unknown>[]) => Promise<unknown>;
+  };
+};
+
+async function writeAudit(
+  supabase: SupabaseLike,
+  actorId: string | null | undefined,
+  companyId: string | null,
+  action: string,
+  entityType: string,
+  entityId: string,
+  diff: Record<string, unknown>,
+) {
+  try {
+    await supabase.from("audit_logs").insert({
+      actor_id: actorId ?? null,
+      company_id: companyId,
+      action,
+      entity_type: entityType,
+      entity_id: entityId,
+      diff,
+    });
+  } catch (err) {
+    console.warn("audit insert failed", err);
+  }
+}
+
+export const copyRosterWeek = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z
+      .object({
+        schedule_id: z.string().uuid(),
+        company_id: z.string().uuid(),
+        source_start: z.string(),
+        source_end: z.string(),
+        target_start: z.string(),
+      })
+      .parse(input),
+  )
+  .handler(async ({ context, data }) => {
+    const { supabase, userId } = context;
+    const { data: src } = await supabase
+      .from("schedule_entries")
+      .select("employee_id, shift_id, is_off, notes, work_date")
+      .eq("schedule_id", data.schedule_id)
+      .gte("work_date", data.source_start)
+      .lte("work_date", data.source_end)
+      .limit(20000);
+    if (!src || src.length === 0) return { ok: false as const, error: "No source entries to copy" };
+
+    const srcStart = new Date(data.source_start);
+    const tgtStart = new Date(data.target_start);
+    const offsetMs = tgtStart.getTime() - srcStart.getTime();
+
+    const targetDates = src.map((r) => {
+      const orig = new Date(r.work_date);
+      const next = new Date(orig.getTime() + offsetMs);
+      return next.toISOString().slice(0, 10);
+    });
+
+    // wipe target window for these employees first
+    const employeeIds = Array.from(new Set(src.map((r) => r.employee_id)));
+    await supabase
+      .from("schedule_entries")
+      .delete()
+      .eq("schedule_id", data.schedule_id)
+      .in("employee_id", employeeIds)
+      .in("work_date", Array.from(new Set(targetDates)));
+
+    const rows = src.map((r, i) => ({
+      schedule_id: data.schedule_id,
+      company_id: data.company_id,
+      employee_id: r.employee_id,
+      work_date: targetDates[i],
+      shift_id: r.is_off ? null : r.shift_id,
+      is_off: r.is_off,
+      notes: r.notes,
+    }));
+    const { error } = await supabase.from("schedule_entries").insert(rows);
+    if (error) return { ok: false as const, error: error.message };
+    await writeAudit(supabase, userId, data.company_id, "roster.copy_week", "schedule", data.schedule_id, {
+      source: [data.source_start, data.source_end],
+      target_start: data.target_start,
+      copied: rows.length,
+    });
+    return { ok: true as const, copied: rows.length };
+  });
+
+export const clearRosterWindow = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z
+      .object({
+        schedule_id: z.string().uuid(),
+        company_id: z.string().uuid(),
+        from_date: z.string(),
+        to_date: z.string(),
+      })
+      .parse(input),
+  )
+  .handler(async ({ context, data }) => {
+    const { supabase, userId } = context;
+    const { error, count } = await supabase
+      .from("schedule_entries")
+      .delete({ count: "exact" })
+      .eq("schedule_id", data.schedule_id)
+      .gte("work_date", data.from_date)
+      .lte("work_date", data.to_date);
+    if (error) return { ok: false as const, error: error.message };
+    await writeAudit(supabase, userId, data.company_id, "roster.clear_window", "schedule", data.schedule_id, {
+      from: data.from_date,
+      to: data.to_date,
+      removed: count ?? 0,
+    });
+    return { ok: true as const, removed: count ?? 0 };
+  });
+
+export const markRowDaysOff = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z
+      .object({
+        schedule_id: z.string().uuid(),
+        company_id: z.string().uuid(),
+        employee_id: z.string().uuid(),
+        days: z.array(z.string()).min(1).max(62),
+      })
+      .parse(input),
+  )
+  .handler(async ({ context, data }) => {
+    const { supabase, userId } = context;
+    await supabase
+      .from("schedule_entries")
+      .delete()
+      .eq("schedule_id", data.schedule_id)
+      .eq("employee_id", data.employee_id)
+      .in("work_date", data.days);
+    const rows = data.days.map((d) => ({
+      schedule_id: data.schedule_id,
+      company_id: data.company_id,
+      employee_id: data.employee_id,
+      work_date: d,
+      shift_id: null,
+      is_off: true,
+    }));
+    const { error } = await supabase.from("schedule_entries").insert(rows);
+    if (error) return { ok: false as const, error: error.message };
+    await writeAudit(supabase, userId, data.company_id, "roster.mark_days_off", "schedule", data.schedule_id, {
+      employee_id: data.employee_id,
+      days: data.days.length,
+    });
+    return { ok: true as const, marked: rows.length };
   });
