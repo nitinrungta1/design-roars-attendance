@@ -2,6 +2,7 @@ import { Outlet, createRootRoute, HeadContent, Scripts } from "@tanstack/react-r
 import { Toaster } from "@/components/ui/sonner";
 import { ORG_JSON_LD } from "@/lib/seo";
 import { AuthProvider } from "@/lib/auth";
+import { CurrencyProvider } from "@/lib/currency";
 
 import appCss from "../styles.css?url";
 
@@ -84,7 +85,9 @@ function RootShell({ children }: { children: React.ReactNode }) {
 function RootComponent() {
   return (
     <AuthProvider>
-      <Outlet />
+      <CurrencyProvider>
+        <Outlet />
+      </CurrencyProvider>
     </AuthProvider>
   );
 }
