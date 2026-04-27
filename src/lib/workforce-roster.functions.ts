@@ -101,11 +101,18 @@ export const publishSchedule = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
   .handler(async ({ context, data }) => {
-    const { error } = await context.supabase
+    const { supabase, userId } = context;
+    const { data: row } = await supabase
+      .from("schedules")
+      .select("company_id")
+      .eq("id", data.id)
+      .maybeSingle();
+    const { error } = await supabase
       .from("schedules")
       .update({ status: "published", published_at: new Date().toISOString() })
       .eq("id", data.id);
     if (error) return { ok: false as const, error: error.message };
+    await writeAudit(supabase, userId, row?.company_id ?? null, "schedule.publish", "schedule", data.id, {});
     return { ok: true as const };
   });
 
@@ -113,10 +120,16 @@ export const deleteSchedule = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
   .handler(async ({ context, data }) => {
-    const { supabase } = context;
+    const { supabase, userId } = context;
+    const { data: row } = await supabase
+      .from("schedules")
+      .select("company_id")
+      .eq("id", data.id)
+      .maybeSingle();
     await supabase.from("schedule_entries").delete().eq("schedule_id", data.id);
     const { error } = await supabase.from("schedules").delete().eq("id", data.id);
     if (error) return { ok: false as const, error: error.message };
+    await writeAudit(supabase, userId, row?.company_id ?? null, "schedule.delete", "schedule", data.id, {});
     return { ok: true as const };
   });
 
