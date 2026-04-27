@@ -58,7 +58,7 @@ function DepartmentsPage() {
   });
 
   const upsert = useMutation({
-    mutationFn: (vars: Parameters<typeof upsertDepartment>[0]["data"]) =>
+    mutationFn: (vars: { id?: string; company_id: string; name: string; code?: string }) =>
       upsertDepartment({ data: vars }),
     onSuccess: (res) => {
       if (res.ok) {

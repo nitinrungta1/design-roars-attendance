@@ -58,7 +58,7 @@ function DesignationsPage() {
   });
 
   const upsert = useMutation({
-    mutationFn: (vars: Parameters<typeof upsertDesignation>[0]["data"]) =>
+    mutationFn: (vars: { id?: string; company_id: string; name: string; level?: number }) =>
       upsertDesignation({ data: vars }),
     onSuccess: (res) => {
       if (res.ok) {

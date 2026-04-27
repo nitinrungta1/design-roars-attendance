@@ -86,8 +86,8 @@ function RulesPage() {
   });
 
   const upsert = useMutation({
-    mutationFn: (vars: Parameters<typeof upsertAttendanceRules>[0]["data"]) =>
-      upsertAttendanceRules({ data: vars }),
+    mutationFn: (vars: AttendanceRulesRow) =>
+      upsertAttendanceRules({ data: vars as unknown as never }),
     onSuccess: (res) => {
       if (res.ok) {
         toast.success(editing ? "Policy updated" : "Policy created");
