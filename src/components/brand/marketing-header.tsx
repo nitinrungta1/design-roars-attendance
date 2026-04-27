@@ -6,12 +6,15 @@ import { Button } from "@/components/ui/button";
 import { CurrencySwitcher } from "@/components/brand/currency-switcher";
 import { cn } from "@/lib/utils";
 
-const nav = [
+type NavItem = { to: string; label: string; external?: boolean };
+
+const nav: NavItem[] = [
   { to: "/features", label: "Features" },
   { to: "/pricing", label: "Pricing" },
   { to: "/industries", label: "Industries" },
   { to: "/mobile-app", label: "Mobile App" },
   { to: "/blog", label: "Blog" },
+  { to: "https://help.oqlio.com", label: "Help", external: true },
   { to: "/contact", label: "Contact" },
 ];
 
@@ -50,16 +53,26 @@ export function MarketingHeader() {
           <Logo productEyebrow={isProduct} />
         </Link>
         <nav className="hidden items-center gap-1 lg:flex">
-          {nav.map((n) => (
-            <Link
-              key={n.to}
-              to={n.to}
-              className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-              activeProps={{ className: "text-foreground bg-accent" }}
-            >
-              {n.label}
-            </Link>
-          ))}
+          {nav.map((n) =>
+            n.external ? (
+              <a
+                key={n.to}
+                href={n.to}
+                className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+              >
+                {n.label}
+              </a>
+            ) : (
+              <Link
+                key={n.to}
+                to={n.to}
+                className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                activeProps={{ className: "text-foreground bg-accent" }}
+              >
+                {n.label}
+              </Link>
+            ),
+          )}
         </nav>
         <div className="hidden items-center gap-2 lg:flex">
           <CurrencySwitcher />
@@ -84,16 +97,27 @@ export function MarketingHeader() {
       {open && (
         <div className="lg:hidden border-t border-border bg-background/95 backdrop-blur">
           <div className="mx-auto container-x max-w-7xl py-3 space-y-1">
-            {nav.map((n) => (
-              <Link
-                key={n.to}
-                to={n.to}
-                onClick={() => setOpen(false)}
-                className="block rounded-md px-3 py-2 text-sm font-medium text-foreground hover:bg-accent"
-              >
-                {n.label}
-              </Link>
-            ))}
+            {nav.map((n) =>
+              n.external ? (
+                <a
+                  key={n.to}
+                  href={n.to}
+                  onClick={() => setOpen(false)}
+                  className="block rounded-md px-3 py-2 text-sm font-medium text-foreground hover:bg-accent"
+                >
+                  {n.label}
+                </a>
+              ) : (
+                <Link
+                  key={n.to}
+                  to={n.to}
+                  onClick={() => setOpen(false)}
+                  className="block rounded-md px-3 py-2 text-sm font-medium text-foreground hover:bg-accent"
+                >
+                  {n.label}
+                </Link>
+              ),
+            )}
             <div className="flex gap-2 pt-2">
               <Button asChild variant="outline" className="flex-1">
                 <Link to="/login" onClick={() => setOpen(false)}>Sign in</Link>
