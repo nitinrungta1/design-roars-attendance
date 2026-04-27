@@ -43,6 +43,7 @@ import { Route as AttendanceAppIndiaRouteImport } from './routes/attendance-app-
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated.admin'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated.admin.index'
 import { Route as ApiPublicTrackRouteImport } from './routes/api.public.track'
@@ -286,6 +287,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const BlogSlugRoute = BlogSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => BlogRoute,
 } as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
@@ -706,7 +712,7 @@ export interface FileRoutesByFullPath {
   '/attendance-management-system': typeof AttendanceManagementSystemRoute
   '/auth-callback': typeof AuthCallbackRoute
   '/biometric-attendance-software': typeof BiometricAttendanceSoftwareRoute
-  '/blog': typeof BlogRoute
+  '/blog': typeof BlogRouteWithChildren
   '/careers': typeof CareersRoute
   '/contact': typeof ContactRoute
   '/demo': typeof DemoRoute
@@ -734,6 +740,7 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/time-tracking-software': typeof TimeTrackingSoftwareRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/blog/$slug': typeof BlogSlugRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRouteWithChildren
   '/api/public/track': typeof ApiPublicTrackRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
@@ -810,7 +817,7 @@ export interface FileRoutesByTo {
   '/attendance-management-system': typeof AttendanceManagementSystemRoute
   '/auth-callback': typeof AuthCallbackRoute
   '/biometric-attendance-software': typeof BiometricAttendanceSoftwareRoute
-  '/blog': typeof BlogRoute
+  '/blog': typeof BlogRouteWithChildren
   '/careers': typeof CareersRoute
   '/contact': typeof ContactRoute
   '/demo': typeof DemoRoute
@@ -837,6 +844,7 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/time-tracking-software': typeof TimeTrackingSoftwareRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/api/public/track': typeof ApiPublicTrackRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/admin/access/permissions': typeof AuthenticatedAdminAccessPermissionsRoute
@@ -914,7 +922,7 @@ export interface FileRoutesById {
   '/attendance-management-system': typeof AttendanceManagementSystemRoute
   '/auth-callback': typeof AuthCallbackRoute
   '/biometric-attendance-software': typeof BiometricAttendanceSoftwareRoute
-  '/blog': typeof BlogRoute
+  '/blog': typeof BlogRouteWithChildren
   '/careers': typeof CareersRoute
   '/contact': typeof ContactRoute
   '/demo': typeof DemoRoute
@@ -942,6 +950,7 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/time-tracking-software': typeof TimeTrackingSoftwareRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/blog/$slug': typeof BlogSlugRoute
   '/_authenticated/admin/analytics': typeof AuthenticatedAdminAnalyticsRouteWithChildren
   '/api/public/track': typeof ApiPublicTrackRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
@@ -1048,6 +1057,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/time-tracking-software'
     | '/admin'
+    | '/blog/$slug'
     | '/admin/analytics'
     | '/api/public/track'
     | '/admin/'
@@ -1151,6 +1161,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/time-tracking-software'
+    | '/blog/$slug'
     | '/api/public/track'
     | '/admin'
     | '/admin/access/permissions'
@@ -1255,6 +1266,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/time-tracking-software'
     | '/_authenticated/admin'
+    | '/blog/$slug'
     | '/_authenticated/admin/analytics'
     | '/api/public/track'
     | '/_authenticated/admin/'
@@ -1333,7 +1345,7 @@ export interface RootRouteChildren {
   AttendanceManagementSystemRoute: typeof AttendanceManagementSystemRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
   BiometricAttendanceSoftwareRoute: typeof BiometricAttendanceSoftwareRoute
-  BlogRoute: typeof BlogRoute
+  BlogRoute: typeof BlogRouteWithChildren
   CareersRoute: typeof CareersRoute
   ContactRoute: typeof ContactRoute
   DemoRoute: typeof DemoRoute
@@ -1602,6 +1614,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/blog/$slug': {
+      id: '/blog/$slug'
+      path: '/$slug'
+      fullPath: '/blog/$slug'
+      preLoaderRoute: typeof BlogSlugRouteImport
+      parentRoute: typeof BlogRoute
     }
     '/_authenticated/admin': {
       id: '/_authenticated/admin'
@@ -2295,6 +2314,16 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
   AuthenticatedRouteChildren,
 )
 
+interface BlogRouteChildren {
+  BlogSlugRoute: typeof BlogSlugRoute
+}
+
+const BlogRouteChildren: BlogRouteChildren = {
+  BlogSlugRoute: BlogSlugRoute,
+}
+
+const BlogRouteWithChildren = BlogRoute._addFileChildren(BlogRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
@@ -2303,7 +2332,7 @@ const rootRouteChildren: RootRouteChildren = {
   AttendanceManagementSystemRoute: AttendanceManagementSystemRoute,
   AuthCallbackRoute: AuthCallbackRoute,
   BiometricAttendanceSoftwareRoute: BiometricAttendanceSoftwareRoute,
-  BlogRoute: BlogRoute,
+  BlogRoute: BlogRouteWithChildren,
   CareersRoute: CareersRoute,
   ContactRoute: ContactRoute,
   DemoRoute: DemoRoute,
