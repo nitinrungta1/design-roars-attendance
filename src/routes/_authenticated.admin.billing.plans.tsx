@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { CreditCard, Pencil } from "lucide-react";
+import { CreditCard, Pencil, Plus, X } from "lucide-react";
 import { PageHeader, PageBody, EmptyState } from "@/components/admin/primitives";
 import { DataTable, Td, Tr, PlanBadge, StatCard } from "@/components/admin/data-shell";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,13 @@ import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -18,7 +25,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { listPlans, updatePlan, type PlanRow } from "@/lib/billing.functions";
+import {
+  listPlans,
+  updatePlan,
+  SUPPORTED_CURRENCIES,
+  type PlanRow,
+  type SupportedCurrency,
+} from "@/lib/billing.functions";
 import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/_authenticated/admin/billing/plans")({
@@ -36,9 +49,11 @@ export const Route = createFileRoute("/_authenticated/admin/billing/plans")({
 function fmtMoney(amount: number, currency: string) {
   if (amount === 0) return "—";
   try {
-    return new Intl.NumberFormat("en-IN", { style: "currency", currency, maximumFractionDigits: 0 }).format(
-      amount,
-    );
+    return new Intl.NumberFormat(currency === "INR" ? "en-IN" : "en-US", {
+      style: "currency",
+      currency,
+      maximumFractionDigits: 0,
+    }).format(amount);
   } catch {
     return `${currency} ${amount}`;
   }
@@ -74,7 +89,7 @@ function PlansPage() {
       <PageHeader
         eyebrow="Sales & Billing"
         title="Plans"
-        description="Punchly plan catalog. Toggle availability or edit pricing."
+        description="Manage plan names, pricing, currency, features, badges and CTAs shown on the public pricing page."
         breadcrumbs={[{ label: "Admin", to: "/admin" }, { label: "Plans" }]}
       />
       <PageBody className="space-y-6">
@@ -85,7 +100,19 @@ function PlansPage() {
         </div>
 
         <DataTable
-          headers={["Plan", "Tier", "Monthly", "Yearly", "Limit", "Trial", "Active", "Public", ""]}
+          headers={[
+            "Plan",
+            "Tier",
+            "Monthly",
+            "Yearly",
+            "Save",
+            "Currency",
+            "Limit",
+            "Trial",
+            "Active",
+            "Public",
+            "",
+          ]}
           empty={
             !isLoading && plans.length === 0 ? (
               <EmptyState icon={CreditCard} title="No plans" description="Seed plans to get started." />
@@ -103,6 +130,16 @@ function PlansPage() {
               </Td>
               <Td mono>{fmtMoney(p.price_monthly, p.currency)}</Td>
               <Td mono>{fmtMoney(p.price_yearly, p.currency)}</Td>
+              <Td>
+                {p.yearly_discount_pct > 0 ? (
+                  <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+                    {p.yearly_discount_pct}%
+                  </span>
+                ) : (
+                  <span className="text-xs text-muted-foreground">—</span>
+                )}
+              </Td>
+              <Td mono>{p.currency}</Td>
               <Td>{p.employee_limit ?? "∞"}</Td>
               <Td>{p.trial_days}d</Td>
               <Td>
@@ -126,7 +163,7 @@ function PlansPage() {
           ))}
           {isLoading && (
             <tr>
-              <td colSpan={9} className="px-4 py-6 text-center text-sm text-muted-foreground">
+              <td colSpan={11} className="px-4 py-6 text-center text-sm text-muted-foreground">
                 Loading…
               </td>
             </tr>
@@ -144,35 +181,70 @@ function PlansPage() {
 function EditPlanDialog({ plan, onClose }: { plan: PlanRow; onClose: () => void }) {
   const qc = useQueryClient();
   const [name, setName] = useState(plan.name);
-  const [tagline, setTagline] = useState((plan as PlanRow & { tagline?: string }).tagline ?? "");
+  const [tagline, setTagline] = useState(plan.tagline ?? "");
   const [description, setDescription] = useState(plan.description ?? "");
+  const [currency, setCurrency] = useState<SupportedCurrency>(
+    (SUPPORTED_CURRENCIES as readonly string[]).includes(plan.currency)
+      ? (plan.currency as SupportedCurrency)
+      : "INR",
+  );
   const [monthly, setMonthly] = useState(plan.price_monthly);
   const [yearly, setYearly] = useState(plan.price_yearly);
+  const [discountPct, setDiscountPct] = useState<number>(plan.yearly_discount_pct);
+  const [yearlyMode, setYearlyMode] = useState<"discount" | "manual">(
+    plan.yearly_discount_pct > 0 && plan.price_yearly === Math.round(plan.price_monthly * 12 * (1 - plan.yearly_discount_pct / 100))
+      ? "discount"
+      : "manual",
+  );
   const [trialDays, setTrialDays] = useState(plan.trial_days);
   const [employeeLimit, setEmployeeLimit] = useState<number | "">(plan.employee_limit ?? "");
-  const [popular, setPopular] = useState(
-    Boolean((plan as PlanRow & { popular?: boolean }).popular),
-  );
-  const [ctaLabel, setCtaLabel] = useState(
-    (plan as PlanRow & { cta_label?: string | null }).cta_label ?? "",
-  );
+  const [popular, setPopular] = useState(plan.popular);
+  const [ctaLabel, setCtaLabel] = useState(plan.cta_label ?? "");
+  const [features, setFeatures] = useState<string[]>(plan.features);
+  const [newFeature, setNewFeature] = useState("");
+
+  // Live preview yearly when in discount mode
+  const previewYearly = useMemo(() => {
+    if (yearlyMode !== "discount") return yearly;
+    return Math.round(monthly * 12 * (1 - discountPct / 100));
+  }, [yearlyMode, discountPct, monthly, yearly]);
+
+  function addFeature() {
+    const v = newFeature.trim();
+    if (!v) return;
+    setFeatures((prev) => [...prev, v]);
+    setNewFeature("");
+  }
+  function removeFeature(i: number) {
+    setFeatures((prev) => prev.filter((_, idx) => idx !== i));
+  }
+  function updateFeature(i: number, v: string) {
+    setFeatures((prev) => prev.map((f, idx) => (idx === i ? v : f)));
+  }
 
   const mut = useMutation({
-    mutationFn: () =>
-      updatePlan({
+    mutationFn: () => {
+      const finalYearly =
+        yearlyMode === "discount"
+          ? Math.round(monthly * 12 * (1 - discountPct / 100))
+          : yearly;
+      return updatePlan({
         data: {
           id: plan.id,
           name,
           tagline,
           description,
+          currency,
           price_monthly: monthly,
-          price_yearly: yearly,
+          price_yearly: finalYearly,
           trial_days: trialDays,
           employee_limit: employeeLimit === "" ? null : Number(employeeLimit),
           popular,
           cta_label: ctaLabel,
+          features: features.map((f) => f.trim()).filter(Boolean),
         },
-      }),
+      });
+    },
     onSuccess: (res) => {
       if (res.ok) {
         toast.success("Plan updated");
@@ -183,18 +255,36 @@ function EditPlanDialog({ plan, onClose }: { plan: PlanRow; onClose: () => void 
   });
 
   return (
-    <DialogContent className="max-w-lg">
+    <DialogContent className="max-w-2xl">
       <DialogHeader>
         <DialogTitle>Edit {plan.name}</DialogTitle>
         <DialogDescription>
-          Update plan details, pricing, and marketing fields shown on /pricing.
+          Update plan details, pricing, features, badges, and CTA shown on the public pricing page.
         </DialogDescription>
       </DialogHeader>
-      <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
-        <div>
-          <Label>Name</Label>
-          <Input value={name} onChange={(e) => setName(e.target.value)} />
+      <div className="space-y-4 max-h-[65vh] overflow-y-auto pr-1">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div>
+            <Label>Name</Label>
+            <Input value={name} onChange={(e) => setName(e.target.value)} />
+          </div>
+          <div>
+            <Label>Currency</Label>
+            <Select value={currency} onValueChange={(v) => setCurrency(v as SupportedCurrency)}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {SUPPORTED_CURRENCIES.map((c) => (
+                  <SelectItem key={c} value={c}>
+                    {c}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
+
         <div>
           <Label>Tagline (shown under plan name)</Label>
           <Input
@@ -208,27 +298,72 @@ function EditPlanDialog({ plan, onClose }: { plan: PlanRow; onClose: () => void 
           <Textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            rows={3}
+            rows={2}
           />
         </div>
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <Label>Monthly ({plan.currency})</Label>
-            <Input
-              type="number"
-              value={monthly}
-              onChange={(e) => setMonthly(Number(e.target.value))}
-            />
+
+        <div className="rounded-lg border border-border bg-muted/20 p-3 space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="text-sm font-semibold">Pricing</div>
+            <div className="flex items-center gap-2 text-xs">
+              <button
+                type="button"
+                onClick={() => setYearlyMode("discount")}
+                className={`rounded-md px-2 py-1 ${yearlyMode === "discount" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}
+              >
+                Discount %
+              </button>
+              <button
+                type="button"
+                onClick={() => setYearlyMode("manual")}
+                className={`rounded-md px-2 py-1 ${yearlyMode === "manual" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}
+              >
+                Manual yearly
+              </button>
+            </div>
           </div>
-          <div>
-            <Label>Yearly ({plan.currency})</Label>
-            <Input
-              type="number"
-              value={yearly}
-              onChange={(e) => setYearly(Number(e.target.value))}
-            />
+
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <div>
+              <Label>Monthly ({currency})</Label>
+              <Input
+                type="number"
+                value={monthly}
+                onChange={(e) => setMonthly(Number(e.target.value))}
+              />
+            </div>
+            {yearlyMode === "discount" ? (
+              <>
+                <div>
+                  <Label>Annual discount %</Label>
+                  <Input
+                    type="number"
+                    min={0}
+                    max={95}
+                    value={discountPct}
+                    onChange={(e) => setDiscountPct(Number(e.target.value))}
+                  />
+                </div>
+                <div>
+                  <Label>Yearly preview</Label>
+                  <Input value={fmtMoney(previewYearly, currency)} readOnly />
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="sm:col-span-2">
+                  <Label>Yearly ({currency})</Label>
+                  <Input
+                    type="number"
+                    value={yearly}
+                    onChange={(e) => setYearly(Number(e.target.value))}
+                  />
+                </div>
+              </>
+            )}
           </div>
         </div>
+
         <div className="grid grid-cols-2 gap-3">
           <div>
             <Label>Trial days</Label>
@@ -249,6 +384,7 @@ function EditPlanDialog({ plan, onClose }: { plan: PlanRow; onClose: () => void 
             />
           </div>
         </div>
+
         <div>
           <Label>CTA button label</Label>
           <Input
@@ -257,6 +393,7 @@ function EditPlanDialog({ plan, onClose }: { plan: PlanRow; onClose: () => void 
             placeholder="Start Free Trial"
           />
         </div>
+
         <div className="flex items-center justify-between rounded-lg border border-border bg-muted/30 px-3 py-2">
           <div>
             <div className="text-sm font-medium">Most popular badge</div>
@@ -266,13 +403,56 @@ function EditPlanDialog({ plan, onClose }: { plan: PlanRow; onClose: () => void 
           </div>
           <Switch checked={popular} onCheckedChange={setPopular} />
         </div>
+
+        <div className="rounded-lg border border-border bg-muted/20 p-3 space-y-2">
+          <div className="flex items-center justify-between">
+            <Label className="text-sm font-semibold">Features</Label>
+            <span className="text-xs text-muted-foreground">{features.length} listed</span>
+          </div>
+          <div className="space-y-2">
+            {features.map((f, i) => (
+              <div key={i} className="flex items-center gap-2">
+                <Input
+                  value={f}
+                  onChange={(e) => updateFeature(i, e.target.value)}
+                  className="flex-1"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => removeFeature(i)}
+                  aria-label="Remove feature"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            ))}
+          </div>
+          <div className="flex items-center gap-2 pt-1">
+            <Input
+              value={newFeature}
+              onChange={(e) => setNewFeature(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  addFeature();
+                }
+              }}
+              placeholder="Add a feature and press Enter"
+            />
+            <Button type="button" variant="secondary" size="sm" onClick={addFeature}>
+              <Plus className="mr-1 h-4 w-4" /> Add
+            </Button>
+          </div>
+        </div>
       </div>
       <DialogFooter>
         <Button variant="ghost" onClick={onClose}>
           Cancel
         </Button>
         <Button onClick={() => mut.mutate()} disabled={mut.isPending}>
-          {mut.isPending ? "Saving…" : "Save"}
+          {mut.isPending ? "Saving…" : "Save changes"}
         </Button>
       </DialogFooter>
     </DialogContent>
