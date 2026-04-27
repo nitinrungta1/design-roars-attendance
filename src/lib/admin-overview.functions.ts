@@ -187,4 +187,8 @@ export const getSaasOverview = createServerFn({ method: "POST" })
         created_at: a.created_at as string,
       })),
     };
+   } catch (err) {
+     console.error("[saas-overview] handler threw, returning empty payload", err);
+     return EMPTY_PAYLOAD;
+   }
   });
