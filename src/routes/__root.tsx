@@ -32,6 +32,16 @@ function NotFoundComponent() {
 }
 
 export const Route = createRootRoute({
+  beforeLoad: async ({ location }) => {
+    // help.oqlio.com → rewrite "/" to "/help" so the subdomain serves the Help Centre.
+    if (typeof window !== "undefined" && location.pathname === "/") {
+      const host = window.location.host.toLowerCase();
+      if (host === "help.oqlio.com" || host.startsWith("help.")) {
+        const { redirect } = await import("@tanstack/react-router");
+        throw redirect({ to: "/help" });
+      }
+    }
+  },
   head: () => ({
     meta: [
       { charSet: "utf-8" },

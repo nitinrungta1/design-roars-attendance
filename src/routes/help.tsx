@@ -1,20 +1,27 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
-import { MarketingLayout } from "@/components/brand/marketing-layout";
-import { Container, Section, Eyebrow } from "@/components/brand/primitives";
-import { CtaBanner } from "@/components/brand/marketing-sections";
+import { z } from "zod";
+import { useMemo, useState } from "react";
+import { HelpLayout } from "@/components/help/help-layout";
+import { HelpSearch } from "@/components/help/help-search";
+import { CategoryGrid } from "@/components/help/category-grid";
 import { seo } from "@/lib/seo";
-import { BookOpen, Search } from "lucide-react";
+import { BookOpen, TrendingUp, ArrowRight } from "lucide-react";
 import { listPublicKbArticles } from "@/lib/public-help.functions";
 
+const SearchSchema = z.object({
+  category: z.string().max(80).optional(),
+  q: z.string().max(120).optional(),
+});
+
 export const Route = createFileRoute("/help")({
+  validateSearch: (search) => SearchSchema.parse(search),
   head: () =>
     seo({
-      title: "Help Center",
+      title: "Help Centre",
       description:
-        "Guides, FAQs, and onboarding videos to get the most out of Punchly attendance.",
+        "Guides, tutorials and troubleshooting for Punchly attendance, time tracking and workforce management. Get answers in seconds.",
       path: "/help",
-      kind: "company",
+      kind: "help",
     }),
   loader: () => listPublicKbArticles({ data: {} }),
   component: HelpPage,
@@ -22,126 +29,160 @@ export const Route = createFileRoute("/help")({
 
 function HelpPage() {
   const { articles, categories } = Route.useLoaderData();
-  const [q, setQ] = useState("");
-  const [cat, setCat] = useState<string | null>(null);
-  const filtered = articles.filter((a) => {
-    if (cat && (a.category ?? "Other") !== cat) return false;
-    if (q.trim()) {
-      const t = q.toLowerCase();
-      return (
-        a.title.toLowerCase().includes(t) ||
-        (a.excerpt ?? "").toLowerCase().includes(t)
-      );
-    }
-    return true;
-  });
+  const { category, q } = Route.useSearch();
+  const [filterCat, setFilterCat] = useState<string | null>(category ?? null);
+  const [filterQ] = useState<string>(q ?? "");
+
+  const filtered = useMemo(() => {
+    return articles.filter((a) => {
+      if (filterCat && (a.category ?? "Other") !== filterCat) return false;
+      if (filterQ.trim()) {
+        const t = filterQ.toLowerCase();
+        return (
+          a.title.toLowerCase().includes(t) ||
+          (a.excerpt ?? "").toLowerCase().includes(t)
+        );
+      }
+      return true;
+    });
+  }, [articles, filterCat, filterQ]);
+
+  const popular = useMemo(
+    () => [...articles].sort((a, b) => b.view_count - a.view_count).slice(0, 6),
+    [articles],
+  );
 
   return (
-    <MarketingLayout>
-      <Section className="bg-gradient-hero pb-10 pt-12 sm:pt-16 lg:pt-20">
-        <Container className="text-center">
-          <Eyebrow>Help Center</Eyebrow>
-          <h1 className="mt-4 text-4xl font-bold tracking-tight sm:text-5xl">
-            How can we help?
+    <HelpLayout>
+      {/* Hero */}
+      <section className="bg-gradient-hero">
+        <div className="container-x mx-auto max-w-6xl px-4 py-16 text-center sm:py-24">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-primary">
+            Oqlio · Help Centre
+          </p>
+          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
+            How can we help you?
           </h1>
-          <div className="mx-auto mt-6 flex max-w-xl items-center gap-2 rounded-full border border-border bg-card px-4 py-2 shadow-soft">
-            <Search className="h-4 w-4 text-muted-foreground" />
-            <input
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              className="flex-1 bg-transparent text-sm outline-none"
-              placeholder="Search articles, guides, videos…"
-            />
+          <p className="mx-auto mt-4 max-w-xl text-base text-muted-foreground sm:text-lg">
+            Search guides, setup instructions, troubleshooting steps, and product tutorials.
+          </p>
+          <div className="mt-8 flex justify-center">
+            <HelpSearch />
           </div>
-        </Container>
-      </Section>
-
-      {categories.length > 0 && (
-        <Section>
-          <Container>
-            <div className="mb-6 flex flex-wrap gap-2">
-              <button
-                onClick={() => setCat(null)}
-                className={`rounded-full border px-3 py-1 text-sm transition ${
-                  cat === null
-                    ? "border-primary bg-primary text-primary-foreground"
-                    : "border-border bg-card hover:bg-accent"
-                }`}
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-xs text-muted-foreground">
+            <span>Popular:</span>
+            {popular.slice(0, 4).map((p) => (
+              <Link
+                key={p.id}
+                to="/help/$slug"
+                params={{ slug: p.slug }}
+                className="rounded-full border border-border bg-card px-2.5 py-1 hover:border-primary/40 hover:text-foreground"
               >
-                All ({articles.length})
-              </button>
-              {categories.map((c) => (
-                <button
-                  key={c.name}
-                  onClick={() => setCat(c.name)}
-                  className={`rounded-full border px-3 py-1 text-sm transition ${
-                    cat === c.name
-                      ? "border-primary bg-primary text-primary-foreground"
-                      : "border-border bg-card hover:bg-accent"
-                  }`}
-                >
-                  {c.name} ({c.count})
-                </button>
-              ))}
-            </div>
+                {p.title}
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
 
-            {filtered.length === 0 ? (
-              <div className="rounded-2xl border border-border bg-card p-12 text-center">
-                <BookOpen className="mx-auto mb-3 h-10 w-10 text-muted-foreground" />
-                <p className="font-semibold">No matching articles</p>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Try a different search or browse another category.
-                </p>
-              </div>
-            ) : (
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {filtered.map((a) => (
-                  <Link
-                    key={a.id}
-                    to="/help/$slug"
-                    params={{ slug: a.slug }}
-                    className="group rounded-2xl border border-border bg-card p-6 transition-shadow hover:shadow-soft"
-                  >
-                    {a.category && (
-                      <p className="text-xs font-medium uppercase tracking-wider text-primary">
-                        {a.category}
-                      </p>
-                    )}
-                    <p className="mt-2 font-semibold group-hover:text-primary">
-                      {a.title}
-                    </p>
-                    {a.excerpt && (
-                      <p className="mt-2 line-clamp-3 text-sm text-muted-foreground">
-                        {a.excerpt}
-                      </p>
-                    )}
-                  </Link>
-                ))}
-              </div>
-            )}
-          </Container>
-        </Section>
+      {/* Categories */}
+      {categories.length > 0 && (
+        <section className="border-b border-border">
+          <div className="container-x mx-auto max-w-6xl px-4 py-12">
+            <div className="mb-6 flex items-end justify-between">
+              <h2 className="text-2xl font-bold tracking-tight">Browse by category</h2>
+              <button
+                onClick={() => setFilterCat(null)}
+                className={`text-sm ${filterCat ? "text-primary underline" : "text-muted-foreground"}`}
+              >
+                {filterCat ? "Clear filter" : "All categories"}
+              </button>
+            </div>
+            <CategoryGrid categories={categories} />
+          </div>
+        </section>
       )}
 
-      {categories.length === 0 && (
-        <Section>
-          <Container>
+      {/* Popular */}
+      {popular.length > 0 && (
+        <section className="border-b border-border">
+          <div className="container-x mx-auto max-w-6xl px-4 py-12">
+            <div className="mb-6 flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-primary" />
+              <h2 className="text-2xl font-bold tracking-tight">Popular articles</h2>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {popular.map((a) => (
+                <Link
+                  key={a.id}
+                  to="/help/$slug"
+                  params={{ slug: a.slug }}
+                  className="group rounded-2xl border border-border bg-card p-5 transition-shadow hover:shadow-soft"
+                >
+                  {a.category && (
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-primary">
+                      {a.category}
+                    </p>
+                  )}
+                  <p className="mt-1 font-semibold group-hover:text-primary">{a.title}</p>
+                  {a.excerpt && (
+                    <p className="mt-1.5 line-clamp-2 text-sm text-muted-foreground">{a.excerpt}</p>
+                  )}
+                  <p className="mt-3 inline-flex items-center gap-1 text-xs text-muted-foreground">
+                    Read article <ArrowRight className="h-3 w-3" />
+                  </p>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* All / filtered list */}
+      <section>
+        <div className="container-x mx-auto max-w-6xl px-4 py-12">
+          <div className="mb-6 flex items-end justify-between">
+            <h2 className="text-2xl font-bold tracking-tight">
+              {filterCat ? filterCat : "All articles"}
+            </h2>
+            <p className="text-sm text-muted-foreground">{filtered.length} articles</p>
+          </div>
+          {filtered.length === 0 ? (
             <div className="rounded-2xl border border-border bg-card p-12 text-center">
               <BookOpen className="mx-auto mb-3 h-10 w-10 text-muted-foreground" />
-              <p className="font-semibold">Help articles coming soon</p>
+              <p className="font-semibold">No matching articles</p>
               <p className="mt-1 text-sm text-muted-foreground">
-                In the meantime,{" "}
+                Try a different search or{" "}
                 <Link to="/contact" className="text-primary underline">
-                  reach out to our team
+                  contact support
                 </Link>
                 .
               </p>
             </div>
-          </Container>
-        </Section>
-      )}
-
-      <CtaBanner />
-    </MarketingLayout>
+          ) : (
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {filtered.map((a) => (
+                <Link
+                  key={a.id}
+                  to="/help/$slug"
+                  params={{ slug: a.slug }}
+                  className="group rounded-2xl border border-border bg-card p-5 transition-shadow hover:shadow-soft"
+                >
+                  {a.category && (
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-primary">
+                      {a.category}
+                    </p>
+                  )}
+                  <p className="mt-1 font-semibold group-hover:text-primary">{a.title}</p>
+                  {a.excerpt && (
+                    <p className="mt-1.5 line-clamp-3 text-sm text-muted-foreground">{a.excerpt}</p>
+                  )}
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+    </HelpLayout>
   );
 }

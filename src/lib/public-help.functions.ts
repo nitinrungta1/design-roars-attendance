@@ -47,7 +47,7 @@ export const listPublicKbArticles = createServerFn({ method: "POST" })
         .eq("status", "published")
         .order("position", { ascending: true })
         .order("updated_at", { ascending: false })
-        .limit(200);
+        .limit(500);
       if (data.category) q = q.eq("category", data.category);
       if (data.search && data.search.trim()) {
         const term = `%${data.search.trim()}%`;
@@ -80,7 +80,6 @@ export const getPublicKbArticle = createServerFn({ method: "POST" })
       .eq("status", "published")
       .maybeSingle();
     if (row) {
-      // Best-effort view counter
       void supabaseAdmin.rpc("kb_record_view", { _slug: data.slug });
     }
     return { article: (row ?? null) as PublicKbArticleDetail | null };
@@ -97,7 +96,108 @@ export const voteKbArticle = createServerFn({ method: "POST" })
   });
 
 // ============================================================
-// Public ticket submission (from /contact "Open a ticket" tab)
+// Search — typo-light ilike with ranking via RPC
+// ============================================================
+export interface KbSearchHit {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string | null;
+  category: string | null;
+  view_count: number;
+  rank: number;
+}
+
+export const searchKbArticles = createServerFn({ method: "POST" })
+  .inputValidator((input) =>
+    z.object({ q: z.string().min(1).max(120), limit: z.number().int().min(1).max(20).optional() }).parse(input),
+  )
+  .handler(async ({ data }): Promise<{ hits: KbSearchHit[] }> => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: rows } = await supabaseAdmin.rpc("kb_search_articles", {
+      _q: data.q.trim(),
+      _limit: data.limit ?? 8,
+    });
+    return { hits: (rows ?? []) as KbSearchHit[] };
+  });
+
+export const logKbSearch = createServerFn({ method: "POST" })
+  .inputValidator((input) =>
+    z
+      .object({
+        query: z.string().min(1).max(200),
+        results_count: z.number().int().min(0).max(10_000),
+        clicked_slug: z.string().max(160).optional(),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data }): Promise<{ ok: true }> => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await supabaseAdmin.from("kb_search_logs").insert({
+      query: data.query.trim().toLowerCase().slice(0, 200),
+      results_count: data.results_count,
+      clicked_slug: data.clicked_slug ?? null,
+    });
+    return { ok: true };
+  });
+
+// ============================================================
+// Feedback — extends kb_record_vote with optional comment
+// ============================================================
+export const submitKbFeedback = createServerFn({ method: "POST" })
+  .inputValidator((input) =>
+    z
+      .object({
+        slug: z.string().min(1).max(160),
+        helpful: z.boolean(),
+        comment: z.string().max(2000).optional(),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data }): Promise<{ ok: true }> => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await supabaseAdmin.rpc("kb_record_vote", { _slug: data.slug, _helpful: data.helpful });
+    const { data: art } = await supabaseAdmin
+      .from("kb_articles")
+      .select("id")
+      .eq("slug", data.slug)
+      .maybeSingle();
+    await supabaseAdmin.from("kb_article_feedback").insert({
+      article_id: art?.id ?? null,
+      slug: data.slug,
+      helpful: data.helpful,
+      comment: data.comment?.trim() || null,
+    });
+    return { ok: true };
+  });
+
+// ============================================================
+// Related articles
+// ============================================================
+export const listRelatedArticles = createServerFn({ method: "POST" })
+  .inputValidator((input) => z.object({ slug: z.string().min(1).max(160) }).parse(input))
+  .handler(async ({ data }): Promise<{ related: PublicKbArticleSummary[] }> => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: cur } = await supabaseAdmin
+      .from("kb_articles")
+      .select("id, category")
+      .eq("slug", data.slug)
+      .maybeSingle();
+    if (!cur) return { related: [] };
+    let q = supabaseAdmin
+      .from("kb_articles")
+      .select("id, slug, title, excerpt, category, view_count, helpful_count, updated_at")
+      .eq("status", "published")
+      .neq("slug", data.slug)
+      .order("view_count", { ascending: false })
+      .limit(4);
+    if (cur.category) q = q.eq("category", cur.category);
+    const { data: rows } = await q;
+    return { related: (rows ?? []) as PublicKbArticleSummary[] };
+  });
+
+// ============================================================
+// Public ticket submission
 // ============================================================
 const SubmitTicketSchema = z.object({
   subject: z.string().min(1).max(300),
@@ -105,6 +205,7 @@ const SubmitTicketSchema = z.object({
   requester_email: z.string().email().max(320),
   requester_name: z.string().max(200).optional().default(""),
   priority: z.enum(["low", "normal", "high", "urgent"]).default("normal"),
+  suggested_articles: z.array(z.string().max(160)).max(10).optional(),
 });
 
 export const submitSupportTicket = createServerFn({ method: "POST" })
@@ -122,6 +223,9 @@ export const submitSupportTicket = createServerFn({ method: "POST" })
           priority: data.priority,
           channel: "portal",
           status: "open",
+          metadata: data.suggested_articles?.length
+            ? { suggested_articles: data.suggested_articles }
+            : {},
         })
         .select("id")
         .single();
