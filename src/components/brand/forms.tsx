@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { Loader2, CheckCircle2 } from "lucide-react";
 import { submitLead, subscribe, requestDemo } from "@/lib/leads.functions";
+import { submitSupportTicket } from "@/lib/public-help.functions";
 
 export function ContactForm({ source = "contact" }: { source?: string }) {
   const fn = useServerFn(submitLead);
@@ -210,6 +211,92 @@ export function NewsletterForm() {
       <Input name="email" type="email" required placeholder="you@company.com" maxLength={320} />
       <Button type="submit" disabled={loading} className="bg-gradient-brand text-primary-foreground">
         {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Subscribe"}
+      </Button>
+    </form>
+  );
+}
+
+export function TicketForm() {
+  const fn = useServerFn(submitSupportTicket);
+  const [loading, setLoading] = useState(false);
+  const [done, setDone] = useState<{ id: string } | null>(null);
+
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const fd = new FormData(e.currentTarget);
+    setLoading(true);
+    try {
+      const res = await fn({
+        data: {
+          subject: String(fd.get("subject") || ""),
+          body: String(fd.get("body") || ""),
+          requester_email: String(fd.get("email") || ""),
+          requester_name: String(fd.get("name") || ""),
+          priority: (String(fd.get("priority") || "normal") as "low" | "normal" | "high" | "urgent"),
+        },
+      });
+      if (res.ok) {
+        setDone({ id: res.id });
+        toast.success("Ticket created. We'll respond shortly.");
+      } else {
+        toast.error(res.error ?? "Could not create ticket");
+      }
+    } catch {
+      toast.error("Please check your details and try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (done) {
+    return (
+      <div className="rounded-2xl border border-success/30 bg-success/5 p-6 text-center">
+        <CheckCircle2 className="mx-auto mb-2 h-8 w-8 text-success" />
+        <p className="font-semibold">Ticket #{done.id.slice(0, 8)} created</p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          A copy was emailed to you. Our support team will reply within SLA.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <form onSubmit={onSubmit} className="space-y-4">
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div>
+          <Label htmlFor="t-name">Your name</Label>
+          <Input id="t-name" name="name" maxLength={200} placeholder="Jane Doe" />
+        </div>
+        <div>
+          <Label htmlFor="t-email">Email</Label>
+          <Input id="t-email" name="email" type="email" required maxLength={320} placeholder="jane@company.com" />
+        </div>
+      </div>
+      <div>
+        <Label htmlFor="t-subject">Subject</Label>
+        <Input id="t-subject" name="subject" required maxLength={300} placeholder="Brief summary of the issue" />
+      </div>
+      <div>
+        <Label htmlFor="t-priority">Priority</Label>
+        <select
+          id="t-priority"
+          name="priority"
+          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+          defaultValue="normal"
+        >
+          <option value="low">Low</option>
+          <option value="normal">Normal</option>
+          <option value="high">High</option>
+          <option value="urgent">Urgent</option>
+        </select>
+      </div>
+      <div>
+        <Label htmlFor="t-body">How can we help?</Label>
+        <Textarea id="t-body" name="body" required maxLength={20000} rows={6} placeholder="Steps to reproduce, what you expected, what happened…" />
+      </div>
+      <Button type="submit" disabled={loading} className="w-full bg-gradient-brand text-primary-foreground hover:opacity-90">
+        {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+        Open ticket
       </Button>
     </form>
   );

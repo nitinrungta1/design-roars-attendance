@@ -44,6 +44,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as PageSlugRouteImport } from './routes/$pageSlug'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as HelpSlugRouteImport } from './routes/help.$slug'
 import { Route as CareersSlugRouteImport } from './routes/careers.$slug'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated.admin'
@@ -294,6 +295,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const HelpSlugRoute = HelpSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => HelpRoute,
 } as any)
 const CareersSlugRoute = CareersSlugRouteImport.update({
   id: '/$slug',
@@ -735,7 +741,7 @@ export interface FileRoutesByFullPath {
   '/forgot-password': typeof ForgotPasswordRoute
   '/gdpr': typeof GdprRoute
   '/gps-attendance-app': typeof GpsAttendanceAppRoute
-  '/help': typeof HelpRoute
+  '/help': typeof HelpRouteWithChildren
   '/industries': typeof IndustriesRoute
   '/login': typeof LoginRoute
   '/mobile-app': typeof MobileAppRoute
@@ -755,6 +761,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/blog/$slug': typeof BlogSlugRoute
   '/careers/$slug': typeof CareersSlugRoute
+  '/help/$slug': typeof HelpSlugRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRouteWithChildren
   '/api/public/track': typeof ApiPublicTrackRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
@@ -842,7 +849,7 @@ export interface FileRoutesByTo {
   '/forgot-password': typeof ForgotPasswordRoute
   '/gdpr': typeof GdprRoute
   '/gps-attendance-app': typeof GpsAttendanceAppRoute
-  '/help': typeof HelpRoute
+  '/help': typeof HelpRouteWithChildren
   '/industries': typeof IndustriesRoute
   '/login': typeof LoginRoute
   '/mobile-app': typeof MobileAppRoute
@@ -861,6 +868,7 @@ export interface FileRoutesByTo {
   '/time-tracking-software': typeof TimeTrackingSoftwareRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/careers/$slug': typeof CareersSlugRoute
+  '/help/$slug': typeof HelpSlugRoute
   '/api/public/track': typeof ApiPublicTrackRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/admin/access/permissions': typeof AuthenticatedAdminAccessPermissionsRoute
@@ -949,7 +957,7 @@ export interface FileRoutesById {
   '/forgot-password': typeof ForgotPasswordRoute
   '/gdpr': typeof GdprRoute
   '/gps-attendance-app': typeof GpsAttendanceAppRoute
-  '/help': typeof HelpRoute
+  '/help': typeof HelpRouteWithChildren
   '/industries': typeof IndustriesRoute
   '/login': typeof LoginRoute
   '/mobile-app': typeof MobileAppRoute
@@ -969,6 +977,7 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/blog/$slug': typeof BlogSlugRoute
   '/careers/$slug': typeof CareersSlugRoute
+  '/help/$slug': typeof HelpSlugRoute
   '/_authenticated/admin/analytics': typeof AuthenticatedAdminAnalyticsRouteWithChildren
   '/api/public/track': typeof ApiPublicTrackRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
@@ -1078,6 +1087,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/blog/$slug'
     | '/careers/$slug'
+    | '/help/$slug'
     | '/admin/analytics'
     | '/api/public/track'
     | '/admin/'
@@ -1184,6 +1194,7 @@ export interface FileRouteTypes {
     | '/time-tracking-software'
     | '/blog/$slug'
     | '/careers/$slug'
+    | '/help/$slug'
     | '/api/public/track'
     | '/admin'
     | '/admin/access/permissions'
@@ -1291,6 +1302,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/blog/$slug'
     | '/careers/$slug'
+    | '/help/$slug'
     | '/_authenticated/admin/analytics'
     | '/api/public/track'
     | '/_authenticated/admin/'
@@ -1380,7 +1392,7 @@ export interface RootRouteChildren {
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   GdprRoute: typeof GdprRoute
   GpsAttendanceAppRoute: typeof GpsAttendanceAppRoute
-  HelpRoute: typeof HelpRoute
+  HelpRoute: typeof HelpRouteWithChildren
   IndustriesRoute: typeof IndustriesRoute
   LoginRoute: typeof LoginRoute
   MobileAppRoute: typeof MobileAppRoute
@@ -1646,6 +1658,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/help/$slug': {
+      id: '/help/$slug'
+      path: '/$slug'
+      fullPath: '/help/$slug'
+      preLoaderRoute: typeof HelpSlugRouteImport
+      parentRoute: typeof HelpRoute
     }
     '/careers/$slug': {
       id: '/careers/$slug'
@@ -2374,6 +2393,16 @@ const CareersRouteChildren: CareersRouteChildren = {
 const CareersRouteWithChildren =
   CareersRoute._addFileChildren(CareersRouteChildren)
 
+interface HelpRouteChildren {
+  HelpSlugRoute: typeof HelpSlugRoute
+}
+
+const HelpRouteChildren: HelpRouteChildren = {
+  HelpSlugRoute: HelpSlugRoute,
+}
+
+const HelpRouteWithChildren = HelpRoute._addFileChildren(HelpRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   PageSlugRoute: PageSlugRoute,
@@ -2393,7 +2422,7 @@ const rootRouteChildren: RootRouteChildren = {
   ForgotPasswordRoute: ForgotPasswordRoute,
   GdprRoute: GdprRoute,
   GpsAttendanceAppRoute: GpsAttendanceAppRoute,
-  HelpRoute: HelpRoute,
+  HelpRoute: HelpRouteWithChildren,
   IndustriesRoute: IndustriesRoute,
   LoginRoute: LoginRoute,
   MobileAppRoute: MobileAppRoute,

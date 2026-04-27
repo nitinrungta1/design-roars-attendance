@@ -1,17 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { MarketingLayout } from "@/components/brand/marketing-layout";
 import { Container, Section, Eyebrow, GradientText } from "@/components/brand/primitives";
-import { ContactForm } from "@/components/brand/forms";
+import { ContactForm, TicketForm } from "@/components/brand/forms";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { seo } from "@/lib/seo";
 import { Mail, MessageSquare, Phone } from "lucide-react";
 
 export const Route = createFileRoute("/contact")({
-  head: () => seo({
-    title: "Contact",
-    description: "Get in touch with the Oqlio team. Sales, support, partnerships — we usually reply within one business day.",
-    path: "/contact",
-    kind: "company",
-  }),
+  head: () =>
+    seo({
+      title: "Contact",
+      description:
+        "Get in touch with the Oqlio team. Sales, support, partnerships — we usually reply within one business day.",
+      path: "/contact",
+      kind: "company",
+    }),
   component: ContactPage,
 });
 
@@ -50,7 +53,18 @@ function ContactPage() {
               ))}
             </div>
             <div className="rounded-2xl border border-border bg-card p-6 sm:p-8 shadow-card">
-              <ContactForm source="contact" />
+              <Tabs defaultValue="message">
+                <TabsList className="mb-6 grid w-full grid-cols-2">
+                  <TabsTrigger value="message">Send a message</TabsTrigger>
+                  <TabsTrigger value="ticket">Open a support ticket</TabsTrigger>
+                </TabsList>
+                <TabsContent value="message">
+                  <ContactForm source="contact" />
+                </TabsContent>
+                <TabsContent value="ticket">
+                  <TicketForm />
+                </TabsContent>
+              </Tabs>
             </div>
           </div>
         </Container>
