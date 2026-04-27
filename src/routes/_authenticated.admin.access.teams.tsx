@@ -36,7 +36,7 @@ import {
   setTeamLead,
   listCompanyMemberCandidates,
 } from "@/lib/access.functions";
-import { listAdminCompanies } from "@/lib/customers.functions";
+import { listCompanies } from "@/lib/customers.functions";
 import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/_authenticated/admin/access/teams")({
@@ -65,7 +65,7 @@ function TeamsPage() {
   });
   const { data: companiesData } = useQuery({
     queryKey: ["admin", "companies-list"],
-    queryFn: () => listAdminCompanies(),
+    queryFn: () => listCompanies(),
   });
 
   const create = useMutation({
