@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { Logo } from "./logo";
 import { Github, Linkedin, Twitter } from "lucide-react";
 
-const cols: { title: string; links: { to: string; label: string }[] }[] = [
+const cols: { title: string; links: { to: string; label: string; external?: boolean }[] }[] = [
   {
     title: "Products",
     links: [
@@ -34,7 +34,7 @@ const cols: { title: string; links: { to: string; label: string }[] }[] = [
       { to: "/blog", label: "Blog" },
       { to: "/careers", label: "Careers" },
       { to: "/contact", label: "Contact" },
-      { to: "/help", label: "Help Center" },
+      { to: "https://help.oqlio.com", label: "Help Center", external: true },
     ],
   },
   {
@@ -78,12 +78,21 @@ export function MarketingFooter() {
               <ul className="mt-4 space-y-2.5 text-sm">
                 {col.links.map((l) => (
                   <li key={l.to}>
-                    <Link
-                      to={l.to}
-                      className="text-muted-foreground transition-colors hover:text-foreground"
-                    >
-                      {l.label}
-                    </Link>
+                    {l.external ? (
+                      <a
+                        href={l.to}
+                        className="text-muted-foreground transition-colors hover:text-foreground"
+                      >
+                        {l.label}
+                      </a>
+                    ) : (
+                      <Link
+                        to={l.to}
+                        className="text-muted-foreground transition-colors hover:text-foreground"
+                      >
+                        {l.label}
+                      </Link>
+                    )}
                   </li>
                 ))}
               </ul>
