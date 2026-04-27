@@ -1555,6 +1555,70 @@ export type Database = {
         }
         Relationships: []
       }
+      kb_article_feedback: {
+        Row: {
+          article_id: string | null
+          comment: string | null
+          created_at: string
+          helpful: boolean
+          id: string
+          ip_hash: string | null
+          slug: string
+          user_agent: string | null
+        }
+        Insert: {
+          article_id?: string | null
+          comment?: string | null
+          created_at?: string
+          helpful: boolean
+          id?: string
+          ip_hash?: string | null
+          slug: string
+          user_agent?: string | null
+        }
+        Update: {
+          article_id?: string | null
+          comment?: string | null
+          created_at?: string
+          helpful?: boolean
+          id?: string
+          ip_hash?: string | null
+          slug?: string
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kb_article_feedback_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "kb_articles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      kb_article_tags: {
+        Row: {
+          article_id: string
+          tag: string
+        }
+        Insert: {
+          article_id: string
+          tag: string
+        }
+        Update: {
+          article_id?: string
+          tag?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kb_article_tags_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "kb_articles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       kb_articles: {
         Row: {
           author_id: string | null
@@ -1653,6 +1717,33 @@ export type Database = {
           position?: number
           slug?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      kb_search_logs: {
+        Row: {
+          clicked_slug: string | null
+          created_at: string
+          id: string
+          query: string
+          results_count: number
+          user_id: string | null
+        }
+        Insert: {
+          clicked_slug?: string | null
+          created_at?: string
+          id?: string
+          query: string
+          results_count?: number
+          user_id?: string | null
+        }
+        Update: {
+          clicked_slug?: string | null
+          created_at?: string
+          id?: string
+          query?: string
+          results_count?: number
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -3510,6 +3601,18 @@ export type Database = {
       kb_record_vote: {
         Args: { _helpful: boolean; _slug: string }
         Returns: undefined
+      }
+      kb_search_articles: {
+        Args: { _limit?: number; _q: string }
+        Returns: {
+          category: string
+          excerpt: string
+          id: string
+          rank: number
+          slug: string
+          title: string
+          view_count: number
+        }[]
       }
       log_audit: {
         Args: {
