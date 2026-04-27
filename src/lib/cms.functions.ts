@@ -101,11 +101,11 @@ export const upsertBlogPost = createServerFn({ method: "POST" })
   .inputValidator((input) => UpsertBlogSchema.parse(input))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
-    const payload: Record<string, unknown> = {
+    const payload = {
       ...data,
       cover_url: data.cover_url || null,
       published_at: data.status === "published" ? new Date().toISOString() : null,
-    };
+    } as never;
     const { data: row, error } = await supabase
       .from("blog_posts")
       .upsert(payload, { onConflict: "slug" })
