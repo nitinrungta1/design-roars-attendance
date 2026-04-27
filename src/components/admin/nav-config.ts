@@ -40,6 +40,7 @@ import {
   Bell,
   Sun,
   Inbox,
+  Megaphone,
   type LucideIcon,
 } from "lucide-react";
 import type { AppRole } from "@/lib/auth";
