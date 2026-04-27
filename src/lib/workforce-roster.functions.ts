@@ -71,6 +71,11 @@ export const upsertSchedule = createServerFn({ method: "POST" })
         })
         .eq("id", data.id);
       if (error) return { ok: false as const, error: error.message };
+      await writeAudit(supabase, userId, data.company_id, "schedule.update", "schedule", data.id, {
+        name: data.name,
+        start_date: data.start_date,
+        end_date: data.end_date,
+      });
       return { ok: true as const, id: data.id };
     }
     const { data: row, error } = await supabase
@@ -86,6 +91,9 @@ export const upsertSchedule = createServerFn({ method: "POST" })
       .select("id")
       .single();
     if (error || !row) return { ok: false as const, error: error?.message ?? "Failed" };
+    await writeAudit(supabase, userId, data.company_id, "schedule.create", "schedule", row.id, {
+      name: data.name,
+    });
     return { ok: true as const, id: row.id };
   });
 
