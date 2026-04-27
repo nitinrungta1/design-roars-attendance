@@ -88,12 +88,12 @@ export const getWorkforceDashboard = createServerFn({ method: "POST" })
         .eq("status", "approved")
         .gte("request_date", weekAgoStr)
         .limit(2000),
-      supabase.from("shifts").select("id, name, capacity_required").limit(200),
+      supabase.from("shifts").select("id, name").limit(200),
       supabase
         .from("shift_assignments")
-        .select("shift_id, effective_from, effective_to")
-        .lte("effective_from", today)
-        .or(`effective_to.gte.${today},effective_to.is.null`)
+        .select("shift_id, starts_on, ends_on")
+        .lte("starts_on", today)
+        .or(`ends_on.gte.${today},ends_on.is.null`)
         .limit(5000),
       supabase
         .from("employees")
@@ -138,14 +138,10 @@ export const getWorkforceDashboard = createServerFn({ method: "POST" })
       .sort((a, b) => b.count - a.count)
       .slice(0, 10);
 
-    // shift utilization
-    const utilMap = new Map<string, { name: string; assigned: number; capacity: number }>();
+    // shift utilization (capacity tracked at company level — assigned only for v1)
+    const utilMap = new Map<string, { name: string; assigned: number }>();
     for (const s of shifts.data ?? []) {
-      utilMap.set(s.id, {
-        name: s.name,
-        assigned: 0,
-        capacity: (s.capacity_required as number | null) ?? 0,
-      });
+      utilMap.set(s.id, { name: s.name, assigned: 0 });
     }
     for (const a of shiftAssignments.data ?? []) {
       const slot = utilMap.get(a.shift_id as string);
@@ -154,7 +150,7 @@ export const getWorkforceDashboard = createServerFn({ method: "POST" })
     const shift_utilization = Array.from(utilMap.values()).map((s) => ({
       shift: s.name,
       assigned: s.assigned,
-      capacity: s.capacity,
+      capacity: 0,
     }));
 
     // overtime series
@@ -181,12 +177,9 @@ export const getWorkforceDashboard = createServerFn({ method: "POST" })
     const onLeaveToday = leaveToday.data?.length ?? 0;
     const remoteCount = remoteToday.data?.length ?? 0;
     const totalAssigned = shiftAssignments.data?.length ?? 0;
-    const totalCapacity = (shifts.data ?? []).reduce(
-      (sum, s) => sum + ((s.capacity_required as number | null) ?? 0),
-      0,
-    );
-    const coverage = totalCapacity > 0
-      ? Math.min(100, Math.round((totalAssigned / totalCapacity) * 100))
+    // Coverage = active assignments / active employees (proxy until per-shift capacity is added)
+    const coverage = totalEmp > 0
+      ? Math.min(100, Math.round((totalAssigned / totalEmp) * 100))
       : 0;
     const otHoursWeek = (overtimeWindow.data ?? []).reduce(
       (s, o) => s + Number(o.hours ?? 0),
@@ -342,9 +335,9 @@ export const getEmployeeProfile = createServerFn({ method: "POST" })
         .limit(500),
       supabase
         .from("timesheets")
-        .select("hours, status")
+        .select("total_hours, status")
         .eq("employee_id", data.id)
-        .gte("work_date", monthAgoStr)
+        .gte("period_start", monthAgoStr)
         .limit(500),
       supabase
         .from("asset_assignments")
@@ -392,7 +385,7 @@ export const getEmployeeProfile = createServerFn({ method: "POST" })
       },
       timesheet_summary: {
         total_hours: Number(
-          tsRows.reduce((s, t) => s + Number(t.hours ?? 0), 0).toFixed(1),
+          tsRows.reduce((s, t) => s + Number(t.total_hours ?? 0), 0).toFixed(1),
         ),
         approved: tsRows.filter((t) => t.status === "approved").length,
         pending: tsRows.filter((t) => t.status === "submitted").length,
