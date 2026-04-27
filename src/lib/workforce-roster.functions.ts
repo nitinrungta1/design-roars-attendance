@@ -187,12 +187,15 @@ export const getRosterPlanner = createServerFn({ method: "POST" })
         .limit(100),
       supabase
         .from("schedule_entries")
-        .select(
-          "id, schedule_id, employee_id, shift_id, work_date, is_off, notes, shifts(name, color), employees(full_name)",
-        )
+        .select("id, schedule_id, employee_id, shift_id, work_date, is_off, notes")
         .eq("schedule_id", data.schedule_id)
         .limit(20000),
     ]);
+
+    const empNameMap = new Map<string, string>();
+    for (const e of emps ?? []) empNameMap.set(e.id, e.full_name);
+    const shiftMap = new Map<string, { name: string; color: string | null }>();
+    for (const s of shifts ?? []) shiftMap.set(s.id, { name: s.name, color: s.color });
 
     // build day axis
     const days: string[] = [];
