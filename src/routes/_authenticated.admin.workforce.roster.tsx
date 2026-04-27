@@ -401,7 +401,7 @@ function RosterGrid({ scheduleId }: { scheduleId: string }) {
 
   return (
     <div className="overflow-hidden rounded-2xl border border-border bg-card/40">
-      <div className="flex items-center justify-between border-b border-border px-4 py-3">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-4 py-3">
         <div>
           <p className="text-sm font-semibold">{data.schedule.name}</p>
           <p className="text-xs text-muted-foreground">
@@ -409,9 +409,19 @@ function RosterGrid({ scheduleId }: { scheduleId: string }) {
             employees · {data.shifts.length} shifts
           </p>
         </div>
-        <Badge variant={data.schedule.status === "published" ? "default" : "secondary"}>
-          {data.schedule.status}
-        </Badge>
+        <div className="flex items-center gap-2">
+          <RosterTools
+            scheduleId={scheduleId}
+            companyId={data.schedule.company_id}
+            days={data.days}
+            onChanged={() =>
+              qc.invalidateQueries({ queryKey: ["admin", "workforce", "roster", scheduleId] })
+            }
+          />
+          <Badge variant={data.schedule.status === "published" ? "default" : "secondary"}>
+            {data.schedule.status}
+          </Badge>
+        </div>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
