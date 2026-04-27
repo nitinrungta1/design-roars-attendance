@@ -1,6 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import type { Database } from "@/integrations/supabase/types";
+
+type Json = Database["public"]["Tables"]["feature_flags"]["Row"]["payload"];
 
 // ============================================================
 // Platform settings
