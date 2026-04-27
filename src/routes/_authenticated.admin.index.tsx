@@ -124,15 +124,21 @@ function SaasOverview() {
   const fn = useServerFn(getSaasOverview);
   const [data, setData] = useState<Overview | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
+    setLoadError(null);
     fn({ data: undefined as never })
       .then((res) => {
         if (!cancelled) setData(res);
       })
-      .catch(() => {
-        if (!cancelled) setData(null);
+      .catch((err: unknown) => {
+        console.error("getSaasOverview failed", err);
+        if (!cancelled) {
+          setData(null);
+          setLoadError(err instanceof Error ? err.message : "Failed to load overview.");
+        }
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -142,7 +148,9 @@ function SaasOverview() {
     };
   }, [fn]);
 
-  const name = profile?.full_name?.split(" ")[0] ?? user?.email?.split("@")[0] ?? "there";
+  const fullName = typeof profile?.full_name === "string" ? profile.full_name : "";
+  const emailLocal = typeof user?.email === "string" ? user.email.split("@")[0] : "";
+  const name = fullName.split(" ")[0] || emailLocal || "there";
 
   return (
     <>
