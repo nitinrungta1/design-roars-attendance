@@ -308,10 +308,8 @@ export const assignRosterEntry = createServerFn({ method: "POST" })
     if (error) return { ok: false as const, error: error.message };
     return {
       ok: true as const,
-      conflicts: blockingConflicts.length,
-      conflict_schedules: blockingConflicts.map(
-        (c) => (c.schedules as { name: string } | null)?.name ?? "",
-      ),
+      conflicts: blockingNames.length,
+      conflict_schedules: blockingNames,
     };
   });
 
