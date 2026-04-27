@@ -57,11 +57,13 @@ import { Route as AuthenticatedAdminWorkforceOvertimeRouteImport } from './route
 import { Route as AuthenticatedAdminWorkforceLeaveRouteImport } from './routes/_authenticated.admin.workforce.leave'
 import { Route as AuthenticatedAdminWorkforceHolidaysRouteImport } from './routes/_authenticated.admin.workforce.holidays'
 import { Route as AuthenticatedAdminWorkforceEmployeesRouteImport } from './routes/_authenticated.admin.workforce.employees'
+import { Route as AuthenticatedAdminWorkforceDocumentsRouteImport } from './routes/_authenticated.admin.workforce.documents'
 import { Route as AuthenticatedAdminWorkforceDesignationsRouteImport } from './routes/_authenticated.admin.workforce.designations'
 import { Route as AuthenticatedAdminWorkforceDepartmentsRouteImport } from './routes/_authenticated.admin.workforce.departments'
 import { Route as AuthenticatedAdminWorkforceAttendanceRouteImport } from './routes/_authenticated.admin.workforce.attendance'
 import { Route as AuthenticatedAdminWorkforceAssetsRouteImport } from './routes/_authenticated.admin.workforce.assets'
 import { Route as AuthenticatedAdminWorkforceApprovalsRouteImport } from './routes/_authenticated.admin.workforce.approvals'
+import { Route as AuthenticatedAdminWorkforceAnnouncementsRouteImport } from './routes/_authenticated.admin.workforce.announcements'
 import { Route as AuthenticatedAdminSystemSettingsRouteImport } from './routes/_authenticated.admin.system.settings'
 import { Route as AuthenticatedAdminSystemSecurityRouteImport } from './routes/_authenticated.admin.system.security'
 import { Route as AuthenticatedAdminSystemBackupsRouteImport } from './routes/_authenticated.admin.system.backups'
@@ -364,6 +366,12 @@ const AuthenticatedAdminWorkforceEmployeesRoute =
     path: '/workforce/employees',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminWorkforceDocumentsRoute =
+  AuthenticatedAdminWorkforceDocumentsRouteImport.update({
+    id: '/workforce/documents',
+    path: '/workforce/documents',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminWorkforceDesignationsRoute =
   AuthenticatedAdminWorkforceDesignationsRouteImport.update({
     id: '/workforce/designations',
@@ -392,6 +400,12 @@ const AuthenticatedAdminWorkforceApprovalsRoute =
   AuthenticatedAdminWorkforceApprovalsRouteImport.update({
     id: '/workforce/approvals',
     path: '/workforce/approvals',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminWorkforceAnnouncementsRoute =
+  AuthenticatedAdminWorkforceAnnouncementsRouteImport.update({
+    id: '/workforce/announcements',
+    path: '/workforce/announcements',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminSystemSettingsRoute =
@@ -746,11 +760,13 @@ export interface FileRoutesByFullPath {
   '/admin/system/backups': typeof AuthenticatedAdminSystemBackupsRoute
   '/admin/system/security': typeof AuthenticatedAdminSystemSecurityRoute
   '/admin/system/settings': typeof AuthenticatedAdminSystemSettingsRoute
+  '/admin/workforce/announcements': typeof AuthenticatedAdminWorkforceAnnouncementsRoute
   '/admin/workforce/approvals': typeof AuthenticatedAdminWorkforceApprovalsRoute
   '/admin/workforce/assets': typeof AuthenticatedAdminWorkforceAssetsRoute
   '/admin/workforce/attendance': typeof AuthenticatedAdminWorkforceAttendanceRoute
   '/admin/workforce/departments': typeof AuthenticatedAdminWorkforceDepartmentsRoute
   '/admin/workforce/designations': typeof AuthenticatedAdminWorkforceDesignationsRoute
+  '/admin/workforce/documents': typeof AuthenticatedAdminWorkforceDocumentsRoute
   '/admin/workforce/employees': typeof AuthenticatedAdminWorkforceEmployeesRoute
   '/admin/workforce/holidays': typeof AuthenticatedAdminWorkforceHolidaysRoute
   '/admin/workforce/leave': typeof AuthenticatedAdminWorkforceLeaveRoute
@@ -844,11 +860,13 @@ export interface FileRoutesByTo {
   '/admin/system/backups': typeof AuthenticatedAdminSystemBackupsRoute
   '/admin/system/security': typeof AuthenticatedAdminSystemSecurityRoute
   '/admin/system/settings': typeof AuthenticatedAdminSystemSettingsRoute
+  '/admin/workforce/announcements': typeof AuthenticatedAdminWorkforceAnnouncementsRoute
   '/admin/workforce/approvals': typeof AuthenticatedAdminWorkforceApprovalsRoute
   '/admin/workforce/assets': typeof AuthenticatedAdminWorkforceAssetsRoute
   '/admin/workforce/attendance': typeof AuthenticatedAdminWorkforceAttendanceRoute
   '/admin/workforce/departments': typeof AuthenticatedAdminWorkforceDepartmentsRoute
   '/admin/workforce/designations': typeof AuthenticatedAdminWorkforceDesignationsRoute
+  '/admin/workforce/documents': typeof AuthenticatedAdminWorkforceDocumentsRoute
   '/admin/workforce/employees': typeof AuthenticatedAdminWorkforceEmployeesRoute
   '/admin/workforce/holidays': typeof AuthenticatedAdminWorkforceHolidaysRoute
   '/admin/workforce/leave': typeof AuthenticatedAdminWorkforceLeaveRoute
@@ -945,11 +963,13 @@ export interface FileRoutesById {
   '/_authenticated/admin/system/backups': typeof AuthenticatedAdminSystemBackupsRoute
   '/_authenticated/admin/system/security': typeof AuthenticatedAdminSystemSecurityRoute
   '/_authenticated/admin/system/settings': typeof AuthenticatedAdminSystemSettingsRoute
+  '/_authenticated/admin/workforce/announcements': typeof AuthenticatedAdminWorkforceAnnouncementsRoute
   '/_authenticated/admin/workforce/approvals': typeof AuthenticatedAdminWorkforceApprovalsRoute
   '/_authenticated/admin/workforce/assets': typeof AuthenticatedAdminWorkforceAssetsRoute
   '/_authenticated/admin/workforce/attendance': typeof AuthenticatedAdminWorkforceAttendanceRoute
   '/_authenticated/admin/workforce/departments': typeof AuthenticatedAdminWorkforceDepartmentsRoute
   '/_authenticated/admin/workforce/designations': typeof AuthenticatedAdminWorkforceDesignationsRoute
+  '/_authenticated/admin/workforce/documents': typeof AuthenticatedAdminWorkforceDocumentsRoute
   '/_authenticated/admin/workforce/employees': typeof AuthenticatedAdminWorkforceEmployeesRoute
   '/_authenticated/admin/workforce/holidays': typeof AuthenticatedAdminWorkforceHolidaysRoute
   '/_authenticated/admin/workforce/leave': typeof AuthenticatedAdminWorkforceLeaveRoute
@@ -1046,11 +1066,13 @@ export interface FileRouteTypes {
     | '/admin/system/backups'
     | '/admin/system/security'
     | '/admin/system/settings'
+    | '/admin/workforce/announcements'
     | '/admin/workforce/approvals'
     | '/admin/workforce/assets'
     | '/admin/workforce/attendance'
     | '/admin/workforce/departments'
     | '/admin/workforce/designations'
+    | '/admin/workforce/documents'
     | '/admin/workforce/employees'
     | '/admin/workforce/holidays'
     | '/admin/workforce/leave'
@@ -1144,11 +1166,13 @@ export interface FileRouteTypes {
     | '/admin/system/backups'
     | '/admin/system/security'
     | '/admin/system/settings'
+    | '/admin/workforce/announcements'
     | '/admin/workforce/approvals'
     | '/admin/workforce/assets'
     | '/admin/workforce/attendance'
     | '/admin/workforce/departments'
     | '/admin/workforce/designations'
+    | '/admin/workforce/documents'
     | '/admin/workforce/employees'
     | '/admin/workforce/holidays'
     | '/admin/workforce/leave'
@@ -1244,11 +1268,13 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/system/backups'
     | '/_authenticated/admin/system/security'
     | '/_authenticated/admin/system/settings'
+    | '/_authenticated/admin/workforce/announcements'
     | '/_authenticated/admin/workforce/approvals'
     | '/_authenticated/admin/workforce/assets'
     | '/_authenticated/admin/workforce/attendance'
     | '/_authenticated/admin/workforce/departments'
     | '/_authenticated/admin/workforce/designations'
+    | '/_authenticated/admin/workforce/documents'
     | '/_authenticated/admin/workforce/employees'
     | '/_authenticated/admin/workforce/holidays'
     | '/_authenticated/admin/workforce/leave'
@@ -1638,6 +1664,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminWorkforceEmployeesRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/workforce/documents': {
+      id: '/_authenticated/admin/workforce/documents'
+      path: '/workforce/documents'
+      fullPath: '/admin/workforce/documents'
+      preLoaderRoute: typeof AuthenticatedAdminWorkforceDocumentsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/workforce/designations': {
       id: '/_authenticated/admin/workforce/designations'
       path: '/workforce/designations'
@@ -1671,6 +1704,13 @@ declare module '@tanstack/react-router' {
       path: '/workforce/approvals'
       fullPath: '/admin/workforce/approvals'
       preLoaderRoute: typeof AuthenticatedAdminWorkforceApprovalsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/workforce/announcements': {
+      id: '/_authenticated/admin/workforce/announcements'
+      path: '/workforce/announcements'
+      fullPath: '/admin/workforce/announcements'
+      preLoaderRoute: typeof AuthenticatedAdminWorkforceAnnouncementsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/system/settings': {
@@ -2038,11 +2078,13 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminSystemBackupsRoute: typeof AuthenticatedAdminSystemBackupsRoute
   AuthenticatedAdminSystemSecurityRoute: typeof AuthenticatedAdminSystemSecurityRoute
   AuthenticatedAdminSystemSettingsRoute: typeof AuthenticatedAdminSystemSettingsRoute
+  AuthenticatedAdminWorkforceAnnouncementsRoute: typeof AuthenticatedAdminWorkforceAnnouncementsRoute
   AuthenticatedAdminWorkforceApprovalsRoute: typeof AuthenticatedAdminWorkforceApprovalsRoute
   AuthenticatedAdminWorkforceAssetsRoute: typeof AuthenticatedAdminWorkforceAssetsRoute
   AuthenticatedAdminWorkforceAttendanceRoute: typeof AuthenticatedAdminWorkforceAttendanceRoute
   AuthenticatedAdminWorkforceDepartmentsRoute: typeof AuthenticatedAdminWorkforceDepartmentsRoute
   AuthenticatedAdminWorkforceDesignationsRoute: typeof AuthenticatedAdminWorkforceDesignationsRoute
+  AuthenticatedAdminWorkforceDocumentsRoute: typeof AuthenticatedAdminWorkforceDocumentsRoute
   AuthenticatedAdminWorkforceEmployeesRoute: typeof AuthenticatedAdminWorkforceEmployeesRoute
   AuthenticatedAdminWorkforceHolidaysRoute: typeof AuthenticatedAdminWorkforceHolidaysRoute
   AuthenticatedAdminWorkforceLeaveRoute: typeof AuthenticatedAdminWorkforceLeaveRoute
@@ -2126,6 +2168,8 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminSystemBackupsRoute: AuthenticatedAdminSystemBackupsRoute,
   AuthenticatedAdminSystemSecurityRoute: AuthenticatedAdminSystemSecurityRoute,
   AuthenticatedAdminSystemSettingsRoute: AuthenticatedAdminSystemSettingsRoute,
+  AuthenticatedAdminWorkforceAnnouncementsRoute:
+    AuthenticatedAdminWorkforceAnnouncementsRoute,
   AuthenticatedAdminWorkforceApprovalsRoute:
     AuthenticatedAdminWorkforceApprovalsRoute,
   AuthenticatedAdminWorkforceAssetsRoute:
@@ -2136,6 +2180,8 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
     AuthenticatedAdminWorkforceDepartmentsRoute,
   AuthenticatedAdminWorkforceDesignationsRoute:
     AuthenticatedAdminWorkforceDesignationsRoute,
+  AuthenticatedAdminWorkforceDocumentsRoute:
+    AuthenticatedAdminWorkforceDocumentsRoute,
   AuthenticatedAdminWorkforceEmployeesRoute:
     AuthenticatedAdminWorkforceEmployeesRoute,
   AuthenticatedAdminWorkforceHolidaysRoute:

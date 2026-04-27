@@ -105,6 +105,10 @@ export const NAV_GROUPS: NavGroup[] = [
       { to: "/admin/workforce/overtime", label: "Overtime", icon: Timer },
       { to: "/admin/workforce/leave", label: "Leave", icon: Sun },
       { to: "/admin/workforce/holidays", label: "Holidays", icon: CalendarRange },
+      { to: "/admin/workforce/productivity", label: "Productivity", icon: BarChart3 },
+      { to: "/admin/workforce/assets", label: "Assets", icon: HardDrive },
+      { to: "/admin/workforce/documents", label: "Documents", icon: FileText },
+      { to: "/admin/workforce/announcements", label: "Announcements", icon: Megaphone },
     ],
   },
   {
