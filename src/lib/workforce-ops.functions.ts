@@ -233,7 +233,7 @@ const AssetUpsertSchema = z.object({
   company_id: z.string().uuid(),
   name: z.string().trim().min(1).max(160),
   kind: z.enum(["laptop", "phone", "sim", "id_card", "accessory", "other"]),
-  status: z.enum(["available", "assigned", "lost", "retired", "in_repair"]),
+  status: z.enum(["available", "assigned", "lost", "retired"]),
   serial_number: z.string().trim().max(120).optional().or(z.literal("")),
   value: z.number().nonnegative().optional(),
   purchased_at: z.string().optional().or(z.literal("")),
