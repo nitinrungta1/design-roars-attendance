@@ -4,14 +4,16 @@
  * - SITE_NAME is always "Oqlio" (used in og:site_name).
  * - Product pages get titles like "Punchly — Pricing | Oqlio".
  * - Company pages get titles like "About | Oqlio".
- * - Canonical domain is https://oqlio.com (apex).
+ * - Help Centre pages canonicalize to https://help.oqlio.com.
+ * - Canonical default domain is https://oqlio.com (apex).
  */
 export const SITE_NAME = "Oqlio";
 export const PRODUCT_NAME = "Punchly";
 export const SITE_URL = "https://oqlio.com";
+export const HELP_URL = "https://help.oqlio.com";
 export const DEFAULT_OG = `${SITE_URL}/og-default.jpg`;
 
-export type SeoKind = "product" | "company";
+export type SeoKind = "product" | "company" | "help";
 
 export interface SeoInput {
   /** Page-specific title fragment, e.g. "Pricing" or "About". */
@@ -20,20 +22,33 @@ export interface SeoInput {
   path: string;
   /** Override full og/twitter title if you don't want auto-formatting. */
   fullTitle?: string;
-  /** Defaults to "company" — pass "product" for Punchly product pages. */
+  /** Defaults to "company" — pass "product" for Punchly product pages, or "help" for Help Centre. */
   kind?: SeoKind;
   image?: string;
   noindex?: boolean;
 }
 
 export function formatTitle(title: string, kind: SeoKind = "company") {
-  return kind === "product"
-    ? `${PRODUCT_NAME} — ${title} | ${SITE_NAME}`
-    : `${title} | ${SITE_NAME}`;
+  if (kind === "product") return `${PRODUCT_NAME} — ${title} | ${SITE_NAME}`;
+  if (kind === "help") return `${title} — Oqlio Help Centre`;
+  return `${title} | ${SITE_NAME}`;
+}
+
+/**
+ * On the help.oqlio.com subdomain a "/help" path on the marketing site
+ * maps to "/" on the subdomain, and "/help/foo" maps to "/foo".
+ */
+function helpCanonicalPath(path: string): string {
+  if (path === "/help" || path === "/help/") return "/";
+  if (path.startsWith("/help/")) return path.slice("/help".length);
+  return path;
 }
 
 export function seo(input: SeoInput) {
-  const url = `${SITE_URL}${input.path === "/" ? "" : input.path}`;
+  const isHelp = input.kind === "help";
+  const baseUrl = isHelp ? HELP_URL : SITE_URL;
+  const canonicalPath = isHelp ? helpCanonicalPath(input.path) : input.path;
+  const url = `${baseUrl}${canonicalPath === "/" ? "" : canonicalPath}`;
   const image = input.image ?? DEFAULT_OG;
   const fullTitle = input.fullTitle ?? formatTitle(input.title, input.kind);
   const meta: Array<{ name?: string; property?: string; content: string; charSet?: string; title?: string }> = [
@@ -86,3 +101,27 @@ export const PUNCHLY_SOFTWARE_JSON_LD = {
   offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
   aggregateRating: { "@type": "AggregateRating", ratingValue: "4.9", reviewCount: "1284" },
 };
+
+export function articleJsonLd(opts: {
+  title: string;
+  description: string;
+  url: string;
+  datePublished?: string | null;
+  dateModified?: string | null;
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: opts.title,
+    description: opts.description,
+    url: opts.url,
+    datePublished: opts.datePublished ?? undefined,
+    dateModified: opts.dateModified ?? undefined,
+    author: { "@type": "Organization", name: SITE_NAME, url: SITE_URL },
+    publisher: {
+      "@type": "Organization",
+      name: SITE_NAME,
+      logo: { "@type": "ImageObject", url: `${SITE_URL}/logo.png` },
+    },
+  };
+}
