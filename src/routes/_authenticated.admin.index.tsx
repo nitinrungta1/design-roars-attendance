@@ -32,6 +32,28 @@ import { getSaasOverview } from "@/lib/admin-overview.functions";
 
 export const Route = createFileRoute("/_authenticated/admin/")({
   component: SaasOverview,
+  errorComponent: ({ error, reset }) => {
+    if (typeof console !== "undefined") console.error("[admin/index] errorComponent", error);
+    return (
+      <div className="m-6 rounded-lg border border-destructive/30 bg-destructive/5 p-6">
+        <h2 className="text-lg font-semibold text-destructive">SaaS Overview failed to load</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          {error?.message ?? "An unexpected error occurred."}
+        </p>
+        <button
+          onClick={() => reset()}
+          className="mt-4 inline-flex items-center justify-center rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+        >
+          Try again
+        </button>
+      </div>
+    );
+  },
+  notFoundComponent: () => (
+    <div className="m-6 rounded-lg border border-border bg-card p-6 text-sm text-muted-foreground">
+      Page not found.
+    </div>
+  ),
 });
 
 type Counts = Awaited<ReturnType<typeof getSaasOverview>>["counts"];
@@ -102,15 +124,21 @@ function SaasOverview() {
   const fn = useServerFn(getSaasOverview);
   const [data, setData] = useState<Overview | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
+    setLoadError(null);
     fn({ data: undefined as never })
       .then((res) => {
         if (!cancelled) setData(res);
       })
-      .catch(() => {
-        if (!cancelled) setData(null);
+      .catch((err: unknown) => {
+        console.error("getSaasOverview failed", err);
+        if (!cancelled) {
+          setData(null);
+          setLoadError(err instanceof Error ? err.message : "Failed to load overview.");
+        }
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -120,7 +148,9 @@ function SaasOverview() {
     };
   }, [fn]);
 
-  const name = profile?.full_name?.split(" ")[0] ?? user?.email?.split("@")[0] ?? "there";
+  const fullName = typeof profile?.full_name === "string" ? profile.full_name : "";
+  const emailLocal = typeof user?.email === "string" ? user.email.split("@")[0] : "";
+  const name = fullName.split(" ")[0] || emailLocal || "there";
 
   return (
     <>
@@ -137,6 +167,11 @@ function SaasOverview() {
         }
       />
       <PageBody className="space-y-6">
+        {loadError && (
+          <div className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+            Couldn't load overview data: {loadError}
+          </div>
+        )}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {KPIS.map((spec) => (
             <KpiCard
