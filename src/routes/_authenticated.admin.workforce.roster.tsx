@@ -31,6 +31,8 @@ import {
   getRosterPlanner,
   assignRosterEntry,
   clearRosterEntry,
+  copyRosterWeek,
+  clearRosterWindow,
 } from "@/lib/workforce-roster.functions";
 import { listCompanies } from "@/lib/customers.functions";
 import { seo } from "@/lib/seo";
@@ -399,7 +401,7 @@ function RosterGrid({ scheduleId }: { scheduleId: string }) {
 
   return (
     <div className="overflow-hidden rounded-2xl border border-border bg-card/40">
-      <div className="flex items-center justify-between border-b border-border px-4 py-3">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-4 py-3">
         <div>
           <p className="text-sm font-semibold">{data.schedule.name}</p>
           <p className="text-xs text-muted-foreground">
@@ -407,9 +409,19 @@ function RosterGrid({ scheduleId }: { scheduleId: string }) {
             employees · {data.shifts.length} shifts
           </p>
         </div>
-        <Badge variant={data.schedule.status === "published" ? "default" : "secondary"}>
-          {data.schedule.status}
-        </Badge>
+        <div className="flex items-center gap-2">
+          <RosterTools
+            scheduleId={scheduleId}
+            companyId={data.schedule.company_id}
+            days={data.days}
+            onChanged={() =>
+              qc.invalidateQueries({ queryKey: ["admin", "workforce", "roster", scheduleId] })
+            }
+          />
+          <Badge variant={data.schedule.status === "published" ? "default" : "secondary"}>
+            {data.schedule.status}
+          </Badge>
+        </div>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
@@ -618,4 +630,143 @@ function CellDialog({
 function fmtDay(d: string) {
   const date = new Date(d);
   return date.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
+}
+
+function RosterTools({
+  scheduleId,
+  companyId,
+  days,
+  onChanged,
+}: {
+  scheduleId: string;
+  companyId: string;
+  days: string[];
+  onChanged: () => void;
+}) {
+  const [copyOpen, setCopyOpen] = useState(false);
+  const [clearOpen, setClearOpen] = useState(false);
+
+  const firstDay = days[0];
+  const lastDay = days[days.length - 1];
+  const sevenLater =
+    firstDay && new Date(new Date(firstDay).getTime() + 7 * 86400000).toISOString().slice(0, 10);
+
+  const [srcStart, setSrcStart] = useState(firstDay ?? "");
+  const [srcEnd, setSrcEnd] = useState(
+    firstDay ? new Date(new Date(firstDay).getTime() + 6 * 86400000).toISOString().slice(0, 10) : "",
+  );
+  const [tgtStart, setTgtStart] = useState(sevenLater ?? "");
+  const [clearFrom, setClearFrom] = useState(firstDay ?? "");
+  const [clearTo, setClearTo] = useState(lastDay ?? "");
+
+  return (
+    <>
+      <Button variant="outline" size="sm" onClick={() => setCopyOpen(true)}>
+        Copy week
+      </Button>
+      <Button variant="outline" size="sm" onClick={() => setClearOpen(true)}>
+        Clear range
+      </Button>
+
+      <Dialog open={copyOpen} onOpenChange={setCopyOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Copy roster week</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <p className="text-xs text-muted-foreground">
+              Copies all entries from the source range to the target range, replacing any
+              existing entries on the target dates.
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label className="text-xs">Source start</Label>
+                <Input type="date" className="mt-1" value={srcStart} onChange={(e) => setSrcStart(e.target.value)} />
+              </div>
+              <div>
+                <Label className="text-xs">Source end</Label>
+                <Input type="date" className="mt-1" value={srcEnd} onChange={(e) => setSrcEnd(e.target.value)} />
+              </div>
+            </div>
+            <div>
+              <Label className="text-xs">Target start</Label>
+              <Input type="date" className="mt-1" value={tgtStart} onChange={(e) => setTgtStart(e.target.value)} />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setCopyOpen(false)}>Cancel</Button>
+            <Button
+              disabled={!srcStart || !srcEnd || !tgtStart}
+              onClick={async () => {
+                const res = await copyRosterWeek({
+                  data: {
+                    schedule_id: scheduleId,
+                    company_id: companyId,
+                    source_start: srcStart,
+                    source_end: srcEnd,
+                    target_start: tgtStart,
+                  },
+                });
+                if (res.ok) {
+                  toast.success(`Copied ${res.copied} entries`);
+                  setCopyOpen(false);
+                  onChanged();
+                } else toast.error(res.error);
+              }}
+            >
+              Copy
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={clearOpen} onOpenChange={setClearOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Clear roster range</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <p className="text-xs text-muted-foreground">
+              Removes all roster entries between the dates below. This action is logged.
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label className="text-xs">From</Label>
+                <Input type="date" className="mt-1" value={clearFrom} onChange={(e) => setClearFrom(e.target.value)} />
+              </div>
+              <div>
+                <Label className="text-xs">To</Label>
+                <Input type="date" className="mt-1" value={clearTo} onChange={(e) => setClearTo(e.target.value)} />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setClearOpen(false)}>Cancel</Button>
+            <Button
+              variant="destructive"
+              disabled={!clearFrom || !clearTo}
+              onClick={async () => {
+                if (!confirm("Clear all entries in this range?")) return;
+                const res = await clearRosterWindow({
+                  data: {
+                    schedule_id: scheduleId,
+                    company_id: companyId,
+                    from_date: clearFrom,
+                    to_date: clearTo,
+                  },
+                });
+                if (res.ok) {
+                  toast.success(`Removed ${res.removed} entries`);
+                  setClearOpen(false);
+                  onChanged();
+                } else toast.error(res.error);
+              }}
+            >
+              Clear
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
 }
