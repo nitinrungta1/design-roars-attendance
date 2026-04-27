@@ -46,6 +46,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated.admin'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated.admin.index'
 import { Route as ApiPublicTrackRouteImport } from './routes/api.public.track'
+import { Route as AuthenticatedAdminAnalyticsRouteImport } from './routes/_authenticated.admin.analytics'
 import { Route as AuthenticatedAdminWorkforceIndexRouteImport } from './routes/_authenticated.admin.workforce.index'
 import { Route as AuthenticatedAdminLeadsIndexRouteImport } from './routes/_authenticated.admin.leads.index'
 import { Route as AuthenticatedAdminWorkforceTimesheetsRouteImport } from './routes/_authenticated.admin.workforce.timesheets'
@@ -295,6 +296,12 @@ const ApiPublicTrackRoute = ApiPublicTrackRouteImport.update({
   path: '/api/public/track',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAdminAnalyticsRoute =
+  AuthenticatedAdminAnalyticsRouteImport.update({
+    id: '/analytics',
+    path: '/analytics',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminWorkforceIndexRoute =
   AuthenticatedAdminWorkforceIndexRouteImport.update({
     id: '/workforce/',
@@ -685,6 +692,7 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/time-tracking-software': typeof TimeTrackingSoftwareRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/api/public/track': typeof ApiPublicTrackRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/admin/access/permissions': typeof AuthenticatedAdminAccessPermissionsRoute
@@ -781,6 +789,7 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/time-tracking-software': typeof TimeTrackingSoftwareRoute
+  '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/api/public/track': typeof ApiPublicTrackRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/admin/access/permissions': typeof AuthenticatedAdminAccessPermissionsRoute
@@ -880,6 +889,7 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/time-tracking-software': typeof TimeTrackingSoftwareRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/_authenticated/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/api/public/track': typeof ApiPublicTrackRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/admin/access/permissions': typeof AuthenticatedAdminAccessPermissionsRoute
@@ -979,6 +989,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/time-tracking-software'
     | '/admin'
+    | '/admin/analytics'
     | '/api/public/track'
     | '/admin/'
     | '/admin/access/permissions'
@@ -1075,6 +1086,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/time-tracking-software'
+    | '/admin/analytics'
     | '/api/public/track'
     | '/admin'
     | '/admin/access/permissions'
@@ -1173,6 +1185,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/time-tracking-software'
     | '/_authenticated/admin'
+    | '/_authenticated/admin/analytics'
     | '/api/public/track'
     | '/_authenticated/admin/'
     | '/_authenticated/admin/access/permissions'
@@ -1534,6 +1547,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/public/track'
       preLoaderRoute: typeof ApiPublicTrackRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/admin/analytics': {
+      id: '/_authenticated/admin/analytics'
+      path: '/analytics'
+      fullPath: '/admin/analytics'
+      preLoaderRoute: typeof AuthenticatedAdminAnalyticsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/workforce/': {
       id: '/_authenticated/admin/workforce/'
@@ -1952,6 +1972,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminAnalyticsRoute: typeof AuthenticatedAdminAnalyticsRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedAdminAccessPermissionsRoute: typeof AuthenticatedAdminAccessPermissionsRoute
   AuthenticatedAdminAccessRolesRoute: typeof AuthenticatedAdminAccessRolesRoute
@@ -2015,6 +2036,7 @@ interface AuthenticatedAdminRouteChildren {
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminAnalyticsRoute: AuthenticatedAdminAnalyticsRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
   AuthenticatedAdminAccessPermissionsRoute:
     AuthenticatedAdminAccessPermissionsRoute,
