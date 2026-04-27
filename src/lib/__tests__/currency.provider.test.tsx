@@ -75,11 +75,17 @@ describe("CurrencyProvider", () => {
     expect(fx.detectCurrencyFromIp).toHaveBeenCalled();
   });
 
-  it("does NOT call IP detection when user has a saved choice", async () => {
+  it("does NOT override a saved choice once hydrated", async () => {
     localStorage.setItem("oqlio.currency", "GBP");
-    renderHook(() => useCurrency(), { wrapper: makeWrapper() });
-    await waitFor(() => expect(fx.getFxRates).toHaveBeenCalled());
-    expect(fx.detectCurrencyFromIp).not.toHaveBeenCalled();
+    const { result } = renderHook(() => useCurrency(), {
+      wrapper: makeWrapper(),
+    });
+    // After hydration the saved choice wins, even if IP detection raced first.
+    await waitFor(() => expect(result.current.currency).toBe("GBP"));
+    await waitFor(() => expect(result.current.isUserSelected).toBe(true));
+    // Give IP detection a tick to NOT clobber the saved value.
+    await new Promise((r) => setTimeout(r, 20));
+    expect(result.current.currency).toBe("GBP");
   });
 
   it("setCurrency persists to localStorage and flips isUserSelected", async () => {

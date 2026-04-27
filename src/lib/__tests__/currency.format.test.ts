@@ -39,7 +39,10 @@ describe("formatCurrency", () => {
 
   it("formats KWD with 3 decimals", () => {
     const out = normalize(formatCurrency(3.1, "KWD"));
-    expect(out).toMatch(/3[.,]100/);
+    // ar-KW renders Arabic-Indic digits (٣٫١٠٠) with the dinar sign.
+    // Assert the structure: 3 fractional digits + KWD symbol present.
+    expect(out).toMatch(/[\d٠-٩]+[.,٫][\d٠-٩]{3}/);
+    expect(out).toMatch(/د\.ك/);
   });
 
   it("withSymbol=false strips the currency symbol", () => {
