@@ -73,12 +73,13 @@ export function MarketingHeader() {
         <div className="flex items-center gap-1 lg:hidden">
           <CurrencySwitcher compact />
           <button
-          className="lg:hidden inline-flex h-10 w-10 items-center justify-center rounded-md hover:bg-accent"
-          onClick={() => setOpen((v) => !v)}
-          aria-label="Toggle menu"
-        >
-          {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-        </button>
+            className="inline-flex h-10 w-10 items-center justify-center rounded-md hover:bg-accent"
+            onClick={() => setOpen((v) => !v)}
+            aria-label="Toggle menu"
+          >
+            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+        </div>
       </div>
       {open && (
         <div className="lg:hidden border-t border-border bg-background/95 backdrop-blur">
