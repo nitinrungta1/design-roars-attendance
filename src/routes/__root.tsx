@@ -6,6 +6,7 @@ import { ORG_JSON_LD } from "@/lib/seo";
 import { AuthProvider } from "@/lib/auth";
 import { CurrencyProvider } from "@/lib/currency";
 import { TrackingProvider } from "@/components/tracking-provider";
+import { CopyGuard } from "@/components/copy-guard";
 
 import appCss from "../styles.css?url";
 
@@ -114,6 +115,7 @@ function RootComponent() {
   return (
     <>
       <TrackingProvider />
+      <CopyGuard />
       <Outlet />
     </>
   );

@@ -1,58 +1,40 @@
-# Add help.oqlio.com to sitemaps & robots
+# Remove visible Lovable branding & add copy/inspect deterrent
 
-Surface the Help Centre subdomain to crawlers so Google discovers articles fast and treats `help.oqlio.com` as a first-class property.
+## What's actually visible
 
-## Changes
+After scanning the codebase, **there is no visible "Made with Lovable" or "Powered by Supabase" text anywhere in the site**. The only Lovable-branded thing on your published site is the floating **"Edit with Lovable" badge** (injected by the platform, not in your code). All other "lovable" / "supabase" references are SDK imports — code identifiers the user never sees.
 
-### 1. `src/routes/sitemap[.]xml.tsx` (main sitemap)
-- Append a reference to the help sitemap so crawlers find KB articles via the apex sitemap too.
-- Switch response from a plain `<urlset>` to a sitemap **index** that lists:
-  - `https://oqlio.com/sitemap-pages.xml` (current page list)
-  - `https://help.oqlio.com/sitemap-help.xml` (already implemented)
-- Keep the existing per-page URL list working by moving it to a new `sitemap-pages[.]xml.tsx` route (so we don't break what Google already indexed).
+✅ **Already done in this turn:** badge hidden via publish settings.
 
-Result:
-```
-/sitemap.xml          → sitemap index (pages + help)
-/sitemap-pages.xml    → marketing/product/legal pages (existing list)
-/sitemap-help.xml     → KB articles (already exists, served from both hosts)
-```
+## What still to build: Copy / inspect deterrent (light)
 
-### 2. New `src/routes/sitemap-pages[.]xml.tsx`
-- Holds the current 26-URL list verbatim from today's `sitemap.xml`.
+A new `CopyGuard` component mounted in `__root.tsx` that, on public pages only, blocks:
+- Right-click context menu
+- Text selection & drag
+- `Ctrl/Cmd + C / X / S / U / P / A`
+- `F12`, `Ctrl+Shift+I/J/C` (DevTools shortcuts)
+- Copy/cut events at the document level
 
-### 3. `src/routes/robots[.]txt.tsx` (host-aware)
-Detect host via `request.headers.get("host")` using the existing `isHelpHost` helper from `src/lib/host.ts`.
+**Scoped off** (so admin work and forms keep working):
+- `/admin/**` — staff need full DevTools & copy
+- `/login`, `/signup`, `/forgot-password`, `/reset-password`, `/auth-callback`
+- `/contact`, `/demo` — forms need paste
 
-- **On `oqlio.com`** (default):
-  ```
-  User-agent: *
-  Allow: /
-  
-  Sitemap: https://oqlio.com/sitemap.xml
-  Sitemap: https://help.oqlio.com/sitemap-help.xml
-  ```
-- **On `help.oqlio.com`**:
-  ```
-  User-agent: *
-  Allow: /
-  Disallow: /admin
-  Disallow: /login
-  Disallow: /signup
-  
-  Sitemap: https://help.oqlio.com/sitemap-help.xml
-  ```
-  (Help host should not advertise app/auth routes even though the same app serves them.)
+**Form fields always pass through** even on protected pages: any `<input>`, `<textarea>`, `<select>`, or `contentEditable` element keeps normal behavior — so the help search box, ticket form, and KB feedback widget all still work.
 
-### 4. `src/routes/sitemap-help[.]xml.tsx` (tiny tweak)
-- Also register the route so it's reachable from the apex (`oqlio.com/sitemap-help.xml`) — already a file route, so it works on both hosts automatically; no code change needed beyond confirming.
+## Honest disclosure
+
+I want to be upfront: this is a **deterrent, not real protection**. Anyone with technical skill can:
+- Open DevTools via the browser menu (not a shortcut)
+- View source via `view-source:` URL prefix
+- Disable JS and bypass the entire guard
+- Read the SSR HTML directly with `curl`
+
+A web app's HTML/CSS/JS is **fundamentally downloaded by the browser to render** — it cannot be hidden from a determined viewer. What we can do is stop casual copying, which this does well.
 
 ## Files
-- **Edit:** `src/routes/sitemap[.]xml.tsx` (becomes index)
-- **Edit:** `src/routes/robots[.]txt.tsx` (host-aware body)
-- **Create:** `src/routes/sitemap-pages[.]xml.tsx` (page URL list)
 
-No DB or migration changes. No UI changes.
+- **Create:** `src/components/copy-guard.tsx` (~80 lines, pure client effect)
+- **Edit:** `src/routes/__root.tsx` — import & mount `<CopyGuard />` next to `<TrackingProvider />`
 
-## After deploy
-- Submit `https://oqlio.com/sitemap.xml` and `https://help.oqlio.com/sitemap-help.xml` in Google Search Console once the subdomain is verified.
+No DB, no backend changes, no UI changes other than blocked interactions.
