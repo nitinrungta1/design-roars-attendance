@@ -1,13 +1,17 @@
 import { defineConfig } from "vitest/config";
-import react from "@vitejs/plugin-react";
 import path from "path";
 
+// We intentionally don't use @vitejs/plugin-react here — Vitest's default
+// esbuild transform handles JSX/TSX, and the React plugin trips on Vite's
+// internal exports in this monorepo's bundle.
 export default defineConfig({
-  plugins: [react()],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
+  },
+  esbuild: {
+    jsx: "automatic",
   },
   test: {
     environment: "jsdom",
@@ -16,7 +20,6 @@ export default defineConfig({
     css: false,
     server: {
       deps: {
-        // Avoid trying to bundle the TanStack Start server runtime in tests
         inline: [/@tanstack\/react-start/],
       },
     },
