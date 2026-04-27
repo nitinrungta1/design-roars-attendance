@@ -39,6 +39,7 @@ import {
   Sparkles,
   Bell,
   Sun,
+  Inbox,
   type LucideIcon,
 } from "lucide-react";
 import type { AppRole } from "@/lib/auth";
@@ -98,6 +99,8 @@ export const NAV_GROUPS: NavGroup[] = [
       { to: "/admin/workforce/rules", label: "Workforce Rules", icon: ShieldCheck },
       { to: "/admin/workforce/attendance", label: "Attendance Automation", icon: Clock },
       { to: "/admin/workforce/shifts", label: "Shifts & Schedules", icon: CalendarRange },
+      { to: "/admin/workforce/roster", label: "Roster Planner", icon: CalendarRange },
+      { to: "/admin/workforce/approvals", label: "Approvals Inbox", icon: Inbox },
       { to: "/admin/workforce/timesheets", label: "Timesheets", icon: ClipboardList },
       { to: "/admin/workforce/overtime", label: "Overtime", icon: Timer },
       { to: "/admin/workforce/leave", label: "Leave", icon: Sun },

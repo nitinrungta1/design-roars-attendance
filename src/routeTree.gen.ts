@@ -51,6 +51,7 @@ import { Route as AuthenticatedAdminWorkforceTimesheetsRouteImport } from './rou
 import { Route as AuthenticatedAdminWorkforceTeamsRouteImport } from './routes/_authenticated.admin.workforce.teams'
 import { Route as AuthenticatedAdminWorkforceShiftsRouteImport } from './routes/_authenticated.admin.workforce.shifts'
 import { Route as AuthenticatedAdminWorkforceRulesRouteImport } from './routes/_authenticated.admin.workforce.rules'
+import { Route as AuthenticatedAdminWorkforceRosterRouteImport } from './routes/_authenticated.admin.workforce.roster'
 import { Route as AuthenticatedAdminWorkforceOvertimeRouteImport } from './routes/_authenticated.admin.workforce.overtime'
 import { Route as AuthenticatedAdminWorkforceLeaveRouteImport } from './routes/_authenticated.admin.workforce.leave'
 import { Route as AuthenticatedAdminWorkforceHolidaysRouteImport } from './routes/_authenticated.admin.workforce.holidays'
@@ -58,6 +59,7 @@ import { Route as AuthenticatedAdminWorkforceEmployeesRouteImport } from './rout
 import { Route as AuthenticatedAdminWorkforceDesignationsRouteImport } from './routes/_authenticated.admin.workforce.designations'
 import { Route as AuthenticatedAdminWorkforceDepartmentsRouteImport } from './routes/_authenticated.admin.workforce.departments'
 import { Route as AuthenticatedAdminWorkforceAttendanceRouteImport } from './routes/_authenticated.admin.workforce.attendance'
+import { Route as AuthenticatedAdminWorkforceApprovalsRouteImport } from './routes/_authenticated.admin.workforce.approvals'
 import { Route as AuthenticatedAdminSystemSettingsRouteImport } from './routes/_authenticated.admin.system.settings'
 import { Route as AuthenticatedAdminSystemSecurityRouteImport } from './routes/_authenticated.admin.system.security'
 import { Route as AuthenticatedAdminSystemBackupsRouteImport } from './routes/_authenticated.admin.system.backups'
@@ -324,6 +326,12 @@ const AuthenticatedAdminWorkforceRulesRoute =
     path: '/workforce/rules',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminWorkforceRosterRoute =
+  AuthenticatedAdminWorkforceRosterRouteImport.update({
+    id: '/workforce/roster',
+    path: '/workforce/roster',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminWorkforceOvertimeRoute =
   AuthenticatedAdminWorkforceOvertimeRouteImport.update({
     id: '/workforce/overtime',
@@ -364,6 +372,12 @@ const AuthenticatedAdminWorkforceAttendanceRoute =
   AuthenticatedAdminWorkforceAttendanceRouteImport.update({
     id: '/workforce/attendance',
     path: '/workforce/attendance',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminWorkforceApprovalsRoute =
+  AuthenticatedAdminWorkforceApprovalsRouteImport.update({
+    id: '/workforce/approvals',
+    path: '/workforce/approvals',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminSystemSettingsRoute =
@@ -718,6 +732,7 @@ export interface FileRoutesByFullPath {
   '/admin/system/backups': typeof AuthenticatedAdminSystemBackupsRoute
   '/admin/system/security': typeof AuthenticatedAdminSystemSecurityRoute
   '/admin/system/settings': typeof AuthenticatedAdminSystemSettingsRoute
+  '/admin/workforce/approvals': typeof AuthenticatedAdminWorkforceApprovalsRoute
   '/admin/workforce/attendance': typeof AuthenticatedAdminWorkforceAttendanceRoute
   '/admin/workforce/departments': typeof AuthenticatedAdminWorkforceDepartmentsRoute
   '/admin/workforce/designations': typeof AuthenticatedAdminWorkforceDesignationsRoute
@@ -725,6 +740,7 @@ export interface FileRoutesByFullPath {
   '/admin/workforce/holidays': typeof AuthenticatedAdminWorkforceHolidaysRoute
   '/admin/workforce/leave': typeof AuthenticatedAdminWorkforceLeaveRoute
   '/admin/workforce/overtime': typeof AuthenticatedAdminWorkforceOvertimeRoute
+  '/admin/workforce/roster': typeof AuthenticatedAdminWorkforceRosterRoute
   '/admin/workforce/rules': typeof AuthenticatedAdminWorkforceRulesRoute
   '/admin/workforce/shifts': typeof AuthenticatedAdminWorkforceShiftsRoute
   '/admin/workforce/teams': typeof AuthenticatedAdminWorkforceTeamsRoute
@@ -812,6 +828,7 @@ export interface FileRoutesByTo {
   '/admin/system/backups': typeof AuthenticatedAdminSystemBackupsRoute
   '/admin/system/security': typeof AuthenticatedAdminSystemSecurityRoute
   '/admin/system/settings': typeof AuthenticatedAdminSystemSettingsRoute
+  '/admin/workforce/approvals': typeof AuthenticatedAdminWorkforceApprovalsRoute
   '/admin/workforce/attendance': typeof AuthenticatedAdminWorkforceAttendanceRoute
   '/admin/workforce/departments': typeof AuthenticatedAdminWorkforceDepartmentsRoute
   '/admin/workforce/designations': typeof AuthenticatedAdminWorkforceDesignationsRoute
@@ -819,6 +836,7 @@ export interface FileRoutesByTo {
   '/admin/workforce/holidays': typeof AuthenticatedAdminWorkforceHolidaysRoute
   '/admin/workforce/leave': typeof AuthenticatedAdminWorkforceLeaveRoute
   '/admin/workforce/overtime': typeof AuthenticatedAdminWorkforceOvertimeRoute
+  '/admin/workforce/roster': typeof AuthenticatedAdminWorkforceRosterRoute
   '/admin/workforce/rules': typeof AuthenticatedAdminWorkforceRulesRoute
   '/admin/workforce/shifts': typeof AuthenticatedAdminWorkforceShiftsRoute
   '/admin/workforce/teams': typeof AuthenticatedAdminWorkforceTeamsRoute
@@ -909,6 +927,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/system/backups': typeof AuthenticatedAdminSystemBackupsRoute
   '/_authenticated/admin/system/security': typeof AuthenticatedAdminSystemSecurityRoute
   '/_authenticated/admin/system/settings': typeof AuthenticatedAdminSystemSettingsRoute
+  '/_authenticated/admin/workforce/approvals': typeof AuthenticatedAdminWorkforceApprovalsRoute
   '/_authenticated/admin/workforce/attendance': typeof AuthenticatedAdminWorkforceAttendanceRoute
   '/_authenticated/admin/workforce/departments': typeof AuthenticatedAdminWorkforceDepartmentsRoute
   '/_authenticated/admin/workforce/designations': typeof AuthenticatedAdminWorkforceDesignationsRoute
@@ -916,6 +935,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/workforce/holidays': typeof AuthenticatedAdminWorkforceHolidaysRoute
   '/_authenticated/admin/workforce/leave': typeof AuthenticatedAdminWorkforceLeaveRoute
   '/_authenticated/admin/workforce/overtime': typeof AuthenticatedAdminWorkforceOvertimeRoute
+  '/_authenticated/admin/workforce/roster': typeof AuthenticatedAdminWorkforceRosterRoute
   '/_authenticated/admin/workforce/rules': typeof AuthenticatedAdminWorkforceRulesRoute
   '/_authenticated/admin/workforce/shifts': typeof AuthenticatedAdminWorkforceShiftsRoute
   '/_authenticated/admin/workforce/teams': typeof AuthenticatedAdminWorkforceTeamsRoute
@@ -1006,6 +1026,7 @@ export interface FileRouteTypes {
     | '/admin/system/backups'
     | '/admin/system/security'
     | '/admin/system/settings'
+    | '/admin/workforce/approvals'
     | '/admin/workforce/attendance'
     | '/admin/workforce/departments'
     | '/admin/workforce/designations'
@@ -1013,6 +1034,7 @@ export interface FileRouteTypes {
     | '/admin/workforce/holidays'
     | '/admin/workforce/leave'
     | '/admin/workforce/overtime'
+    | '/admin/workforce/roster'
     | '/admin/workforce/rules'
     | '/admin/workforce/shifts'
     | '/admin/workforce/teams'
@@ -1100,6 +1122,7 @@ export interface FileRouteTypes {
     | '/admin/system/backups'
     | '/admin/system/security'
     | '/admin/system/settings'
+    | '/admin/workforce/approvals'
     | '/admin/workforce/attendance'
     | '/admin/workforce/departments'
     | '/admin/workforce/designations'
@@ -1107,6 +1130,7 @@ export interface FileRouteTypes {
     | '/admin/workforce/holidays'
     | '/admin/workforce/leave'
     | '/admin/workforce/overtime'
+    | '/admin/workforce/roster'
     | '/admin/workforce/rules'
     | '/admin/workforce/shifts'
     | '/admin/workforce/teams'
@@ -1196,6 +1220,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/system/backups'
     | '/_authenticated/admin/system/security'
     | '/_authenticated/admin/system/settings'
+    | '/_authenticated/admin/workforce/approvals'
     | '/_authenticated/admin/workforce/attendance'
     | '/_authenticated/admin/workforce/departments'
     | '/_authenticated/admin/workforce/designations'
@@ -1203,6 +1228,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/workforce/holidays'
     | '/_authenticated/admin/workforce/leave'
     | '/_authenticated/admin/workforce/overtime'
+    | '/_authenticated/admin/workforce/roster'
     | '/_authenticated/admin/workforce/rules'
     | '/_authenticated/admin/workforce/shifts'
     | '/_authenticated/admin/workforce/teams'
@@ -1544,6 +1570,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminWorkforceRulesRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/workforce/roster': {
+      id: '/_authenticated/admin/workforce/roster'
+      path: '/workforce/roster'
+      fullPath: '/admin/workforce/roster'
+      preLoaderRoute: typeof AuthenticatedAdminWorkforceRosterRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/workforce/overtime': {
       id: '/_authenticated/admin/workforce/overtime'
       path: '/workforce/overtime'
@@ -1591,6 +1624,13 @@ declare module '@tanstack/react-router' {
       path: '/workforce/attendance'
       fullPath: '/admin/workforce/attendance'
       preLoaderRoute: typeof AuthenticatedAdminWorkforceAttendanceRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/workforce/approvals': {
+      id: '/_authenticated/admin/workforce/approvals'
+      path: '/workforce/approvals'
+      fullPath: '/admin/workforce/approvals'
+      preLoaderRoute: typeof AuthenticatedAdminWorkforceApprovalsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/system/settings': {
@@ -1958,6 +1998,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminSystemBackupsRoute: typeof AuthenticatedAdminSystemBackupsRoute
   AuthenticatedAdminSystemSecurityRoute: typeof AuthenticatedAdminSystemSecurityRoute
   AuthenticatedAdminSystemSettingsRoute: typeof AuthenticatedAdminSystemSettingsRoute
+  AuthenticatedAdminWorkforceApprovalsRoute: typeof AuthenticatedAdminWorkforceApprovalsRoute
   AuthenticatedAdminWorkforceAttendanceRoute: typeof AuthenticatedAdminWorkforceAttendanceRoute
   AuthenticatedAdminWorkforceDepartmentsRoute: typeof AuthenticatedAdminWorkforceDepartmentsRoute
   AuthenticatedAdminWorkforceDesignationsRoute: typeof AuthenticatedAdminWorkforceDesignationsRoute
@@ -1965,6 +2006,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminWorkforceHolidaysRoute: typeof AuthenticatedAdminWorkforceHolidaysRoute
   AuthenticatedAdminWorkforceLeaveRoute: typeof AuthenticatedAdminWorkforceLeaveRoute
   AuthenticatedAdminWorkforceOvertimeRoute: typeof AuthenticatedAdminWorkforceOvertimeRoute
+  AuthenticatedAdminWorkforceRosterRoute: typeof AuthenticatedAdminWorkforceRosterRoute
   AuthenticatedAdminWorkforceRulesRoute: typeof AuthenticatedAdminWorkforceRulesRoute
   AuthenticatedAdminWorkforceShiftsRoute: typeof AuthenticatedAdminWorkforceShiftsRoute
   AuthenticatedAdminWorkforceTeamsRoute: typeof AuthenticatedAdminWorkforceTeamsRoute
@@ -2042,6 +2084,8 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminSystemBackupsRoute: AuthenticatedAdminSystemBackupsRoute,
   AuthenticatedAdminSystemSecurityRoute: AuthenticatedAdminSystemSecurityRoute,
   AuthenticatedAdminSystemSettingsRoute: AuthenticatedAdminSystemSettingsRoute,
+  AuthenticatedAdminWorkforceApprovalsRoute:
+    AuthenticatedAdminWorkforceApprovalsRoute,
   AuthenticatedAdminWorkforceAttendanceRoute:
     AuthenticatedAdminWorkforceAttendanceRoute,
   AuthenticatedAdminWorkforceDepartmentsRoute:
@@ -2055,6 +2099,8 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminWorkforceLeaveRoute: AuthenticatedAdminWorkforceLeaveRoute,
   AuthenticatedAdminWorkforceOvertimeRoute:
     AuthenticatedAdminWorkforceOvertimeRoute,
+  AuthenticatedAdminWorkforceRosterRoute:
+    AuthenticatedAdminWorkforceRosterRoute,
   AuthenticatedAdminWorkforceRulesRoute: AuthenticatedAdminWorkforceRulesRoute,
   AuthenticatedAdminWorkforceShiftsRoute:
     AuthenticatedAdminWorkforceShiftsRoute,
