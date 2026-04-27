@@ -127,23 +127,31 @@ export const deleteBlogPost = createServerFn({ method: "POST" })
     return { ok: true as const };
   });
 
-const BulkBlogSchema = z.object({
+const BulkPostSchema = z.object({
   ids: z.array(z.string().uuid()).min(1).max(200),
   action: z.enum(["publish", "archive", "draft", "delete"]),
 });
 
+const POST_ACTION_TO_STATUS: Record<"publish" | "archive" | "draft", PostStatus> = {
+  publish: "published",
+  archive: "archived",
+  draft: "draft",
+};
+
 export const bulkBlogPosts = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) => BulkBlogSchema.parse(input))
+  .inputValidator((input) => BulkPostSchema.parse(input))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     if (data.action === "delete") {
       const { error } = await supabase.from("blog_posts").delete().in("id", data.ids);
       if (error) return { ok: false as const, error: error.message };
     } else {
-      const status = data.action;
-      const patch: Record<string, unknown> = { status };
-      if (status === "published") patch.published_at = new Date().toISOString();
+      const status = POST_ACTION_TO_STATUS[data.action];
+      const patch = {
+        status,
+        published_at: status === "published" ? new Date().toISOString() : null,
+      } as never;
       const { error } = await supabase.from("blog_posts").update(patch).in("id", data.ids);
       if (error) return { ok: false as const, error: error.message };
     }
@@ -216,7 +224,7 @@ export const upsertCmsPage = createServerFn({ method: "POST" })
     const payload = {
       ...data,
       published_at: data.status === "published" ? new Date().toISOString() : null,
-    };
+    } as never;
     const { data: row, error } = await supabase
       .from("cms_pages")
       .upsert(payload, { onConflict: "slug" })
@@ -240,15 +248,18 @@ export const deleteCmsPage = createServerFn({ method: "POST" })
 
 export const bulkCmsPages = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) => BulkBlogSchema.parse(input))
+  .inputValidator((input) => BulkPostSchema.parse(input))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     if (data.action === "delete") {
       const { error } = await supabase.from("cms_pages").delete().in("id", data.ids);
       if (error) return { ok: false as const, error: error.message };
     } else {
-      const patch: Record<string, unknown> = { status: data.action };
-      if (data.action === "published") patch.published_at = new Date().toISOString();
+      const status = POST_ACTION_TO_STATUS[data.action];
+      const patch = {
+        status,
+        published_at: status === "published" ? new Date().toISOString() : null,
+      } as never;
       const { error } = await supabase.from("cms_pages").update(patch).in("id", data.ids);
       if (error) return { ok: false as const, error: error.message };
     }
@@ -356,7 +367,7 @@ export const upsertForm = createServerFn({ method: "POST" })
     if (!data.id) payload.fields = [];
     const { data: row, error } = await supabase
       .from("marketing_forms")
-      .upsert(payload, { onConflict: "slug" })
+      .upsert(payload as never, { onConflict: "slug" })
       .select("id")
       .maybeSingle();
     if (error) return { ok: false as const, error: error.message };
@@ -450,11 +461,11 @@ export const upsertJob = createServerFn({ method: "POST" })
   .inputValidator((input) => UpsertJobSchema.parse(input))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
-    const payload: Record<string, unknown> = {
+    const payload = {
       ...data,
       apply_url: data.apply_url || null,
       published_at: data.status === "published" ? new Date().toISOString() : null,
-    };
+    } as never;
     const { data: row, error } = await supabase
       .from("job_postings")
       .upsert(payload, { onConflict: "slug" })
@@ -497,8 +508,10 @@ export const bulkJobs = createServerFn({ method: "POST" })
         draft: "draft",
       };
       const status = map[data.action];
-      const patch: Record<string, unknown> = { status };
-      if (status === "published") patch.published_at = new Date().toISOString();
+      const patch = {
+        status,
+        published_at: status === "published" ? new Date().toISOString() : null,
+      } as never;
       const { error } = await supabase.from("job_postings").update(patch).in("id", data.ids);
       if (error) return { ok: false as const, error: error.message };
     }
@@ -550,7 +563,7 @@ export const patchSeoSettings = createServerFn({ method: "POST" })
     if (payload.default_og_image === "") payload.default_og_image = null;
     const { error } = await supabase
       .from("seo_settings")
-      .update(payload)
+      .update(payload as never)
       .eq("scope", "global");
     if (error) return { ok: false as const, error: error.message };
     await audit(supabase, "seo.update", "seo_settings", null, payload);
@@ -558,13 +571,12 @@ export const patchSeoSettings = createServerFn({ method: "POST" })
   });
 
 // ============================================================
-// Public consumers (no auth — RLS-gated to published)
+// Public consumers (no auth — service-role read of published rows)
 // ============================================================
 export const listPublicBlogPosts = createServerFn({ method: "POST" })
   .handler(async (): Promise<{ posts: BlogPostRow[] }> => {
-    const { createSupabaseServerClient } = await import("@/integrations/supabase/server");
-    const supabase = createSupabaseServerClient();
-    const { data } = await supabase
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data } = await supabaseAdmin
       .from("blog_posts")
       .select("id, slug, title, excerpt, cover_url, category, tags, status, published_at, updated_at")
       .eq("status", "published")
@@ -576,9 +588,8 @@ export const listPublicBlogPosts = createServerFn({ method: "POST" })
 export const getPublicBlogPost = createServerFn({ method: "POST" })
   .inputValidator((input) => z.object({ slug: z.string().min(1).max(160) }).parse(input))
   .handler(async ({ data }): Promise<{ post: BlogPostDetail | null }> => {
-    const { createSupabaseServerClient } = await import("@/integrations/supabase/server");
-    const supabase = createSupabaseServerClient();
-    const { data: row } = await supabase
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: row } = await supabaseAdmin
       .from("blog_posts")
       .select("id, slug, title, excerpt, body, cover_url, category, tags, status, published_at, updated_at, seo_title, seo_description")
       .eq("slug", data.slug)
@@ -589,9 +600,8 @@ export const getPublicBlogPost = createServerFn({ method: "POST" })
 
 export const listPublicJobs = createServerFn({ method: "POST" })
   .handler(async (): Promise<{ jobs: JobRow[] }> => {
-    const { createSupabaseServerClient } = await import("@/integrations/supabase/server");
-    const supabase = createSupabaseServerClient();
-    const { data } = await supabase
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data } = await supabaseAdmin
       .from("job_postings")
       .select("id, slug, title, department, location, employment_type, status, order_index, published_at, updated_at")
       .eq("status", "published")
@@ -604,9 +614,8 @@ export const listPublicJobs = createServerFn({ method: "POST" })
 export const getPublicJob = createServerFn({ method: "POST" })
   .inputValidator((input) => z.object({ slug: z.string().min(1).max(160) }).parse(input))
   .handler(async ({ data }): Promise<{ job: JobDetail | null }> => {
-    const { createSupabaseServerClient } = await import("@/integrations/supabase/server");
-    const supabase = createSupabaseServerClient();
-    const { data: row } = await supabase
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: row } = await supabaseAdmin
       .from("job_postings")
       .select("*")
       .eq("slug", data.slug)
