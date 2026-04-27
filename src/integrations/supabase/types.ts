@@ -1842,7 +1842,9 @@ export type Database = {
       plans: {
         Row: {
           code: string
+          comparison: Json
           created_at: string
+          cta_label: string | null
           currency: string
           description: string | null
           employee_limit: number | null
@@ -1851,16 +1853,20 @@ export type Database = {
           is_active: boolean
           is_public: boolean
           name: string
+          popular: boolean
           price_monthly: number
           price_yearly: number
           sort_order: number
+          tagline: string | null
           tier: Database["public"]["Enums"]["plan_tier"]
           trial_days: number
           updated_at: string
         }
         Insert: {
           code: string
+          comparison?: Json
           created_at?: string
+          cta_label?: string | null
           currency?: string
           description?: string | null
           employee_limit?: number | null
@@ -1869,16 +1875,20 @@ export type Database = {
           is_active?: boolean
           is_public?: boolean
           name: string
+          popular?: boolean
           price_monthly?: number
           price_yearly?: number
           sort_order?: number
+          tagline?: string | null
           tier?: Database["public"]["Enums"]["plan_tier"]
           trial_days?: number
           updated_at?: string
         }
         Update: {
           code?: string
+          comparison?: Json
           created_at?: string
+          cta_label?: string | null
           currency?: string
           description?: string | null
           employee_limit?: number | null
@@ -1887,9 +1897,11 @@ export type Database = {
           is_active?: boolean
           is_public?: boolean
           name?: string
+          popular?: boolean
           price_monthly?: number
           price_yearly?: number
           sort_order?: number
+          tagline?: string | null
           tier?: Database["public"]["Enums"]["plan_tier"]
           trial_days?: number
           updated_at?: string
@@ -1950,6 +1962,45 @@ export type Database = {
           support_email?: string
           updated_at?: string
           updated_by?: string | null
+        }
+        Relationships: []
+      }
+      pricing_events: {
+        Row: {
+          created_at: string
+          currency: string | null
+          cycle: string | null
+          event_type: string
+          id: string
+          metadata: Json
+          plan_code: string | null
+          referrer: string | null
+          session_id: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          currency?: string | null
+          cycle?: string | null
+          event_type: string
+          id?: string
+          metadata?: Json
+          plan_code?: string | null
+          referrer?: string | null
+          session_id?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          currency?: string | null
+          cycle?: string | null
+          event_type?: string
+          id?: string
+          metadata?: Json
+          plan_code?: string | null
+          referrer?: string | null
+          session_id?: string | null
+          user_agent?: string | null
         }
         Relationships: []
       }

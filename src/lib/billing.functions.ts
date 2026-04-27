@@ -64,10 +64,15 @@ const UpdatePlanSchema = z.object({
   id: z.string().uuid(),
   name: z.string().trim().min(1).max(120).optional(),
   description: z.string().max(2000).optional(),
+  tagline: z.string().max(200).optional(),
   price_monthly: z.number().min(0).max(10_000_000).optional(),
   price_yearly: z.number().min(0).max(100_000_000).optional(),
+  trial_days: z.number().int().min(0).max(365).optional(),
+  employee_limit: z.number().int().min(0).max(1_000_000).nullable().optional(),
   is_active: z.boolean().optional(),
   is_public: z.boolean().optional(),
+  popular: z.boolean().optional(),
+  cta_label: z.string().max(60).optional(),
 });
 
 export const updatePlan = createServerFn({ method: "POST" })
@@ -75,21 +80,22 @@ export const updatePlan = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => UpdatePlanSchema.parse(input))
   .handler(async ({ context, data }) => {
     const { supabase } = context;
-    const patch: {
-      name?: string;
-      description?: string;
-      price_monthly?: number;
-      price_yearly?: number;
-      is_active?: boolean;
-      is_public?: boolean;
-    } = {};
+    const patch: Record<string, unknown> = {};
     if (typeof data.name === "string") patch.name = data.name;
     if (typeof data.description === "string") patch.description = data.description;
+    if (typeof data.tagline === "string") patch.tagline = data.tagline;
     if (typeof data.price_monthly === "number") patch.price_monthly = data.price_monthly;
     if (typeof data.price_yearly === "number") patch.price_yearly = data.price_yearly;
+    if (typeof data.trial_days === "number") patch.trial_days = data.trial_days;
+    if (data.employee_limit !== undefined) patch.employee_limit = data.employee_limit;
     if (typeof data.is_active === "boolean") patch.is_active = data.is_active;
     if (typeof data.is_public === "boolean") patch.is_public = data.is_public;
-    const { error } = await supabase.from("plans").update(patch).eq("id", data.id);
+    if (typeof data.popular === "boolean") patch.popular = data.popular;
+    if (typeof data.cta_label === "string") patch.cta_label = data.cta_label;
+    const { error } = await supabase
+      .from("plans")
+      .update(patch as never)
+      .eq("id", data.id);
     if (error) return { ok: false as const, error: error.message };
     return { ok: true as const };
   });
