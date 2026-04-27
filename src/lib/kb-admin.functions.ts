@@ -184,7 +184,7 @@ export const upsertKbCategory = createServerFn({ method: "POST" })
       slug: data.slug,
       name: data.name,
       description: data.description ?? null,
-      position: data.position ?? null,
+      position: data.position ?? undefined,
     };
     if (data.id) {
       const { error } = await context.supabase.from("kb_categories").update(payload).eq("id", data.id);
