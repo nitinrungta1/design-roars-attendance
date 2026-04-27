@@ -177,7 +177,7 @@ function SaasOverview() {
             <KpiCard
               key={spec.key}
               spec={spec}
-              value={data?.counts[spec.key] ?? null}
+              value={data?.counts?.[spec.key] ?? null}
               loading={loading}
             />
           ))}

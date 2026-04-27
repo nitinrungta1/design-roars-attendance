@@ -43,9 +43,28 @@ interface OverviewPayload {
 const ZERO_OR_NULL = (n: number | null | undefined): number | null =>
   typeof n === "number" ? n : null;
 
+const EMPTY_PAYLOAD: OverviewPayload = {
+  counts: {
+    customers: null,
+    activeCompanies: null,
+    newTrials7d: null,
+    newSignups30d: null,
+    totalEmployees: null,
+    todayCheckins: null,
+    openTickets: null,
+    pendingInvoices: null,
+    unreadNotifications: null,
+    recentSignups7d: null,
+  },
+  signupTrend: [],
+  recentLeads: [],
+  recentAudit: [],
+};
+
 export const getSaasOverview = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<OverviewPayload> => {
+   try {
     const { supabase } = context;
     const since30 = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
     const since7 = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
