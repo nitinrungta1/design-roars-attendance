@@ -111,7 +111,7 @@ export const upsertKbArticle = createServerFn({ method: "POST" })
         category: data.category ?? null,
         category_id: data.category_id ?? null,
         status: data.status,
-        position: data.position ?? null,
+        position: data.position ?? undefined,
         seo_title: data.seo_title ?? null,
         seo_description: data.seo_description ?? null,
         published_at:
