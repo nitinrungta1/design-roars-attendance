@@ -339,7 +339,15 @@ function RosterGrid({ scheduleId }: { scheduleId: string }) {
   });
 
   const assign = useMutation({
-    mutationFn: assignRosterEntry,
+    mutationFn: (vars: {
+      schedule_id: string;
+      company_id: string;
+      employee_id: string;
+      work_date: string;
+      shift_id: string | null;
+      is_off: boolean;
+      notes: string | null;
+    }) => assignRosterEntry({ data: vars }),
     onSuccess: (res) => {
       if (res.ok) {
         if (res.conflicts > 0) {
@@ -355,7 +363,8 @@ function RosterGrid({ scheduleId }: { scheduleId: string }) {
   });
 
   const clear = useMutation({
-    mutationFn: clearRosterEntry,
+    mutationFn: (vars: { schedule_id: string; employee_id: string; work_date: string }) =>
+      clearRosterEntry({ data: vars }),
     onSuccess: (res) => {
       if (res.ok) {
         toast.success("Cleared");
@@ -364,8 +373,9 @@ function RosterGrid({ scheduleId }: { scheduleId: string }) {
     },
   });
 
+  type EntryT = NonNullable<typeof data>["entries"][number];
   const entryMap = useMemo(() => {
-    const m = new Map<string, (typeof data extends { entries: infer E } ? E : never[])[number]>();
+    const m = new Map<string, EntryT>();
     for (const e of data?.entries ?? []) {
       m.set(`${e.employee_id}:${e.work_date}`, e);
     }
