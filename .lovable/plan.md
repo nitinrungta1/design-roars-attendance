@@ -1,132 +1,119 @@
-# Batch 6 — Access Control & System Governance
+## Goal
 
-Turn the **Access Control** and **System** sidebar groups into a complete enterprise-grade RBAC + governance layer. Reuses every existing table (`user_roles`, `company_members`, `audit_logs`, `feature_flags`) — nothing is deleted or renamed.
-
----
-
-## 1. Database — new migration
-
-### New tables
-| Table | Purpose |
-|---|---|
-| `teams` | Named team groupings inside a company (e.g. "Engineering", "Sales") |
-| `team_members` | `team_id` ↔ `user_id` join, with `is_lead` flag |
-| `permissions` | Catalog of ~40 atomic permissions (`workforce.attendance.read`, `billing.invoices.write`, …) seeded once |
-| `role_permissions` | Which `app_role` grants which `permission_key` (toggleable matrix) |
-| `platform_settings` | Single-row key/value store for global config (brand name, support email, default plan, currency, timezone, feature toggles) |
-| `backup_snapshots` | Metadata for manual export jobs (table count, row count, size, requested_by, status, download_url) |
-
-### Helpers
-- `public.has_permission(_user_id uuid, _key text) returns boolean` — joins `user_roles` → `role_permissions` → `permissions`.
-- `public.log_audit(_action text, _entity text, _entity_id uuid, _meta jsonb)` — security-definer insert into `audit_logs` capturing `user_id`, `ip`, `user_agent` from `auth.jwt()` claims.
-
-### RLS
-- `teams` / `team_members`: read = `is_member_of(company_id)`; write = `is_admin(auth.uid())` or team lead.
-- `permissions`: read = any authenticated; write = `super_admin` only.
-- `role_permissions`: read = `is_admin`; write = `super_admin`.
-- `platform_settings`: read = `is_admin`; write = `super_admin`.
-- `backup_snapshots`: read + write = `super_admin`.
-- `audit_logs`: already restricted; add `super_admin can read all`, `admin can read company-scoped`.
-
-### Seed
-- ~40 permissions across 11 modules (dashboard, customers, workforce, billing, leads, cms, support, analytics, access, integrations, system) × CRUD verbs.
-- Default `role_permissions` mapping: super_admin = all, admin = all except `system.*.write`, finance = billing.*, support = support.* + customers.read, sales = leads.* + customers.* + crm.*, hr = workforce.*, developer = integrations.* + system.audit-logs.read, viewer = *.read only.
+1. **Fix the active SSR runtime error** — `CurrencyProvider` calls `useQuery` during SSR but `QueryClientProvider` lives only in `RootComponent` (client tree). Move providers into the shell so SSR works.
+2. **Upgrade currency formatting to true i18n** using `Intl.NumberFormat` with `style: "currency"` + locale-per-currency. This automatically handles symbol placement, grouping (e.g. `1,00,000` for INR, `1.000,00` for EUR), RTL marks for AED/SAR, JPY/KRW/VND no-decimal rules, and proper minor-unit rounding from CLDR.
+3. **Add a real test suite** (Vitest + JSDOM + Testing Library) covering FX conversion, locale formatting per region, IP-based detection fallbacks, persistence, and the switcher UI.
 
 ---
 
-## 2. Server functions — `src/lib/access.functions.ts` & `src/lib/system.functions.ts`
+## Batch 1 — SSR provider fix (root cause of current runtime error)
 
-**access.functions.ts**
-- `listPlatformUsers()` — joins `auth.users` view + `profiles` + `user_roles` + primary `company_members`. Returns email, name, roles[], company, last_sign_in.
-- `assignRole({ userId, role })` / `revokeRole({ userId, role })` — super_admin only; writes audit log.
-- `listRolesWithCounts()` — every `app_role` + member count + permission count.
-- `listPermissionMatrix()` — returns `{ permissions[], roles[], grants: { [role]: Set<permKey> } }` for the grid.
-- `togglePermission({ role, permissionKey, granted })` — super_admin only; audit-logged.
-- `listTeams()` / `createTeam` / `addTeamMember` / `removeTeamMember` / `setTeamLead`.
+**File:** `src/routes/__root.tsx`
 
-**system.functions.ts**
-- `getPlatformSettings()` / `updatePlatformSettings(patch)` — super_admin only.
-- `listAuditLogs({ q, action, entity, userId, from, to, limit })` — paginated, filterable.
-- `listBackups()` / `requestBackup()` — inserts a `backup_snapshots` row in `pending` state (actual export worker is out of scope; the row is the audit/UX surface).
-- `listFeatureFlags()` / `toggleFeatureFlag` — wraps existing `feature_flags` table.
-
-All write functions call the new `log_audit()` helper.
+- Move `QueryClientProvider`, `AuthProvider`, `CurrencyProvider` into `RootShell` so they wrap children during SSR (currently only `RootComponent` has them, but the shell renders first and `CurrencyProvider` is invoked before the QueryClient exists).
+- Keep the `useState(() => new QueryClient(...))` pattern so each request gets its own client (no cross-tenant leakage).
+- `RootComponent` becomes a thin `<Outlet />` only.
 
 ---
 
-## 3. Live admin routes (replace 8 placeholders)
+## Batch 2 — i18n-grade formatting in `src/lib/currency.tsx`
 
-### `_authenticated.admin.access.users.tsx`
-- KPI strip: total users, active 7d, super-admins, suspended.
-- Searchable `DataTable`: avatar, name, email, roles (chips), primary company, last sign-in, status.
-- Row drawer: assign/revoke role select, view audit trail (last 20 actions by this user), copy user-id button, send password-reset link (calls `lovable.auth.resetPasswordForEmail`).
+**Add** a `LOCALE_BY_CURRENCY` map (e.g. `INR → en-IN`, `EUR → de-DE`, `JPY → ja-JP`, `AED → ar-AE`, `BRL → pt-BR`, `CHF → de-CH`, `KRW → ko-KR`, `RUB → ru-RU`, etc. — all 49 currencies covered with sensible defaults).
 
-### `_authenticated.admin.access.roles.tsx`
-- Cards grid: one card per `app_role` showing description, member count, granted-permission count, "Edit permissions →" link to `/admin/access/permissions?role=…`.
-- Inline rename of human-readable label (stored in `platform_settings.role_labels`).
+**Rewrite `format()`** to use:
+```ts
+new Intl.NumberFormat(locale, {
+  style: "currency",
+  currency,
+  currencyDisplay: opts?.compact ? "narrowSymbol" : "symbol",
+  minimumFractionDigits: meta.decimals,
+  maximumFractionDigits: meta.decimals,
+}).format(convert(usdAmount));
+```
 
-### `_authenticated.admin.access.permissions.tsx` ⭐ flagship
-- **Permission matrix grid**: rows = permissions grouped by module (collapsible), columns = roles. Each cell is a `<Switch>` reflecting `role_permissions`.
-- Optimistic toggle → `togglePermission` server fn → toast.
-- Top filter: search permissions, filter by module, "show only differences vs default".
-- Read-only for non super-admin (switches disabled with tooltip).
+**Add helpers:**
+- `formatCompact(usd)` → uses `notation: "compact"` for `$1.2K`, `₹1.2L` style.
+- `formatRange(min, max)` → `Intl.NumberFormat.formatRange` for pricing tiers.
+- `parts(usd)` → returns `{ symbol, integer, fraction, currency }` for custom layouts (large hero pricing).
+- Keep the existing `withSymbol: false` option mapped onto `currencyDisplay: "code"` stripped, for cases where the symbol is rendered separately.
 
-### `_authenticated.admin.access.teams.tsx`
-- Team list with avatars stack (first 5 members), member count, lead badge.
-- "Create team" dialog (name, color, description).
-- Click row → drawer: add/remove members from a `Combobox` of company users, promote to lead.
-
-### `_authenticated.admin.system.settings.tsx`
-- Tabbed shell: **General** (brand name, support email, default plan, default currency, default timezone), **Branding** (logo URL, primary color preview), **Feature Flags** (list with switches), **Email** (from-name shown; deep-link to integrations/email).
-- One save button per tab → `updatePlatformSettings`.
-
-### `_authenticated.admin.system.audit-logs.tsx` ⭐
-- Filter bar: search query, action select, entity select, actor combobox, date-range picker (last 24h / 7d / 30d / custom).
-- Virtualised `DataTable`: timestamp, actor (avatar+email), action chip (color by verb: create=green, update=amber, delete=red, login=blue), entity, entity-id (truncated), IP, expandable JSON `meta`.
-- Export current filter to CSV button.
-
-### `_authenticated.admin.system.security.tsx`
-- Sections (read-only telemetry + toggles in `platform_settings.security`):
-  - **2FA enforcement**: switch (per role).
-  - **Session policy**: idle timeout minutes (input), max concurrent sessions.
-  - **IP allowlist**: textarea of CIDRs.
-  - **Password policy**: min length, require symbol/number, HIBP check toggle.
-  - **OAuth providers**: status row for Google (live from Lovable Cloud config).
-- Bottom card: "Recent security events" — pulls audit_logs filtered to action ∈ (login, logout, password_reset, role_assigned, role_revoked).
-
-### `_authenticated.admin.system.backups.tsx`
-- "Request backup" button → inserts `backup_snapshots` row, optimistic add to list.
-- Table: requested_at, requested_by, status badge (pending/running/ready/failed), tables, rows, size, download button (disabled until ready).
-- Banner explaining backups capture all `public.*` tables as JSON; runtime worker is a follow-up batch.
+**Edge handling:**
+- Fall back gracefully when `Intl` lacks a currency (wrap in try/catch → return manual `${symbol}${number}`).
+- Respect server-detected locale: if `detectCurrencyFromIp` returns a country, store it and prefer the country-matching locale over the heuristic map.
 
 ---
 
-## 4. Wire audit logging into existing modules
+## Batch 3 — Wire compact + range formatting into the marketing surface
 
-Add `log_audit()` calls (no UI changes needed) to the write paths shipped in batches 2–5 so the new audit-logs page has real data immediately:
-
-- `customers.functions.ts`: `setCompanyPlan`, `suspendCompany`, `createContact`.
-- `billing.functions.ts`: `upsertPlan`, `patchSubscription`, `markInvoicePaid`, `createCoupon`.
-- `workforce.functions.ts`: `updateLeaveStatus`, `createShift`, `lockTimesheet`.
-- `support.functions.ts`: `patchTicket`, `upsertKbArticle`.
-- `integrations.functions.ts`: `toggleIntegration`, `createApiKey`, `revokeApiKey`.
-- `crm.functions.ts`: `updateLeadStatus`.
+- `src/routes/pricing.tsx` — switch hero numerals to `parts()` so the symbol can sit visually separated from the integer block (existing design intent).
+- `src/components/home/sections.tsx` — pricing teaser uses `formatCompact` for the "from $X/user" line.
+- `src/components/brand/currency-switcher.tsx` — show preview formatted price (e.g. `₹4,999`) next to each option using the live rate.
 
 ---
 
-## 5. Auth context extension
+## Batch 4 — Test infrastructure
 
-`src/lib/auth.tsx`: extend the auth context with `permissions: Set<string>` (loaded once on sign-in via a new `getMyPermissions` server fn). Add `hasPermission(key: string): boolean` helper. Sidebar `nav-config.ts` gains an optional `permission?: string` field used by `filterNavForUser` to hide items the user can't access (graceful — `platform` flag still works as fallback).
+**Add dev deps:**
+```
+bun add -d vitest @vitest/ui @testing-library/react @testing-library/jest-dom @testing-library/user-event jsdom happy-dom @vitejs/plugin-react
+```
+
+**Files:**
+- `vitest.config.ts` — JSDOM env, alias `@/` → `src/`, setup file.
+- `src/test/setup.ts` — `@testing-library/jest-dom`, `localStorage` polyfill clean-up between tests, mock `fetch` for FX provider.
+- `package.json` — add `"test": "vitest run"`, `"test:watch": "vitest"`, `"test:ui": "vitest --ui"`.
 
 ---
 
-## 6. Out of scope (future batches)
+## Batch 5 — Currency test suite
 
-- Actual backup export worker (writes to storage bucket).
-- Live IP-allowlist enforcement at the edge (only stored + displayed here).
-- 2FA enrollment flow UI (toggle is stored; enrollment ships with auth-hardening batch).
-- Session list / revoke (needs Supabase admin API edge function).
+**`src/lib/__tests__/currency.format.test.ts`** — pure formatting, no React:
+- `format(99)` in **USD** → `"$99.00"`.
+- `format(99)` in **INR** with rate 83.3 → `"₹8,247"` (zero decimals, Indian grouping).
+- `format(1500)` in **EUR** with rate 0.92 → `"1.380,00 €"` (German grouping, trailing symbol).
+- `format(99)` in **JPY** rate 151 → `"¥14,949"` (no decimals).
+- `format(10)` in **KWD** rate 0.31 → `"3.100 د.ك"` (3 decimals).
+- `formatCompact(12000)` USD → `"$12K"`, INR → `"₹10L"` (Indian numbering compact).
+- `formatRange(10, 50)` USD → `"$10.00 – $50.00"`.
+- Fallback: when `Intl.NumberFormat` throws for an unknown currency, manual symbol path returns `"${symbol}${value}"`.
+
+**`src/lib/__tests__/currency.convert.test.ts`** — math:
+- `convert` with no rates returns the USD amount unchanged.
+- Conversion uses the active currency's rate.
+- Rounding rules per `decimals` (KWD 3, INR 0, JPY 0, USD 2).
+
+**`src/lib/__tests__/fx.functions.test.ts`** — server fn (mocked `fetch`):
+- Successful provider response is cached for ~1 hour (second call doesn't refetch).
+- Provider failure returns `FALLBACK_RATES` and short cache window (5 min).
+- `detectCurrencyFromIp` returns `INR` for `CF-IPCountry: IN`, `EUR` for `DE`, `USD` default for missing/`XX`/`T1`.
+- EU-member mapping (`FR`, `IT`, `ES`, `NL`, …) all resolve to `EUR`.
+
+**`src/lib/__tests__/currency.provider.test.tsx`** — React hook (Testing Library + QueryClient wrapper):
+- Hydrates from `localStorage` on mount.
+- Falls back to IP detection when no saved value.
+- `setCurrency()` persists to `localStorage` and flips `isUserSelected = true`.
+- IP detection does NOT override an explicit user selection.
+- `format()` reactivity — switching currency re-renders new formatted string.
+
+**`src/components/brand/__tests__/currency-switcher.test.tsx`** — UI:
+- Renders active flag + code.
+- Search filters by code/name/symbol.
+- Selecting an option calls `setCurrency` and closes popover.
+- Active row shows the check icon.
 
 ---
 
-**On approval I'll execute the migration, ship `access.functions.ts` + `system.functions.ts`, replace all 8 stubs with live modules, and retrofit audit-log writes across the existing server functions.**
+## Out of scope (explicit)
+
+- No translation of UI copy (separate i18n batch). This focuses solely on **currency** i18n.
+- No backend pricing changes — base prices remain USD; conversion happens at render.
+- No new server fn for locale detection beyond what `detectCurrencyFromIp` already exposes.
+
+---
+
+## Definition of done
+
+- `bun run test` passes with all suites green.
+- Preview page loads with no `No QueryClient set` SSR error.
+- Visiting pricing from an Indian IP renders `₹` with Indian digit grouping (e.g. `₹8,250`); from a German IP renders `1.380,00 €`; from US renders `$99.00`.
+- Currency switcher reflects the change instantly across home, pricing, and admin billing surfaces.
