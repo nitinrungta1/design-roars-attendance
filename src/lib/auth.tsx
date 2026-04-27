@@ -23,10 +23,13 @@ interface AuthContextValue {
   user: User | null;
   profile: Profile | null;
   roles: AppRole[];
+  permissions: Set<string>;
   loading: boolean;
   isAuthenticated: boolean;
   hasRole: (role: AppRole) => boolean;
   hasAnyRole: (roles: AppRole[]) => boolean;
+  hasPermission: (key: string) => boolean;
+  hasAnyPermission: (keys: string[]) => boolean;
   isAdmin: boolean;
   isSuperAdmin: boolean;
   signOut: () => Promise<void>;
@@ -41,6 +44,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [roles, setRoles] = useState<AppRole[]>([]);
+  const [permissions, setPermissions] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
 
   const loadUserData = async (userId: string) => {
@@ -53,7 +57,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       supabase.from("user_roles").select("role").eq("user_id", userId),
     ]);
     setProfile(profileData ?? null);
-    setRoles((rolesData ?? []).map((r) => r.role));
+    const userRoles = (rolesData ?? []).map((r) => r.role);
+    setRoles(userRoles);
+    if (userRoles.length > 0) {
+      const { data: rp } = await supabase
+        .from("role_permissions")
+        .select("permission_key")
+        .in("role", userRoles);
+      setPermissions(new Set((rp ?? []).map((r) => r.permission_key)));
+    } else {
+      setPermissions(new Set());
+    }
   };
 
   useEffect(() => {
@@ -67,6 +81,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } else {
         setProfile(null);
         setRoles([]);
+        setPermissions(new Set());
       }
     });
 
@@ -84,17 +99,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo<AuthContextValue>(() => {
     const user = session?.user ?? null;
+    const isSuperAdmin = roles.includes("super_admin");
     return {
       session,
       user,
       profile,
       roles,
+      permissions,
       loading,
       isAuthenticated: !!user,
       hasRole: (role) => roles.includes(role),
       hasAnyRole: (rs) => rs.some((r) => roles.includes(r)),
+      hasPermission: (key) => isSuperAdmin || permissions.has(key),
+      hasAnyPermission: (keys) => isSuperAdmin || keys.some((k) => permissions.has(k)),
       isAdmin: roles.some((r) => ADMIN_ROLES.includes(r)),
-      isSuperAdmin: roles.includes("super_admin"),
+      isSuperAdmin,
       signOut: async () => {
         await supabase.auth.signOut();
       },
@@ -102,7 +121,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (session?.user) await loadUserData(session.user.id);
       },
     };
-  }, [session, profile, roles, loading]);
+  }, [session, profile, roles, permissions, loading]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
