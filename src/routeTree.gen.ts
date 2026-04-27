@@ -117,6 +117,11 @@ import { Route as AuthenticatedAdminAccessUsersRouteImport } from './routes/_aut
 import { Route as AuthenticatedAdminAccessTeamsRouteImport } from './routes/_authenticated.admin.access.teams'
 import { Route as AuthenticatedAdminAccessRolesRouteImport } from './routes/_authenticated.admin.access.roles'
 import { Route as AuthenticatedAdminAccessPermissionsRouteImport } from './routes/_authenticated.admin.access.permissions'
+import { Route as AuthenticatedAdminSupportKbNewRouteImport } from './routes/_authenticated.admin.support.kb.new'
+import { Route as AuthenticatedAdminSupportKbFeedbackRouteImport } from './routes/_authenticated.admin.support.kb.feedback'
+import { Route as AuthenticatedAdminSupportKbCategoriesRouteImport } from './routes/_authenticated.admin.support.kb.categories'
+import { Route as AuthenticatedAdminSupportKbAnalyticsRouteImport } from './routes/_authenticated.admin.support.kb.analytics'
+import { Route as AuthenticatedAdminSupportKbIdRouteImport } from './routes/_authenticated.admin.support.kb.$id'
 
 const TimeTrackingSoftwareRoute = TimeTrackingSoftwareRouteImport.update({
   id: '/time-tracking-software',
@@ -728,6 +733,36 @@ const AuthenticatedAdminAccessPermissionsRoute =
     path: '/access/permissions',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminSupportKbNewRoute =
+  AuthenticatedAdminSupportKbNewRouteImport.update({
+    id: '/new',
+    path: '/new',
+    getParentRoute: () => AuthenticatedAdminSupportKbRoute,
+  } as any)
+const AuthenticatedAdminSupportKbFeedbackRoute =
+  AuthenticatedAdminSupportKbFeedbackRouteImport.update({
+    id: '/feedback',
+    path: '/feedback',
+    getParentRoute: () => AuthenticatedAdminSupportKbRoute,
+  } as any)
+const AuthenticatedAdminSupportKbCategoriesRoute =
+  AuthenticatedAdminSupportKbCategoriesRouteImport.update({
+    id: '/categories',
+    path: '/categories',
+    getParentRoute: () => AuthenticatedAdminSupportKbRoute,
+  } as any)
+const AuthenticatedAdminSupportKbAnalyticsRoute =
+  AuthenticatedAdminSupportKbAnalyticsRouteImport.update({
+    id: '/analytics',
+    path: '/analytics',
+    getParentRoute: () => AuthenticatedAdminSupportKbRoute,
+  } as any)
+const AuthenticatedAdminSupportKbIdRoute =
+  AuthenticatedAdminSupportKbIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AuthenticatedAdminSupportKbRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -810,7 +845,7 @@ export interface FileRoutesByFullPath {
   '/admin/integrations/whatsapp': typeof AuthenticatedAdminIntegrationsWhatsappRoute
   '/admin/leads/forms': typeof AuthenticatedAdminLeadsFormsRoute
   '/admin/support/chat': typeof AuthenticatedAdminSupportChatRoute
-  '/admin/support/kb': typeof AuthenticatedAdminSupportKbRoute
+  '/admin/support/kb': typeof AuthenticatedAdminSupportKbRouteWithChildren
   '/admin/support/sla': typeof AuthenticatedAdminSupportSlaRoute
   '/admin/support/tickets': typeof AuthenticatedAdminSupportTicketsRoute
   '/admin/system/audit-logs': typeof AuthenticatedAdminSystemAuditLogsRoute
@@ -837,6 +872,11 @@ export interface FileRoutesByFullPath {
   '/admin/analytics/': typeof AuthenticatedAdminAnalyticsIndexRoute
   '/admin/leads/': typeof AuthenticatedAdminLeadsIndexRoute
   '/admin/workforce/': typeof AuthenticatedAdminWorkforceIndexRoute
+  '/admin/support/kb/$id': typeof AuthenticatedAdminSupportKbIdRoute
+  '/admin/support/kb/analytics': typeof AuthenticatedAdminSupportKbAnalyticsRoute
+  '/admin/support/kb/categories': typeof AuthenticatedAdminSupportKbCategoriesRoute
+  '/admin/support/kb/feedback': typeof AuthenticatedAdminSupportKbFeedbackRoute
+  '/admin/support/kb/new': typeof AuthenticatedAdminSupportKbNewRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -917,7 +957,7 @@ export interface FileRoutesByTo {
   '/admin/integrations/whatsapp': typeof AuthenticatedAdminIntegrationsWhatsappRoute
   '/admin/leads/forms': typeof AuthenticatedAdminLeadsFormsRoute
   '/admin/support/chat': typeof AuthenticatedAdminSupportChatRoute
-  '/admin/support/kb': typeof AuthenticatedAdminSupportKbRoute
+  '/admin/support/kb': typeof AuthenticatedAdminSupportKbRouteWithChildren
   '/admin/support/sla': typeof AuthenticatedAdminSupportSlaRoute
   '/admin/support/tickets': typeof AuthenticatedAdminSupportTicketsRoute
   '/admin/system/audit-logs': typeof AuthenticatedAdminSystemAuditLogsRoute
@@ -944,6 +984,11 @@ export interface FileRoutesByTo {
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsIndexRoute
   '/admin/leads': typeof AuthenticatedAdminLeadsIndexRoute
   '/admin/workforce': typeof AuthenticatedAdminWorkforceIndexRoute
+  '/admin/support/kb/$id': typeof AuthenticatedAdminSupportKbIdRoute
+  '/admin/support/kb/analytics': typeof AuthenticatedAdminSupportKbAnalyticsRoute
+  '/admin/support/kb/categories': typeof AuthenticatedAdminSupportKbCategoriesRoute
+  '/admin/support/kb/feedback': typeof AuthenticatedAdminSupportKbFeedbackRoute
+  '/admin/support/kb/new': typeof AuthenticatedAdminSupportKbNewRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -1028,7 +1073,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/integrations/whatsapp': typeof AuthenticatedAdminIntegrationsWhatsappRoute
   '/_authenticated/admin/leads/forms': typeof AuthenticatedAdminLeadsFormsRoute
   '/_authenticated/admin/support/chat': typeof AuthenticatedAdminSupportChatRoute
-  '/_authenticated/admin/support/kb': typeof AuthenticatedAdminSupportKbRoute
+  '/_authenticated/admin/support/kb': typeof AuthenticatedAdminSupportKbRouteWithChildren
   '/_authenticated/admin/support/sla': typeof AuthenticatedAdminSupportSlaRoute
   '/_authenticated/admin/support/tickets': typeof AuthenticatedAdminSupportTicketsRoute
   '/_authenticated/admin/system/audit-logs': typeof AuthenticatedAdminSystemAuditLogsRoute
@@ -1055,6 +1100,11 @@ export interface FileRoutesById {
   '/_authenticated/admin/analytics/': typeof AuthenticatedAdminAnalyticsIndexRoute
   '/_authenticated/admin/leads/': typeof AuthenticatedAdminLeadsIndexRoute
   '/_authenticated/admin/workforce/': typeof AuthenticatedAdminWorkforceIndexRoute
+  '/_authenticated/admin/support/kb/$id': typeof AuthenticatedAdminSupportKbIdRoute
+  '/_authenticated/admin/support/kb/analytics': typeof AuthenticatedAdminSupportKbAnalyticsRoute
+  '/_authenticated/admin/support/kb/categories': typeof AuthenticatedAdminSupportKbCategoriesRoute
+  '/_authenticated/admin/support/kb/feedback': typeof AuthenticatedAdminSupportKbFeedbackRoute
+  '/_authenticated/admin/support/kb/new': typeof AuthenticatedAdminSupportKbNewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -1166,6 +1216,11 @@ export interface FileRouteTypes {
     | '/admin/analytics/'
     | '/admin/leads/'
     | '/admin/workforce/'
+    | '/admin/support/kb/$id'
+    | '/admin/support/kb/analytics'
+    | '/admin/support/kb/categories'
+    | '/admin/support/kb/feedback'
+    | '/admin/support/kb/new'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -1273,6 +1328,11 @@ export interface FileRouteTypes {
     | '/admin/analytics'
     | '/admin/leads'
     | '/admin/workforce'
+    | '/admin/support/kb/$id'
+    | '/admin/support/kb/analytics'
+    | '/admin/support/kb/categories'
+    | '/admin/support/kb/feedback'
+    | '/admin/support/kb/new'
   id:
     | '__root__'
     | '/'
@@ -1383,6 +1443,11 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/analytics/'
     | '/_authenticated/admin/leads/'
     | '/_authenticated/admin/workforce/'
+    | '/_authenticated/admin/support/kb/$id'
+    | '/_authenticated/admin/support/kb/analytics'
+    | '/_authenticated/admin/support/kb/categories'
+    | '/_authenticated/admin/support/kb/feedback'
+    | '/_authenticated/admin/support/kb/new'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -2183,6 +2248,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminAccessPermissionsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/support/kb/new': {
+      id: '/_authenticated/admin/support/kb/new'
+      path: '/new'
+      fullPath: '/admin/support/kb/new'
+      preLoaderRoute: typeof AuthenticatedAdminSupportKbNewRouteImport
+      parentRoute: typeof AuthenticatedAdminSupportKbRoute
+    }
+    '/_authenticated/admin/support/kb/feedback': {
+      id: '/_authenticated/admin/support/kb/feedback'
+      path: '/feedback'
+      fullPath: '/admin/support/kb/feedback'
+      preLoaderRoute: typeof AuthenticatedAdminSupportKbFeedbackRouteImport
+      parentRoute: typeof AuthenticatedAdminSupportKbRoute
+    }
+    '/_authenticated/admin/support/kb/categories': {
+      id: '/_authenticated/admin/support/kb/categories'
+      path: '/categories'
+      fullPath: '/admin/support/kb/categories'
+      preLoaderRoute: typeof AuthenticatedAdminSupportKbCategoriesRouteImport
+      parentRoute: typeof AuthenticatedAdminSupportKbRoute
+    }
+    '/_authenticated/admin/support/kb/analytics': {
+      id: '/_authenticated/admin/support/kb/analytics'
+      path: '/analytics'
+      fullPath: '/admin/support/kb/analytics'
+      preLoaderRoute: typeof AuthenticatedAdminSupportKbAnalyticsRouteImport
+      parentRoute: typeof AuthenticatedAdminSupportKbRoute
+    }
+    '/_authenticated/admin/support/kb/$id': {
+      id: '/_authenticated/admin/support/kb/$id'
+      path: '/$id'
+      fullPath: '/admin/support/kb/$id'
+      preLoaderRoute: typeof AuthenticatedAdminSupportKbIdRouteImport
+      parentRoute: typeof AuthenticatedAdminSupportKbRoute
+    }
   }
 }
 
@@ -2214,6 +2314,31 @@ const AuthenticatedAdminAnalyticsRouteChildren: AuthenticatedAdminAnalyticsRoute
 const AuthenticatedAdminAnalyticsRouteWithChildren =
   AuthenticatedAdminAnalyticsRoute._addFileChildren(
     AuthenticatedAdminAnalyticsRouteChildren,
+  )
+
+interface AuthenticatedAdminSupportKbRouteChildren {
+  AuthenticatedAdminSupportKbIdRoute: typeof AuthenticatedAdminSupportKbIdRoute
+  AuthenticatedAdminSupportKbAnalyticsRoute: typeof AuthenticatedAdminSupportKbAnalyticsRoute
+  AuthenticatedAdminSupportKbCategoriesRoute: typeof AuthenticatedAdminSupportKbCategoriesRoute
+  AuthenticatedAdminSupportKbFeedbackRoute: typeof AuthenticatedAdminSupportKbFeedbackRoute
+  AuthenticatedAdminSupportKbNewRoute: typeof AuthenticatedAdminSupportKbNewRoute
+}
+
+const AuthenticatedAdminSupportKbRouteChildren: AuthenticatedAdminSupportKbRouteChildren =
+  {
+    AuthenticatedAdminSupportKbIdRoute: AuthenticatedAdminSupportKbIdRoute,
+    AuthenticatedAdminSupportKbAnalyticsRoute:
+      AuthenticatedAdminSupportKbAnalyticsRoute,
+    AuthenticatedAdminSupportKbCategoriesRoute:
+      AuthenticatedAdminSupportKbCategoriesRoute,
+    AuthenticatedAdminSupportKbFeedbackRoute:
+      AuthenticatedAdminSupportKbFeedbackRoute,
+    AuthenticatedAdminSupportKbNewRoute: AuthenticatedAdminSupportKbNewRoute,
+  }
+
+const AuthenticatedAdminSupportKbRouteWithChildren =
+  AuthenticatedAdminSupportKbRoute._addFileChildren(
+    AuthenticatedAdminSupportKbRouteChildren,
   )
 
 interface AuthenticatedAdminRouteChildren {
@@ -2252,7 +2377,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminIntegrationsWhatsappRoute: typeof AuthenticatedAdminIntegrationsWhatsappRoute
   AuthenticatedAdminLeadsFormsRoute: typeof AuthenticatedAdminLeadsFormsRoute
   AuthenticatedAdminSupportChatRoute: typeof AuthenticatedAdminSupportChatRoute
-  AuthenticatedAdminSupportKbRoute: typeof AuthenticatedAdminSupportKbRoute
+  AuthenticatedAdminSupportKbRoute: typeof AuthenticatedAdminSupportKbRouteWithChildren
   AuthenticatedAdminSupportSlaRoute: typeof AuthenticatedAdminSupportSlaRoute
   AuthenticatedAdminSupportTicketsRoute: typeof AuthenticatedAdminSupportTicketsRoute
   AuthenticatedAdminSystemAuditLogsRoute: typeof AuthenticatedAdminSystemAuditLogsRoute
@@ -2334,7 +2459,8 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
     AuthenticatedAdminIntegrationsWhatsappRoute,
   AuthenticatedAdminLeadsFormsRoute: AuthenticatedAdminLeadsFormsRoute,
   AuthenticatedAdminSupportChatRoute: AuthenticatedAdminSupportChatRoute,
-  AuthenticatedAdminSupportKbRoute: AuthenticatedAdminSupportKbRoute,
+  AuthenticatedAdminSupportKbRoute:
+    AuthenticatedAdminSupportKbRouteWithChildren,
   AuthenticatedAdminSupportSlaRoute: AuthenticatedAdminSupportSlaRoute,
   AuthenticatedAdminSupportTicketsRoute: AuthenticatedAdminSupportTicketsRoute,
   AuthenticatedAdminSystemAuditLogsRoute:
