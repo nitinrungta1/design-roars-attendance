@@ -129,11 +129,11 @@ export function trackPricingEvent(payload: PricingEventPayload): void {
       plan_code: payload.plan_code ?? null,
       cycle: payload.cycle ?? null,
       currency: payload.currency ?? null,
-      metadata: payload.metadata ?? {},
+      metadata: (payload.metadata ?? {}) as never,
       user_agent: navigator.userAgent.slice(0, 500),
       referrer: document.referrer.slice(0, 500) || null,
       session_id: getSessionId(),
-    });
+    } as never);
   } catch (err) {
     // swallow
     console.warn("trackPricingEvent failed", err);

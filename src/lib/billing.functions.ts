@@ -92,7 +92,10 @@ export const updatePlan = createServerFn({ method: "POST" })
     if (typeof data.is_public === "boolean") patch.is_public = data.is_public;
     if (typeof data.popular === "boolean") patch.popular = data.popular;
     if (typeof data.cta_label === "string") patch.cta_label = data.cta_label;
-    const { error } = await supabase.from("plans").update(patch).eq("id", data.id);
+    const { error } = await supabase
+      .from("plans")
+      .update(patch as never)
+      .eq("id", data.id);
     if (error) return { ok: false as const, error: error.message };
     return { ok: true as const };
   });
