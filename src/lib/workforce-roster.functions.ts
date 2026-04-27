@@ -226,18 +226,21 @@ export const getRosterPlanner = createServerFn({ method: "POST" })
         color: s.color,
         is_night_shift: s.is_night_shift,
       })),
-      entries: (ents ?? []).map((e) => ({
-        id: e.id,
-        schedule_id: e.schedule_id,
-        employee_id: e.employee_id,
-        employee_name: (e.employees as { full_name: string } | null)?.full_name ?? "—",
-        shift_id: e.shift_id,
-        shift_name: (e.shifts as { name: string; color: string } | null)?.name ?? null,
-        shift_color: (e.shifts as { name: string; color: string } | null)?.color ?? null,
-        work_date: e.work_date,
-        is_off: e.is_off,
-        notes: e.notes,
-      })),
+      entries: (ents ?? []).map((e) => {
+        const sh = e.shift_id ? shiftMap.get(e.shift_id) : null;
+        return {
+          id: e.id,
+          schedule_id: e.schedule_id,
+          employee_id: e.employee_id,
+          employee_name: empNameMap.get(e.employee_id) ?? "—",
+          shift_id: e.shift_id,
+          shift_name: sh?.name ?? null,
+          shift_color: sh?.color ?? null,
+          work_date: e.work_date,
+          is_off: e.is_off,
+          notes: e.notes,
+        };
+      }),
     };
   });
 
