@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { Loader2, CheckCircle2 } from "lucide-react";
 import { submitLead, subscribe, requestDemo } from "@/lib/leads.functions";
 import { submitSupportTicket } from "@/lib/public-help.functions";
+import { DeflectionSuggestions } from "@/components/help/deflection-suggestions";
 
 export function ContactForm({ source = "contact" }: { source?: string }) {
   const fn = useServerFn(submitLead);
