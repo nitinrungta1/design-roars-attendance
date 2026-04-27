@@ -42,7 +42,10 @@ import { Route as AttendanceManagementSystemRouteImport } from './routes/attenda
 import { Route as AttendanceAppIndiaRouteImport } from './routes/attendance-app-india'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
+import { Route as PageSlugRouteImport } from './routes/$pageSlug'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CareersSlugRouteImport } from './routes/careers.$slug'
+import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated.admin'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated.admin.index'
 import { Route as ApiPublicTrackRouteImport } from './routes/api.public.track'
@@ -282,10 +285,25 @@ const AuthenticatedRoute = AuthenticatedRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PageSlugRoute = PageSlugRouteImport.update({
+  id: '/$pageSlug',
+  path: '/$pageSlug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const CareersSlugRoute = CareersSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => CareersRoute,
+} as any)
+const BlogSlugRoute = BlogSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => BlogRoute,
 } as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
@@ -701,13 +719,14 @@ const AuthenticatedAdminAccessPermissionsRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/$pageSlug': typeof PageSlugRoute
   '/about': typeof AboutRoute
   '/attendance-app-india': typeof AttendanceAppIndiaRoute
   '/attendance-management-system': typeof AttendanceManagementSystemRoute
   '/auth-callback': typeof AuthCallbackRoute
   '/biometric-attendance-software': typeof BiometricAttendanceSoftwareRoute
-  '/blog': typeof BlogRoute
-  '/careers': typeof CareersRoute
+  '/blog': typeof BlogRouteWithChildren
+  '/careers': typeof CareersRouteWithChildren
   '/contact': typeof ContactRoute
   '/demo': typeof DemoRoute
   '/employee-check-in-app': typeof EmployeeCheckInAppRoute
@@ -734,6 +753,8 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/time-tracking-software': typeof TimeTrackingSoftwareRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/blog/$slug': typeof BlogSlugRoute
+  '/careers/$slug': typeof CareersSlugRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRouteWithChildren
   '/api/public/track': typeof ApiPublicTrackRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
@@ -805,13 +826,14 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/$pageSlug': typeof PageSlugRoute
   '/about': typeof AboutRoute
   '/attendance-app-india': typeof AttendanceAppIndiaRoute
   '/attendance-management-system': typeof AttendanceManagementSystemRoute
   '/auth-callback': typeof AuthCallbackRoute
   '/biometric-attendance-software': typeof BiometricAttendanceSoftwareRoute
-  '/blog': typeof BlogRoute
-  '/careers': typeof CareersRoute
+  '/blog': typeof BlogRouteWithChildren
+  '/careers': typeof CareersRouteWithChildren
   '/contact': typeof ContactRoute
   '/demo': typeof DemoRoute
   '/employee-check-in-app': typeof EmployeeCheckInAppRoute
@@ -837,6 +859,8 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/time-tracking-software': typeof TimeTrackingSoftwareRoute
+  '/blog/$slug': typeof BlogSlugRoute
+  '/careers/$slug': typeof CareersSlugRoute
   '/api/public/track': typeof ApiPublicTrackRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/admin/access/permissions': typeof AuthenticatedAdminAccessPermissionsRoute
@@ -908,14 +932,15 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/$pageSlug': typeof PageSlugRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/about': typeof AboutRoute
   '/attendance-app-india': typeof AttendanceAppIndiaRoute
   '/attendance-management-system': typeof AttendanceManagementSystemRoute
   '/auth-callback': typeof AuthCallbackRoute
   '/biometric-attendance-software': typeof BiometricAttendanceSoftwareRoute
-  '/blog': typeof BlogRoute
-  '/careers': typeof CareersRoute
+  '/blog': typeof BlogRouteWithChildren
+  '/careers': typeof CareersRouteWithChildren
   '/contact': typeof ContactRoute
   '/demo': typeof DemoRoute
   '/employee-check-in-app': typeof EmployeeCheckInAppRoute
@@ -942,6 +967,8 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/time-tracking-software': typeof TimeTrackingSoftwareRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/blog/$slug': typeof BlogSlugRoute
+  '/careers/$slug': typeof CareersSlugRoute
   '/_authenticated/admin/analytics': typeof AuthenticatedAdminAnalyticsRouteWithChildren
   '/api/public/track': typeof ApiPublicTrackRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
@@ -1015,6 +1042,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/$pageSlug'
     | '/about'
     | '/attendance-app-india'
     | '/attendance-management-system'
@@ -1048,6 +1076,8 @@ export interface FileRouteTypes {
     | '/terms'
     | '/time-tracking-software'
     | '/admin'
+    | '/blog/$slug'
+    | '/careers/$slug'
     | '/admin/analytics'
     | '/api/public/track'
     | '/admin/'
@@ -1119,6 +1149,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/$pageSlug'
     | '/about'
     | '/attendance-app-india'
     | '/attendance-management-system'
@@ -1151,6 +1182,8 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/time-tracking-software'
+    | '/blog/$slug'
+    | '/careers/$slug'
     | '/api/public/track'
     | '/admin'
     | '/admin/access/permissions'
@@ -1221,6 +1254,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/$pageSlug'
     | '/_authenticated'
     | '/about'
     | '/attendance-app-india'
@@ -1255,6 +1289,8 @@ export interface FileRouteTypes {
     | '/terms'
     | '/time-tracking-software'
     | '/_authenticated/admin'
+    | '/blog/$slug'
+    | '/careers/$slug'
     | '/_authenticated/admin/analytics'
     | '/api/public/track'
     | '/_authenticated/admin/'
@@ -1327,14 +1363,15 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  PageSlugRoute: typeof PageSlugRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   AboutRoute: typeof AboutRoute
   AttendanceAppIndiaRoute: typeof AttendanceAppIndiaRoute
   AttendanceManagementSystemRoute: typeof AttendanceManagementSystemRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
   BiometricAttendanceSoftwareRoute: typeof BiometricAttendanceSoftwareRoute
-  BlogRoute: typeof BlogRoute
-  CareersRoute: typeof CareersRoute
+  BlogRoute: typeof BlogRouteWithChildren
+  CareersRoute: typeof CareersRouteWithChildren
   ContactRoute: typeof ContactRoute
   DemoRoute: typeof DemoRoute
   EmployeeCheckInAppRoute: typeof EmployeeCheckInAppRoute
@@ -1596,12 +1633,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/$pageSlug': {
+      id: '/$pageSlug'
+      path: '/$pageSlug'
+      fullPath: '/$pageSlug'
+      preLoaderRoute: typeof PageSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/careers/$slug': {
+      id: '/careers/$slug'
+      path: '/$slug'
+      fullPath: '/careers/$slug'
+      preLoaderRoute: typeof CareersSlugRouteImport
+      parentRoute: typeof CareersRoute
+    }
+    '/blog/$slug': {
+      id: '/blog/$slug'
+      path: '/$slug'
+      fullPath: '/blog/$slug'
+      preLoaderRoute: typeof BlogSlugRouteImport
+      parentRoute: typeof BlogRoute
     }
     '/_authenticated/admin': {
       id: '/_authenticated/admin'
@@ -2295,16 +2353,38 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
   AuthenticatedRouteChildren,
 )
 
+interface BlogRouteChildren {
+  BlogSlugRoute: typeof BlogSlugRoute
+}
+
+const BlogRouteChildren: BlogRouteChildren = {
+  BlogSlugRoute: BlogSlugRoute,
+}
+
+const BlogRouteWithChildren = BlogRoute._addFileChildren(BlogRouteChildren)
+
+interface CareersRouteChildren {
+  CareersSlugRoute: typeof CareersSlugRoute
+}
+
+const CareersRouteChildren: CareersRouteChildren = {
+  CareersSlugRoute: CareersSlugRoute,
+}
+
+const CareersRouteWithChildren =
+  CareersRoute._addFileChildren(CareersRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  PageSlugRoute: PageSlugRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   AboutRoute: AboutRoute,
   AttendanceAppIndiaRoute: AttendanceAppIndiaRoute,
   AttendanceManagementSystemRoute: AttendanceManagementSystemRoute,
   AuthCallbackRoute: AuthCallbackRoute,
   BiometricAttendanceSoftwareRoute: BiometricAttendanceSoftwareRoute,
-  BlogRoute: BlogRoute,
-  CareersRoute: CareersRoute,
+  BlogRoute: BlogRouteWithChildren,
+  CareersRoute: CareersRouteWithChildren,
   ContactRoute: ContactRoute,
   DemoRoute: DemoRoute,
   EmployeeCheckInAppRoute: EmployeeCheckInAppRoute,
