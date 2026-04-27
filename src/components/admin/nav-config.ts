@@ -163,11 +163,12 @@ export const NAV_GROUPS: NavGroup[] = [
     label: "Analytics",
     icon: BarChart3,
     items: [
-      { to: "/admin/analytics/product", label: "Product Usage", icon: BarChart3, platform: true },
-      { to: "/admin/analytics/churn", label: "Churn", icon: TrendingDown, platform: true },
-      { to: "/admin/analytics/acquisition", label: "Acquisition", icon: TrendingUp, platform: true },
-      { to: "/admin/analytics/retention", label: "Retention", icon: BarChart3, platform: true },
-      { to: "/admin/analytics/funnels", label: "Conversion Funnels", icon: GitBranch, platform: true },
+      { to: "/admin/analytics", label: "Dashboard", icon: BarChart3, platform: true },
+      { to: "/admin/analytics/traffic", label: "Traffic", icon: TrendingUp, platform: true },
+      { to: "/admin/analytics/attribution", label: "Attribution", icon: Filter, platform: true },
+      { to: "/admin/analytics/campaigns", label: "Campaigns", icon: Megaphone, platform: true },
+      { to: "/admin/analytics/funnel", label: "Funnel", icon: GitBranch, platform: true },
+      { to: "/admin/analytics/settings", label: "Tracking Settings", icon: Settings, platform: true },
     ],
   },
   {

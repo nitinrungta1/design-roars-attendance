@@ -45,8 +45,11 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated.admin'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated.admin.index'
+import { Route as ApiPublicTrackRouteImport } from './routes/api.public.track'
+import { Route as AuthenticatedAdminAnalyticsRouteImport } from './routes/_authenticated.admin.analytics'
 import { Route as AuthenticatedAdminWorkforceIndexRouteImport } from './routes/_authenticated.admin.workforce.index'
 import { Route as AuthenticatedAdminLeadsIndexRouteImport } from './routes/_authenticated.admin.leads.index'
+import { Route as AuthenticatedAdminAnalyticsIndexRouteImport } from './routes/_authenticated.admin.analytics.index'
 import { Route as AuthenticatedAdminWorkforceTimesheetsRouteImport } from './routes/_authenticated.admin.workforce.timesheets'
 import { Route as AuthenticatedAdminWorkforceTeamsRouteImport } from './routes/_authenticated.admin.workforce.teams'
 import { Route as AuthenticatedAdminWorkforceShiftsRouteImport } from './routes/_authenticated.admin.workforce.shifts'
@@ -100,11 +103,11 @@ import { Route as AuthenticatedAdminBillingPlansRouteImport } from './routes/_au
 import { Route as AuthenticatedAdminBillingPaymentsRouteImport } from './routes/_authenticated.admin.billing.payments'
 import { Route as AuthenticatedAdminBillingInvoicesRouteImport } from './routes/_authenticated.admin.billing.invoices'
 import { Route as AuthenticatedAdminBillingCouponsRouteImport } from './routes/_authenticated.admin.billing.coupons'
-import { Route as AuthenticatedAdminAnalyticsRetentionRouteImport } from './routes/_authenticated.admin.analytics.retention'
-import { Route as AuthenticatedAdminAnalyticsProductRouteImport } from './routes/_authenticated.admin.analytics.product'
-import { Route as AuthenticatedAdminAnalyticsFunnelsRouteImport } from './routes/_authenticated.admin.analytics.funnels'
-import { Route as AuthenticatedAdminAnalyticsChurnRouteImport } from './routes/_authenticated.admin.analytics.churn'
-import { Route as AuthenticatedAdminAnalyticsAcquisitionRouteImport } from './routes/_authenticated.admin.analytics.acquisition'
+import { Route as AuthenticatedAdminAnalyticsTrafficRouteImport } from './routes/_authenticated.admin.analytics.traffic'
+import { Route as AuthenticatedAdminAnalyticsSettingsRouteImport } from './routes/_authenticated.admin.analytics.settings'
+import { Route as AuthenticatedAdminAnalyticsFunnelRouteImport } from './routes/_authenticated.admin.analytics.funnel'
+import { Route as AuthenticatedAdminAnalyticsCampaignsRouteImport } from './routes/_authenticated.admin.analytics.campaigns'
+import { Route as AuthenticatedAdminAnalyticsAttributionRouteImport } from './routes/_authenticated.admin.analytics.attribution'
 import { Route as AuthenticatedAdminAccessUsersRouteImport } from './routes/_authenticated.admin.access.users'
 import { Route as AuthenticatedAdminAccessTeamsRouteImport } from './routes/_authenticated.admin.access.teams'
 import { Route as AuthenticatedAdminAccessRolesRouteImport } from './routes/_authenticated.admin.access.roles'
@@ -294,6 +297,17 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const ApiPublicTrackRoute = ApiPublicTrackRouteImport.update({
+  id: '/api/public/track',
+  path: '/api/public/track',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAdminAnalyticsRoute =
+  AuthenticatedAdminAnalyticsRouteImport.update({
+    id: '/analytics',
+    path: '/analytics',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminWorkforceIndexRoute =
   AuthenticatedAdminWorkforceIndexRouteImport.update({
     id: '/workforce/',
@@ -305,6 +319,12 @@ const AuthenticatedAdminLeadsIndexRoute =
     id: '/leads/',
     path: '/leads/',
     getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminAnalyticsIndexRoute =
+  AuthenticatedAdminAnalyticsIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedAdminAnalyticsRoute,
   } as any)
 const AuthenticatedAdminWorkforceTimesheetsRoute =
   AuthenticatedAdminWorkforceTimesheetsRouteImport.update({
@@ -624,35 +644,35 @@ const AuthenticatedAdminBillingCouponsRoute =
     path: '/billing/coupons',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
-const AuthenticatedAdminAnalyticsRetentionRoute =
-  AuthenticatedAdminAnalyticsRetentionRouteImport.update({
-    id: '/analytics/retention',
-    path: '/analytics/retention',
-    getParentRoute: () => AuthenticatedAdminRoute,
+const AuthenticatedAdminAnalyticsTrafficRoute =
+  AuthenticatedAdminAnalyticsTrafficRouteImport.update({
+    id: '/traffic',
+    path: '/traffic',
+    getParentRoute: () => AuthenticatedAdminAnalyticsRoute,
   } as any)
-const AuthenticatedAdminAnalyticsProductRoute =
-  AuthenticatedAdminAnalyticsProductRouteImport.update({
-    id: '/analytics/product',
-    path: '/analytics/product',
-    getParentRoute: () => AuthenticatedAdminRoute,
+const AuthenticatedAdminAnalyticsSettingsRoute =
+  AuthenticatedAdminAnalyticsSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => AuthenticatedAdminAnalyticsRoute,
   } as any)
-const AuthenticatedAdminAnalyticsFunnelsRoute =
-  AuthenticatedAdminAnalyticsFunnelsRouteImport.update({
-    id: '/analytics/funnels',
-    path: '/analytics/funnels',
-    getParentRoute: () => AuthenticatedAdminRoute,
+const AuthenticatedAdminAnalyticsFunnelRoute =
+  AuthenticatedAdminAnalyticsFunnelRouteImport.update({
+    id: '/funnel',
+    path: '/funnel',
+    getParentRoute: () => AuthenticatedAdminAnalyticsRoute,
   } as any)
-const AuthenticatedAdminAnalyticsChurnRoute =
-  AuthenticatedAdminAnalyticsChurnRouteImport.update({
-    id: '/analytics/churn',
-    path: '/analytics/churn',
-    getParentRoute: () => AuthenticatedAdminRoute,
+const AuthenticatedAdminAnalyticsCampaignsRoute =
+  AuthenticatedAdminAnalyticsCampaignsRouteImport.update({
+    id: '/campaigns',
+    path: '/campaigns',
+    getParentRoute: () => AuthenticatedAdminAnalyticsRoute,
   } as any)
-const AuthenticatedAdminAnalyticsAcquisitionRoute =
-  AuthenticatedAdminAnalyticsAcquisitionRouteImport.update({
-    id: '/analytics/acquisition',
-    path: '/analytics/acquisition',
-    getParentRoute: () => AuthenticatedAdminRoute,
+const AuthenticatedAdminAnalyticsAttributionRoute =
+  AuthenticatedAdminAnalyticsAttributionRouteImport.update({
+    id: '/attribution',
+    path: '/attribution',
+    getParentRoute: () => AuthenticatedAdminAnalyticsRoute,
   } as any)
 const AuthenticatedAdminAccessUsersRoute =
   AuthenticatedAdminAccessUsersRouteImport.update({
@@ -714,16 +734,18 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/time-tracking-software': typeof TimeTrackingSoftwareRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/admin/analytics': typeof AuthenticatedAdminAnalyticsRouteWithChildren
+  '/api/public/track': typeof ApiPublicTrackRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/admin/access/permissions': typeof AuthenticatedAdminAccessPermissionsRoute
   '/admin/access/roles': typeof AuthenticatedAdminAccessRolesRoute
   '/admin/access/teams': typeof AuthenticatedAdminAccessTeamsRoute
   '/admin/access/users': typeof AuthenticatedAdminAccessUsersRoute
-  '/admin/analytics/acquisition': typeof AuthenticatedAdminAnalyticsAcquisitionRoute
-  '/admin/analytics/churn': typeof AuthenticatedAdminAnalyticsChurnRoute
-  '/admin/analytics/funnels': typeof AuthenticatedAdminAnalyticsFunnelsRoute
-  '/admin/analytics/product': typeof AuthenticatedAdminAnalyticsProductRoute
-  '/admin/analytics/retention': typeof AuthenticatedAdminAnalyticsRetentionRoute
+  '/admin/analytics/attribution': typeof AuthenticatedAdminAnalyticsAttributionRoute
+  '/admin/analytics/campaigns': typeof AuthenticatedAdminAnalyticsCampaignsRoute
+  '/admin/analytics/funnel': typeof AuthenticatedAdminAnalyticsFunnelRoute
+  '/admin/analytics/settings': typeof AuthenticatedAdminAnalyticsSettingsRoute
+  '/admin/analytics/traffic': typeof AuthenticatedAdminAnalyticsTrafficRoute
   '/admin/billing/coupons': typeof AuthenticatedAdminBillingCouponsRoute
   '/admin/billing/invoices': typeof AuthenticatedAdminBillingInvoicesRoute
   '/admin/billing/payments': typeof AuthenticatedAdminBillingPaymentsRoute
@@ -777,6 +799,7 @@ export interface FileRoutesByFullPath {
   '/admin/workforce/shifts': typeof AuthenticatedAdminWorkforceShiftsRoute
   '/admin/workforce/teams': typeof AuthenticatedAdminWorkforceTeamsRoute
   '/admin/workforce/timesheets': typeof AuthenticatedAdminWorkforceTimesheetsRoute
+  '/admin/analytics/': typeof AuthenticatedAdminAnalyticsIndexRoute
   '/admin/leads/': typeof AuthenticatedAdminLeadsIndexRoute
   '/admin/workforce/': typeof AuthenticatedAdminWorkforceIndexRoute
 }
@@ -814,16 +837,17 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/time-tracking-software': typeof TimeTrackingSoftwareRoute
+  '/api/public/track': typeof ApiPublicTrackRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/admin/access/permissions': typeof AuthenticatedAdminAccessPermissionsRoute
   '/admin/access/roles': typeof AuthenticatedAdminAccessRolesRoute
   '/admin/access/teams': typeof AuthenticatedAdminAccessTeamsRoute
   '/admin/access/users': typeof AuthenticatedAdminAccessUsersRoute
-  '/admin/analytics/acquisition': typeof AuthenticatedAdminAnalyticsAcquisitionRoute
-  '/admin/analytics/churn': typeof AuthenticatedAdminAnalyticsChurnRoute
-  '/admin/analytics/funnels': typeof AuthenticatedAdminAnalyticsFunnelsRoute
-  '/admin/analytics/product': typeof AuthenticatedAdminAnalyticsProductRoute
-  '/admin/analytics/retention': typeof AuthenticatedAdminAnalyticsRetentionRoute
+  '/admin/analytics/attribution': typeof AuthenticatedAdminAnalyticsAttributionRoute
+  '/admin/analytics/campaigns': typeof AuthenticatedAdminAnalyticsCampaignsRoute
+  '/admin/analytics/funnel': typeof AuthenticatedAdminAnalyticsFunnelRoute
+  '/admin/analytics/settings': typeof AuthenticatedAdminAnalyticsSettingsRoute
+  '/admin/analytics/traffic': typeof AuthenticatedAdminAnalyticsTrafficRoute
   '/admin/billing/coupons': typeof AuthenticatedAdminBillingCouponsRoute
   '/admin/billing/invoices': typeof AuthenticatedAdminBillingInvoicesRoute
   '/admin/billing/payments': typeof AuthenticatedAdminBillingPaymentsRoute
@@ -877,6 +901,7 @@ export interface FileRoutesByTo {
   '/admin/workforce/shifts': typeof AuthenticatedAdminWorkforceShiftsRoute
   '/admin/workforce/teams': typeof AuthenticatedAdminWorkforceTeamsRoute
   '/admin/workforce/timesheets': typeof AuthenticatedAdminWorkforceTimesheetsRoute
+  '/admin/analytics': typeof AuthenticatedAdminAnalyticsIndexRoute
   '/admin/leads': typeof AuthenticatedAdminLeadsIndexRoute
   '/admin/workforce': typeof AuthenticatedAdminWorkforceIndexRoute
 }
@@ -917,16 +942,18 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/time-tracking-software': typeof TimeTrackingSoftwareRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/_authenticated/admin/analytics': typeof AuthenticatedAdminAnalyticsRouteWithChildren
+  '/api/public/track': typeof ApiPublicTrackRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/admin/access/permissions': typeof AuthenticatedAdminAccessPermissionsRoute
   '/_authenticated/admin/access/roles': typeof AuthenticatedAdminAccessRolesRoute
   '/_authenticated/admin/access/teams': typeof AuthenticatedAdminAccessTeamsRoute
   '/_authenticated/admin/access/users': typeof AuthenticatedAdminAccessUsersRoute
-  '/_authenticated/admin/analytics/acquisition': typeof AuthenticatedAdminAnalyticsAcquisitionRoute
-  '/_authenticated/admin/analytics/churn': typeof AuthenticatedAdminAnalyticsChurnRoute
-  '/_authenticated/admin/analytics/funnels': typeof AuthenticatedAdminAnalyticsFunnelsRoute
-  '/_authenticated/admin/analytics/product': typeof AuthenticatedAdminAnalyticsProductRoute
-  '/_authenticated/admin/analytics/retention': typeof AuthenticatedAdminAnalyticsRetentionRoute
+  '/_authenticated/admin/analytics/attribution': typeof AuthenticatedAdminAnalyticsAttributionRoute
+  '/_authenticated/admin/analytics/campaigns': typeof AuthenticatedAdminAnalyticsCampaignsRoute
+  '/_authenticated/admin/analytics/funnel': typeof AuthenticatedAdminAnalyticsFunnelRoute
+  '/_authenticated/admin/analytics/settings': typeof AuthenticatedAdminAnalyticsSettingsRoute
+  '/_authenticated/admin/analytics/traffic': typeof AuthenticatedAdminAnalyticsTrafficRoute
   '/_authenticated/admin/billing/coupons': typeof AuthenticatedAdminBillingCouponsRoute
   '/_authenticated/admin/billing/invoices': typeof AuthenticatedAdminBillingInvoicesRoute
   '/_authenticated/admin/billing/payments': typeof AuthenticatedAdminBillingPaymentsRoute
@@ -980,6 +1007,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/workforce/shifts': typeof AuthenticatedAdminWorkforceShiftsRoute
   '/_authenticated/admin/workforce/teams': typeof AuthenticatedAdminWorkforceTeamsRoute
   '/_authenticated/admin/workforce/timesheets': typeof AuthenticatedAdminWorkforceTimesheetsRoute
+  '/_authenticated/admin/analytics/': typeof AuthenticatedAdminAnalyticsIndexRoute
   '/_authenticated/admin/leads/': typeof AuthenticatedAdminLeadsIndexRoute
   '/_authenticated/admin/workforce/': typeof AuthenticatedAdminWorkforceIndexRoute
 }
@@ -1020,16 +1048,18 @@ export interface FileRouteTypes {
     | '/terms'
     | '/time-tracking-software'
     | '/admin'
+    | '/admin/analytics'
+    | '/api/public/track'
     | '/admin/'
     | '/admin/access/permissions'
     | '/admin/access/roles'
     | '/admin/access/teams'
     | '/admin/access/users'
-    | '/admin/analytics/acquisition'
-    | '/admin/analytics/churn'
-    | '/admin/analytics/funnels'
-    | '/admin/analytics/product'
-    | '/admin/analytics/retention'
+    | '/admin/analytics/attribution'
+    | '/admin/analytics/campaigns'
+    | '/admin/analytics/funnel'
+    | '/admin/analytics/settings'
+    | '/admin/analytics/traffic'
     | '/admin/billing/coupons'
     | '/admin/billing/invoices'
     | '/admin/billing/payments'
@@ -1083,6 +1113,7 @@ export interface FileRouteTypes {
     | '/admin/workforce/shifts'
     | '/admin/workforce/teams'
     | '/admin/workforce/timesheets'
+    | '/admin/analytics/'
     | '/admin/leads/'
     | '/admin/workforce/'
   fileRoutesByTo: FileRoutesByTo
@@ -1120,16 +1151,17 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/time-tracking-software'
+    | '/api/public/track'
     | '/admin'
     | '/admin/access/permissions'
     | '/admin/access/roles'
     | '/admin/access/teams'
     | '/admin/access/users'
-    | '/admin/analytics/acquisition'
-    | '/admin/analytics/churn'
-    | '/admin/analytics/funnels'
-    | '/admin/analytics/product'
-    | '/admin/analytics/retention'
+    | '/admin/analytics/attribution'
+    | '/admin/analytics/campaigns'
+    | '/admin/analytics/funnel'
+    | '/admin/analytics/settings'
+    | '/admin/analytics/traffic'
     | '/admin/billing/coupons'
     | '/admin/billing/invoices'
     | '/admin/billing/payments'
@@ -1183,6 +1215,7 @@ export interface FileRouteTypes {
     | '/admin/workforce/shifts'
     | '/admin/workforce/teams'
     | '/admin/workforce/timesheets'
+    | '/admin/analytics'
     | '/admin/leads'
     | '/admin/workforce'
   id:
@@ -1222,16 +1255,18 @@ export interface FileRouteTypes {
     | '/terms'
     | '/time-tracking-software'
     | '/_authenticated/admin'
+    | '/_authenticated/admin/analytics'
+    | '/api/public/track'
     | '/_authenticated/admin/'
     | '/_authenticated/admin/access/permissions'
     | '/_authenticated/admin/access/roles'
     | '/_authenticated/admin/access/teams'
     | '/_authenticated/admin/access/users'
-    | '/_authenticated/admin/analytics/acquisition'
-    | '/_authenticated/admin/analytics/churn'
-    | '/_authenticated/admin/analytics/funnels'
-    | '/_authenticated/admin/analytics/product'
-    | '/_authenticated/admin/analytics/retention'
+    | '/_authenticated/admin/analytics/attribution'
+    | '/_authenticated/admin/analytics/campaigns'
+    | '/_authenticated/admin/analytics/funnel'
+    | '/_authenticated/admin/analytics/settings'
+    | '/_authenticated/admin/analytics/traffic'
     | '/_authenticated/admin/billing/coupons'
     | '/_authenticated/admin/billing/invoices'
     | '/_authenticated/admin/billing/payments'
@@ -1285,6 +1320,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/workforce/shifts'
     | '/_authenticated/admin/workforce/teams'
     | '/_authenticated/admin/workforce/timesheets'
+    | '/_authenticated/admin/analytics/'
     | '/_authenticated/admin/leads/'
     | '/_authenticated/admin/workforce/'
   fileRoutesById: FileRoutesById
@@ -1324,6 +1360,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
   TimeTrackingSoftwareRoute: typeof TimeTrackingSoftwareRoute
+  ApiPublicTrackRoute: typeof ApiPublicTrackRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1580,6 +1617,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/api/public/track': {
+      id: '/api/public/track'
+      path: '/api/public/track'
+      fullPath: '/api/public/track'
+      preLoaderRoute: typeof ApiPublicTrackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/admin/analytics': {
+      id: '/_authenticated/admin/analytics'
+      path: '/analytics'
+      fullPath: '/admin/analytics'
+      preLoaderRoute: typeof AuthenticatedAdminAnalyticsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/workforce/': {
       id: '/_authenticated/admin/workforce/'
       path: '/workforce'
@@ -1593,6 +1644,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/leads/'
       preLoaderRoute: typeof AuthenticatedAdminLeadsIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/analytics/': {
+      id: '/_authenticated/admin/analytics/'
+      path: '/'
+      fullPath: '/admin/analytics/'
+      preLoaderRoute: typeof AuthenticatedAdminAnalyticsIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminAnalyticsRoute
     }
     '/_authenticated/admin/workforce/timesheets': {
       id: '/_authenticated/admin/workforce/timesheets'
@@ -1965,40 +2023,40 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminBillingCouponsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
-    '/_authenticated/admin/analytics/retention': {
-      id: '/_authenticated/admin/analytics/retention'
-      path: '/analytics/retention'
-      fullPath: '/admin/analytics/retention'
-      preLoaderRoute: typeof AuthenticatedAdminAnalyticsRetentionRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
+    '/_authenticated/admin/analytics/traffic': {
+      id: '/_authenticated/admin/analytics/traffic'
+      path: '/traffic'
+      fullPath: '/admin/analytics/traffic'
+      preLoaderRoute: typeof AuthenticatedAdminAnalyticsTrafficRouteImport
+      parentRoute: typeof AuthenticatedAdminAnalyticsRoute
     }
-    '/_authenticated/admin/analytics/product': {
-      id: '/_authenticated/admin/analytics/product'
-      path: '/analytics/product'
-      fullPath: '/admin/analytics/product'
-      preLoaderRoute: typeof AuthenticatedAdminAnalyticsProductRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
+    '/_authenticated/admin/analytics/settings': {
+      id: '/_authenticated/admin/analytics/settings'
+      path: '/settings'
+      fullPath: '/admin/analytics/settings'
+      preLoaderRoute: typeof AuthenticatedAdminAnalyticsSettingsRouteImport
+      parentRoute: typeof AuthenticatedAdminAnalyticsRoute
     }
-    '/_authenticated/admin/analytics/funnels': {
-      id: '/_authenticated/admin/analytics/funnels'
-      path: '/analytics/funnels'
-      fullPath: '/admin/analytics/funnels'
-      preLoaderRoute: typeof AuthenticatedAdminAnalyticsFunnelsRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
+    '/_authenticated/admin/analytics/funnel': {
+      id: '/_authenticated/admin/analytics/funnel'
+      path: '/funnel'
+      fullPath: '/admin/analytics/funnel'
+      preLoaderRoute: typeof AuthenticatedAdminAnalyticsFunnelRouteImport
+      parentRoute: typeof AuthenticatedAdminAnalyticsRoute
     }
-    '/_authenticated/admin/analytics/churn': {
-      id: '/_authenticated/admin/analytics/churn'
-      path: '/analytics/churn'
-      fullPath: '/admin/analytics/churn'
-      preLoaderRoute: typeof AuthenticatedAdminAnalyticsChurnRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
+    '/_authenticated/admin/analytics/campaigns': {
+      id: '/_authenticated/admin/analytics/campaigns'
+      path: '/campaigns'
+      fullPath: '/admin/analytics/campaigns'
+      preLoaderRoute: typeof AuthenticatedAdminAnalyticsCampaignsRouteImport
+      parentRoute: typeof AuthenticatedAdminAnalyticsRoute
     }
-    '/_authenticated/admin/analytics/acquisition': {
-      id: '/_authenticated/admin/analytics/acquisition'
-      path: '/analytics/acquisition'
-      fullPath: '/admin/analytics/acquisition'
-      preLoaderRoute: typeof AuthenticatedAdminAnalyticsAcquisitionRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
+    '/_authenticated/admin/analytics/attribution': {
+      id: '/_authenticated/admin/analytics/attribution'
+      path: '/attribution'
+      fullPath: '/admin/analytics/attribution'
+      preLoaderRoute: typeof AuthenticatedAdminAnalyticsAttributionRouteImport
+      parentRoute: typeof AuthenticatedAdminAnalyticsRoute
     }
     '/_authenticated/admin/access/users': {
       id: '/_authenticated/admin/access/users'
@@ -2031,17 +2089,43 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedAdminAnalyticsRouteChildren {
+  AuthenticatedAdminAnalyticsAttributionRoute: typeof AuthenticatedAdminAnalyticsAttributionRoute
+  AuthenticatedAdminAnalyticsCampaignsRoute: typeof AuthenticatedAdminAnalyticsCampaignsRoute
+  AuthenticatedAdminAnalyticsFunnelRoute: typeof AuthenticatedAdminAnalyticsFunnelRoute
+  AuthenticatedAdminAnalyticsSettingsRoute: typeof AuthenticatedAdminAnalyticsSettingsRoute
+  AuthenticatedAdminAnalyticsTrafficRoute: typeof AuthenticatedAdminAnalyticsTrafficRoute
+  AuthenticatedAdminAnalyticsIndexRoute: typeof AuthenticatedAdminAnalyticsIndexRoute
+}
+
+const AuthenticatedAdminAnalyticsRouteChildren: AuthenticatedAdminAnalyticsRouteChildren =
+  {
+    AuthenticatedAdminAnalyticsAttributionRoute:
+      AuthenticatedAdminAnalyticsAttributionRoute,
+    AuthenticatedAdminAnalyticsCampaignsRoute:
+      AuthenticatedAdminAnalyticsCampaignsRoute,
+    AuthenticatedAdminAnalyticsFunnelRoute:
+      AuthenticatedAdminAnalyticsFunnelRoute,
+    AuthenticatedAdminAnalyticsSettingsRoute:
+      AuthenticatedAdminAnalyticsSettingsRoute,
+    AuthenticatedAdminAnalyticsTrafficRoute:
+      AuthenticatedAdminAnalyticsTrafficRoute,
+    AuthenticatedAdminAnalyticsIndexRoute:
+      AuthenticatedAdminAnalyticsIndexRoute,
+  }
+
+const AuthenticatedAdminAnalyticsRouteWithChildren =
+  AuthenticatedAdminAnalyticsRoute._addFileChildren(
+    AuthenticatedAdminAnalyticsRouteChildren,
+  )
+
 interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminAnalyticsRoute: typeof AuthenticatedAdminAnalyticsRouteWithChildren
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedAdminAccessPermissionsRoute: typeof AuthenticatedAdminAccessPermissionsRoute
   AuthenticatedAdminAccessRolesRoute: typeof AuthenticatedAdminAccessRolesRoute
   AuthenticatedAdminAccessTeamsRoute: typeof AuthenticatedAdminAccessTeamsRoute
   AuthenticatedAdminAccessUsersRoute: typeof AuthenticatedAdminAccessUsersRoute
-  AuthenticatedAdminAnalyticsAcquisitionRoute: typeof AuthenticatedAdminAnalyticsAcquisitionRoute
-  AuthenticatedAdminAnalyticsChurnRoute: typeof AuthenticatedAdminAnalyticsChurnRoute
-  AuthenticatedAdminAnalyticsFunnelsRoute: typeof AuthenticatedAdminAnalyticsFunnelsRoute
-  AuthenticatedAdminAnalyticsProductRoute: typeof AuthenticatedAdminAnalyticsProductRoute
-  AuthenticatedAdminAnalyticsRetentionRoute: typeof AuthenticatedAdminAnalyticsRetentionRoute
   AuthenticatedAdminBillingCouponsRoute: typeof AuthenticatedAdminBillingCouponsRoute
   AuthenticatedAdminBillingInvoicesRoute: typeof AuthenticatedAdminBillingInvoicesRoute
   AuthenticatedAdminBillingPaymentsRoute: typeof AuthenticatedAdminBillingPaymentsRoute
@@ -2100,21 +2184,14 @@ interface AuthenticatedAdminRouteChildren {
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminAnalyticsRoute:
+    AuthenticatedAdminAnalyticsRouteWithChildren,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
   AuthenticatedAdminAccessPermissionsRoute:
     AuthenticatedAdminAccessPermissionsRoute,
   AuthenticatedAdminAccessRolesRoute: AuthenticatedAdminAccessRolesRoute,
   AuthenticatedAdminAccessTeamsRoute: AuthenticatedAdminAccessTeamsRoute,
   AuthenticatedAdminAccessUsersRoute: AuthenticatedAdminAccessUsersRoute,
-  AuthenticatedAdminAnalyticsAcquisitionRoute:
-    AuthenticatedAdminAnalyticsAcquisitionRoute,
-  AuthenticatedAdminAnalyticsChurnRoute: AuthenticatedAdminAnalyticsChurnRoute,
-  AuthenticatedAdminAnalyticsFunnelsRoute:
-    AuthenticatedAdminAnalyticsFunnelsRoute,
-  AuthenticatedAdminAnalyticsProductRoute:
-    AuthenticatedAdminAnalyticsProductRoute,
-  AuthenticatedAdminAnalyticsRetentionRoute:
-    AuthenticatedAdminAnalyticsRetentionRoute,
   AuthenticatedAdminBillingCouponsRoute: AuthenticatedAdminBillingCouponsRoute,
   AuthenticatedAdminBillingInvoicesRoute:
     AuthenticatedAdminBillingInvoicesRoute,
@@ -2253,6 +2330,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
   TimeTrackingSoftwareRoute: TimeTrackingSoftwareRoute,
+  ApiPublicTrackRoute: ApiPublicTrackRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
