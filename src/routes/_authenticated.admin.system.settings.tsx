@@ -10,7 +10,7 @@ import {
   Building2,
   Palette,
   Globe2,
-  SlidersHorizontal,
+  
   Sparkles,
   Undo2,
 } from "lucide-react";
@@ -253,10 +253,6 @@ function SettingsPage() {
                 <Globe2 className="h-3.5 w-3.5" />
                 Localization
               </TabsTrigger>
-              <TabsTrigger value="preferences" className="gap-1.5">
-                <SlidersHorizontal className="h-3.5 w-3.5" />
-                Preferences
-              </TabsTrigger>
             </TabsList>
 
             {/* COMPANY PROFILE */}
@@ -299,21 +295,6 @@ function SettingsPage() {
                   )}
                 </div>
 
-                <Field
-                  label="Product name (optional)"
-                  value={form.product_name}
-                  onChange={(v) => setForm({ ...form, product_name: v })}
-                  placeholder={form.brand_name || "e.g. Punchly"}
-                  hint="The internal product name shown inside the app shell. Leave blank to reuse the company name."
-                />
-                <Field
-                  label="Support email (optional)"
-                  type="email"
-                  value={form.support_email}
-                  onChange={(v) => setForm({ ...form, support_email: v })}
-                  placeholder="support@yourcompany.com"
-                  hint="Where customers can reach your team. Used in invoices and outgoing emails."
-                />
               </Section>
 
               <CurrentAdminCard />
@@ -490,35 +471,6 @@ function SettingsPage() {
               </div>
             </TabsContent>
 
-            {/* PREFERENCES */}
-            <TabsContent value="preferences" className="space-y-6">
-              <Section
-                title="Default plan for new sign-ups"
-                description="When someone creates a new workspace through your sign-up page, this is the billing plan they'll be placed on automatically. You can change a tenant's plan later from Billing → Subscriptions."
-                icon={<SettingsIcon className="h-4 w-4" />}
-              >
-                <div className="space-y-1.5">
-                  <Label className="text-xs">Default plan</Label>
-                  <Select
-                    value={form.default_plan_code || "free"}
-                    onValueChange={(v) => setForm({ ...form, default_plan_code: v })}
-                  >
-                    <SelectTrigger><SelectValue placeholder="Select a plan" /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="free">Free — limited usage, no card required</SelectItem>
-                      <SelectItem value="starter">Starter — small teams getting started</SelectItem>
-                      <SelectItem value="growth">Growth — growing companies</SelectItem>
-                      <SelectItem value="business">Business — established businesses</SelectItem>
-                      <SelectItem value="enterprise">Enterprise — custom limits & SLA</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <p className="text-[11px] text-muted-foreground">
-                    Tip: most teams pick <strong>Free</strong> or <strong>Starter</strong> here so users can try
-                    Punchly without a credit card. The 14-day trial of higher plans is handled separately under Billing.
-                  </p>
-                </div>
-              </Section>
-            </TabsContent>
           </Tabs>
         )}
       </PageBody>
