@@ -6,6 +6,8 @@
  */
 import { supabase } from "@/integrations/supabase/client";
 
+export type BillingModel = "flat" | "per_user" | "hybrid";
+
 export interface PublicPlan {
   id: string;
   code: string;
@@ -13,8 +15,15 @@ export interface PublicPlan {
   tier: "free" | "starter" | "growth" | "business" | "enterprise";
   tagline: string | null;
   description: string | null;
+  /** Base fee per period (often 0 on per-user plans). */
   price_monthly: number;
   price_yearly: number;
+  /** Per-seat pricing. */
+  price_per_user_monthly: number;
+  price_per_user_yearly: number;
+  min_seats: number;
+  included_seats: number;
+  billing_model: BillingModel;
   currency: string;
   employee_limit: number | null;
   trial_days: number;
@@ -25,65 +34,61 @@ export interface PublicPlan {
   sort_order: number;
 }
 
-const FALLBACK_PLANS: PublicPlan[] = [
-  {
-    id: "fallback-free",
-    code: "free",
-    name: "Free",
-    tier: "free",
-    tagline: "For tiny teams just starting out.",
-    description: null,
-    price_monthly: 0,
-    price_yearly: 0,
-    currency: "INR",
-    employee_limit: 5,
-    trial_days: 0,
-    features: ["Mobile check-in", "Basic reports", "1 admin"],
-    popular: false,
-    cta_label: "Start Free",
-    comparison: {},
-    sort_order: 10,
-  },
-];
-
 export async function listPublicPlans(): Promise<PublicPlan[]> {
   const { data, error } = await supabase
     .from("plans")
     .select(
-      "id, code, name, tier, description, price_monthly, price_yearly, currency, employee_limit, trial_days, features, popular, cta_label, tagline, comparison, sort_order, is_active, is_public",
+      "id, code, name, tier, description, price_monthly, price_yearly, price_per_user_monthly, price_per_user_yearly, min_seats, included_seats, billing_model, currency, employee_limit, trial_days, features, popular, cta_label, tagline, comparison, sort_order, is_active, is_public",
     )
     .eq("is_active", true)
     .eq("is_public", true)
     .order("sort_order", { ascending: true });
 
-  if (error || !data || data.length === 0) {
-    if (error) console.error("listPublicPlans", error);
-    return FALLBACK_PLANS;
+  if (error) {
+    console.error("listPublicPlans", error);
+    throw new Error(`Failed to load pricing plans: ${error.message}`);
   }
 
-  return data.map((p) => ({
-    id: p.id,
-    code: p.code,
-    name: p.name,
-    tier: p.tier as PublicPlan["tier"],
-    tagline: (p as { tagline: string | null }).tagline ?? null,
-    description: p.description,
-    price_monthly: Number(p.price_monthly),
-    price_yearly: Number(p.price_yearly),
-    currency: p.currency,
-    employee_limit: p.employee_limit,
-    trial_days: p.trial_days,
-    features: Array.isArray(p.features) ? (p.features as string[]) : [],
-    popular: Boolean((p as { popular?: boolean }).popular),
-    cta_label: (p as { cta_label: string | null }).cta_label ?? null,
-    comparison:
-      ((p as { comparison: unknown }).comparison &&
-      typeof (p as { comparison: unknown }).comparison === "object"
-        ? ((p as { comparison: Record<string, string | boolean | number> })
-            .comparison)
-        : {}) as Record<string, string | boolean | number>,
-    sort_order: p.sort_order,
-  }));
+  return (data ?? []).map((p) => {
+    const billing = ((p as { billing_model: string | null }).billing_model ??
+      "per_user") as BillingModel;
+    return {
+      id: p.id,
+      code: p.code,
+      name: p.name,
+      tier: p.tier as PublicPlan["tier"],
+      tagline: (p as { tagline: string | null }).tagline ?? null,
+      description: p.description,
+      price_monthly: Number(p.price_monthly),
+      price_yearly: Number(p.price_yearly),
+      price_per_user_monthly: Number(
+        (p as { price_per_user_monthly: number | string | null })
+          .price_per_user_monthly ?? 0,
+      ),
+      price_per_user_yearly: Number(
+        (p as { price_per_user_yearly: number | string | null })
+          .price_per_user_yearly ?? 0,
+      ),
+      min_seats: (p as { min_seats: number | null }).min_seats ?? 1,
+      included_seats: (p as { included_seats: number | null }).included_seats ?? 0,
+      billing_model: ["flat", "per_user", "hybrid"].includes(billing)
+        ? billing
+        : "per_user",
+      currency: p.currency,
+      employee_limit: p.employee_limit,
+      trial_days: p.trial_days,
+      features: Array.isArray(p.features) ? (p.features as string[]) : [],
+      popular: Boolean((p as { popular?: boolean }).popular),
+      cta_label: (p as { cta_label: string | null }).cta_label ?? null,
+      comparison:
+        ((p as { comparison: unknown }).comparison &&
+        typeof (p as { comparison: unknown }).comparison === "object"
+          ? ((p as { comparison: Record<string, string | boolean | number> })
+              .comparison)
+          : {}) as Record<string, string | boolean | number>,
+      sort_order: p.sort_order,
+    };
+  });
 }
 
 export type PricingEventType =
