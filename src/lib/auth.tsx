@@ -72,16 +72,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const { data: sub } = supabase.auth.onAuthStateChange((_event, newSession) => {
+      setLoading(true);
       setSession(newSession);
       if (newSession?.user) {
         // Defer to avoid deadlock per Supabase guidance
         setTimeout(() => {
-          loadUserData(newSession.user.id);
+          loadUserData(newSession.user.id)
+            .catch((error) => {
+              console.error("Failed to load user access", error);
+              setProfile(null);
+              setRoles([]);
+              setPermissions(new Set());
+            })
+            .finally(() => setLoading(false));
         }, 0);
       } else {
         setProfile(null);
         setRoles([]);
         setPermissions(new Set());
+        setLoading(false);
       }
     });
 
