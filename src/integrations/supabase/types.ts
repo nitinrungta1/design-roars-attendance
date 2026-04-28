@@ -2722,58 +2722,76 @@ export type Database = {
       }
       platform_settings: {
         Row: {
+          accent_color: string | null
           brand_name: string
           created_at: string
+          date_format: string
           default_currency: string
           default_plan_code: string | null
           default_timezone: string
           email: Json
           id: string
           logo_url: string | null
+          number_format: string
           primary_color: string | null
           product_name: string
           role_labels: Json
+          secondary_color: string | null
           security: Json
           singleton: boolean
           support_email: string
+          time_format: string
           updated_at: string
           updated_by: string | null
+          week_start: number
         }
         Insert: {
+          accent_color?: string | null
           brand_name?: string
           created_at?: string
+          date_format?: string
           default_currency?: string
           default_plan_code?: string | null
           default_timezone?: string
           email?: Json
           id?: string
           logo_url?: string | null
+          number_format?: string
           primary_color?: string | null
           product_name?: string
           role_labels?: Json
+          secondary_color?: string | null
           security?: Json
           singleton?: boolean
           support_email?: string
+          time_format?: string
           updated_at?: string
           updated_by?: string | null
+          week_start?: number
         }
         Update: {
+          accent_color?: string | null
           brand_name?: string
           created_at?: string
+          date_format?: string
           default_currency?: string
           default_plan_code?: string | null
           default_timezone?: string
           email?: Json
           id?: string
           logo_url?: string | null
+          number_format?: string
           primary_color?: string | null
           product_name?: string
           role_labels?: Json
+          secondary_color?: string | null
           security?: Json
           singleton?: boolean
           support_email?: string
+          time_format?: string
           updated_at?: string
           updated_by?: string | null
+          week_start?: number
         }
         Relationships: []
       }
