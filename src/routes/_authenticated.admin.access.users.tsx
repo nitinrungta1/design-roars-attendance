@@ -88,6 +88,8 @@ function UsersPage() {
     none: users.filter((u) => u.roles.length === 0).length,
   };
 
+  if (blocked) return blocked;
+
   return (
     <>
       <PageHeader
