@@ -46,6 +46,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as PageSlugRouteImport } from './routes/$pageSlug'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as HelpIndexRouteImport } from './routes/help.index'
 import { Route as HelpSlugRouteImport } from './routes/help.$slug'
 import { Route as CareersSlugRouteImport } from './routes/careers.$slug'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
@@ -312,6 +313,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const HelpIndexRoute = HelpIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => HelpRoute,
 } as any)
 const HelpSlugRoute = HelpSlugRouteImport.update({
   id: '/$slug',
@@ -811,6 +817,7 @@ export interface FileRoutesByFullPath {
   '/blog/$slug': typeof BlogSlugRoute
   '/careers/$slug': typeof CareersSlugRoute
   '/help/$slug': typeof HelpSlugRoute
+  '/help/': typeof HelpIndexRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRouteWithChildren
   '/api/public/track': typeof ApiPublicTrackRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
@@ -903,7 +910,6 @@ export interface FileRoutesByTo {
   '/forgot-password': typeof ForgotPasswordRoute
   '/gdpr': typeof GdprRoute
   '/gps-attendance-app': typeof GpsAttendanceAppRoute
-  '/help': typeof HelpRouteWithChildren
   '/industries': typeof IndustriesRoute
   '/login': typeof LoginRoute
   '/mobile-app': typeof MobileAppRoute
@@ -925,6 +931,7 @@ export interface FileRoutesByTo {
   '/blog/$slug': typeof BlogSlugRoute
   '/careers/$slug': typeof CareersSlugRoute
   '/help/$slug': typeof HelpSlugRoute
+  '/help': typeof HelpIndexRoute
   '/api/public/track': typeof ApiPublicTrackRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/admin/access/permissions': typeof AuthenticatedAdminAccessPermissionsRoute
@@ -1041,6 +1048,7 @@ export interface FileRoutesById {
   '/blog/$slug': typeof BlogSlugRoute
   '/careers/$slug': typeof CareersSlugRoute
   '/help/$slug': typeof HelpSlugRoute
+  '/help/': typeof HelpIndexRoute
   '/_authenticated/admin/analytics': typeof AuthenticatedAdminAnalyticsRouteWithChildren
   '/api/public/track': typeof ApiPublicTrackRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
@@ -1158,6 +1166,7 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/careers/$slug'
     | '/help/$slug'
+    | '/help/'
     | '/admin/analytics'
     | '/api/public/track'
     | '/admin/'
@@ -1250,7 +1259,6 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/gdpr'
     | '/gps-attendance-app'
-    | '/help'
     | '/industries'
     | '/login'
     | '/mobile-app'
@@ -1272,6 +1280,7 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/careers/$slug'
     | '/help/$slug'
+    | '/help'
     | '/api/public/track'
     | '/admin'
     | '/admin/access/permissions'
@@ -1387,6 +1396,7 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/careers/$slug'
     | '/help/$slug'
+    | '/help/'
     | '/_authenticated/admin/analytics'
     | '/api/public/track'
     | '/_authenticated/admin/'
@@ -1763,6 +1773,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/help/': {
+      id: '/help/'
+      path: '/'
+      fullPath: '/help/'
+      preLoaderRoute: typeof HelpIndexRouteImport
+      parentRoute: typeof HelpRoute
     }
     '/help/$slug': {
       id: '/help/$slug'
@@ -2561,10 +2578,12 @@ const CareersRouteWithChildren =
 
 interface HelpRouteChildren {
   HelpSlugRoute: typeof HelpSlugRoute
+  HelpIndexRoute: typeof HelpIndexRoute
 }
 
 const HelpRouteChildren: HelpRouteChildren = {
   HelpSlugRoute: HelpSlugRoute,
+  HelpIndexRoute: HelpIndexRoute,
 }
 
 const HelpRouteWithChildren = HelpRoute._addFileChildren(HelpRouteChildren)
