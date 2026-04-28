@@ -377,7 +377,9 @@ function PlanCard({
   const ctaLabel =
     plan.cta_label ??
     (isFree ? "Start Free" : isEnterprise ? "Talk to Sales" : "Start Free Trial");
-  const ctaHref = isEnterprise ? "/contact" : isFree ? "/signup" : "/demo";
+  const ctaHref = isEnterprise
+    ? "/contact"
+    : `/signup?plan=${encodeURIComponent(plan.code)}&cycle=${cycle}`;
 
   const onCtaClick = () =>
     trackPricingEvent({
