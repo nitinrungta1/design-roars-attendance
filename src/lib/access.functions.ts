@@ -149,7 +149,7 @@ export const listPlatformUsers = createServerFn({ method: "POST" })
         const db = b.joined_at ? new Date(b.joined_at).getTime() : 0;
         return da - db;
       });
-      return { users, canCreate: true };
+      return { users, canCreate };
     },
   );
 
