@@ -39,7 +39,7 @@ function helpCanonicalPath(path: string): string {
 
 export function seo(input: SeoInput) {
   const isHelp = input.kind === "help";
-  const baseUrl = isHelp ? HELP_URL : SITE_URL;
+  const baseUrl = SITE_URL;
   const canonicalPath = isHelp ? helpCanonicalPath(input.path) : input.path;
   const url = `${baseUrl}${canonicalPath === "/" ? "" : canonicalPath}`;
   const image = input.image ?? DEFAULT_OG;
