@@ -1,6 +1,5 @@
 import { Link } from "@tanstack/react-router";
 import { Logo } from "./logo";
-import { Github, Linkedin, Twitter } from "lucide-react";
 
 const cols: { title: string; links: { to: string; label: string; external?: boolean }[] }[] = [
   {
@@ -60,17 +59,6 @@ export function MarketingFooter() {
               Oqlio builds workforce software people love. <strong className="text-foreground">Punchly</strong>{" "}
               is our attendance & time-tracking platform for modern teams.
             </p>
-            <div className="mt-6 flex gap-3 text-muted-foreground">
-              <a href="#" aria-label="Twitter" className="hover:text-foreground">
-                <Twitter className="h-5 w-5" />
-              </a>
-              <a href="#" aria-label="LinkedIn" className="hover:text-foreground">
-                <Linkedin className="h-5 w-5" />
-              </a>
-              <a href="#" aria-label="GitHub" className="hover:text-foreground">
-                <Github className="h-5 w-5" />
-              </a>
-            </div>
           </div>
           {cols.map((col) => (
             <div key={col.title}>
