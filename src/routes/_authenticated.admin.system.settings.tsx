@@ -605,3 +605,44 @@ function Field({
     </div>
   );
 }
+
+function CurrentAdminCard() {
+  const { user, profile, roles } = useAuth();
+  if (!user) return null;
+  const role = roles[0] ?? "—";
+  return (
+    <div className="rounded-2xl border border-border bg-card/40 p-5">
+      <div className="mb-1 flex items-center gap-2">
+        <UserIcon className="h-4 w-4" />
+        <h2 className="text-base font-semibold">Workspace owner</h2>
+      </div>
+      <p className="mb-4 text-xs text-muted-foreground">
+        You're signed in as the account that originally created this workspace.
+        To update your own name, avatar or password, open your profile.
+      </p>
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
+          {(profile?.full_name || user.email || "?").slice(0, 1).toUpperCase()}
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-medium">
+            {profile?.full_name || "Unnamed user"}
+          </p>
+          <p className="flex items-center gap-1.5 truncate text-xs text-muted-foreground">
+            <Mail className="h-3 w-3" />
+            {user.email}
+          </p>
+          <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
+            <ShieldCheck className="h-3 w-3 text-emerald-500" />
+            Role: <span className="font-medium capitalize">{role.replace(/_/g, " ")}</span>
+          </p>
+        </div>
+        <div className="flex shrink-0 gap-2">
+          <Button asChild size="sm" variant="outline">
+            <Link to="/admin/access/users">Manage users</Link>
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
