@@ -56,6 +56,7 @@ const ROLE_TONES: Record<string, string> = {
 function UsersPage() {
   const qc = useQueryClient();
   const [search, setSearch] = useState("");
+  const [activeUser, setActiveUser] = useState<PlatformUserRow | null>(null);
   const { data, isLoading } = useQuery({
     queryKey: ["admin", "platform-users"],
     queryFn: () => listPlatformUsers(),
