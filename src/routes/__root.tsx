@@ -1,4 +1,5 @@
-import { Outlet, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
+import { Outlet, createRootRoute, HeadContent, Scripts, redirect } from "@tanstack/react-router";
+import { createServerFn } from "@tanstack/react-start";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
 import { Toaster } from "@/components/ui/sonner";
@@ -9,6 +10,18 @@ import { TrackingProvider } from "@/components/tracking-provider";
 import { CopyGuard } from "@/components/copy-guard";
 
 import appCss from "../styles.css?url";
+
+// Server-side: read the incoming request's Host header so we can route the
+// help.oqlio.com subdomain to the Help Centre during SSR (the previous
+// browser-only check ran too late and shipped the marketing home instead).
+const getRequestHostFn = createServerFn({ method: "GET" }).handler(async () => {
+  const { getRequestHost } = await import("@tanstack/react-start/server");
+  try {
+    return getRequestHost() ?? null;
+  } catch {
+    return null;
+  }
+});
 
 function NotFoundComponent() {
   return (
@@ -34,13 +47,21 @@ function NotFoundComponent() {
 
 export const Route = createRootRoute({
   beforeLoad: async ({ location }) => {
-    // help.oqlio.com → rewrite "/" to "/help" so the subdomain serves the Help Centre.
-    if (typeof window !== "undefined" && location.pathname === "/") {
-      const host = window.location.host.toLowerCase();
-      if (host === "help.oqlio.com" || host.startsWith("help.")) {
-        const { redirect } = await import("@tanstack/react-router");
-        throw redirect({ to: "/help" });
-      }
+    // help.oqlio.com → serve Help Centre at "/" by redirecting to "/help".
+    // Runs on the server (SSR) via getRequestHostFn and on the client via window.
+    if (location.pathname !== "/") return;
+
+    let host: string | null = null;
+    if (typeof window === "undefined") {
+      host = await getRequestHostFn();
+    } else {
+      host = window.location.host;
+    }
+    if (!host) return;
+
+    const h = host.toLowerCase();
+    if (h === "help.oqlio.com" || h.startsWith("help.")) {
+      throw redirect({ to: "/help", replace: true });
     }
   },
   head: () => ({
