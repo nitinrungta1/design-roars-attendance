@@ -36,11 +36,54 @@ export interface KbCategoryRow {
 // ============================================================
 // Articles
 // ============================================================
+// Permission gate: any of these means the user can read the admin KB list.
+const KB_READ_PERMISSIONS = ["support.kb.read", "support.kb.write"] as const;
+
+async function ensureCanReadKb(
+  supabase: ReturnType<typeof Object.assign> | unknown,
+  userId: string,
+): Promise<void> {
+  // We accept the supabase client from middleware context; cast to any for rpc/from access.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const sb = supabase as any;
+  // Super admin / admin / support roles always allowed.
+  const { data: roles } = await sb
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", userId);
+  const roleSet = new Set<string>((roles ?? []).map((r: { role: string }) => r.role));
+  if (
+    roleSet.has("super_admin") ||
+    roleSet.has("admin") ||
+    roleSet.has("hr") ||
+    roleSet.has("support")
+  ) {
+    return;
+  }
+  // Otherwise must have an explicit KB permission.
+  const { data: perms } = await sb
+    .from("role_permissions")
+    .select("permission_key")
+    .in("role", Array.from(roleSet));
+  const permSet = new Set<string>(
+    (perms ?? []).map((p: { permission_key: string }) => p.permission_key),
+  );
+  const ok = KB_READ_PERMISSIONS.some((k) => permSet.has(k));
+  if (!ok) {
+    throw new Response("Forbidden: missing support.kb.read permission", { status: 403 });
+  }
+}
+
 export const adminListKbArticles = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<{ articles: AdminKbArticle[] }> => {
-    const { supabase } = context;
-    const { data, error } = await supabase
+    const { supabase, userId } = context;
+    await ensureCanReadKb(supabase, userId);
+
+    // Use the service-role admin client to bypass any RLS edge cases for staff
+    // with KB permission. Permission check above is the real gate.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin
       .from("kb_articles")
       .select(
         "id, slug, title, excerpt, body, category, category_id, status, view_count, helpful_count, unhelpful_count, position, seo_title, seo_description, published_at, updated_at, created_at",
