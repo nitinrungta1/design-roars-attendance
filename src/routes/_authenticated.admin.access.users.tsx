@@ -214,6 +214,11 @@ function UsersPage() {
           )}
         </DataTable>
       </PageBody>
+      <UserAccessSheet
+        user={activeUser}
+        open={!!activeUser}
+        onOpenChange={(o) => !o && setActiveUser(null)}
+      />
     </>
   );
 }
