@@ -90,7 +90,19 @@ function NewArticlePage() {
               <option value="published">Published</option>
             </select>
           </div>
-          <Button type="submit" disabled={loading} className="bg-gradient-brand">Create article</Button>
+          {errorMsg && (
+            <div className="rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive">
+              {errorMsg}
+            </div>
+          )}
+          <div className="flex items-center gap-2">
+            <Button type="submit" disabled={loading} className="bg-gradient-brand">
+              {loading ? "Creating…" : "Create article"}
+            </Button>
+            <Button type="button" variant="outline" onClick={() => nav({ to: "/admin/support/kb" })}>
+              Cancel
+            </Button>
+          </div>
         </form>
       </PageBody>
     </>
