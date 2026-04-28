@@ -14,13 +14,19 @@ export const Route = createFileRoute("/_authenticated/admin/support/kb")({
 });
 
 function KbPage() {
-  const { hasPermission } = useAuth();
-  const canWrite = hasPermission("support.kb.write");
+  const { hasPermission, hasAnyRole, loading: authLoading, isSuperAdmin } = useAuth();
+  const canRead =
+    isSuperAdmin ||
+    hasPermission("support.kb.read") ||
+    hasPermission("support.kb.write") ||
+    hasAnyRole(["admin", "hr", "support"]);
+  const canWrite = isSuperAdmin || hasPermission("support.kb.write") || hasAnyRole(["admin", "support"]);
 
   const { data, isLoading, error, refetch, isFetching } = useQuery({
     queryKey: ["admin", "kb"],
     queryFn: () => adminListKbArticles(),
     retry: 1,
+    enabled: !authLoading && canRead,
   });
   const articles = data?.articles ?? [];
   const published = articles.filter((a) => a.status === "published").length;
@@ -56,6 +62,16 @@ function KbPage() {
         }
       />
       <PageBody className="space-y-6">
+        {!authLoading && !canRead && (
+          <div className="rounded-2xl border border-amber-500/40 bg-amber-500/5 p-4 text-sm">
+            <p className="font-semibold text-amber-600 dark:text-amber-400">Access denied</p>
+            <p className="mt-1 text-muted-foreground">
+              Your account does not have permission to view the Knowledge Base. Ask a super admin to grant you the
+              <code className="mx-1 rounded bg-muted px-1 py-0.5 text-xs">support.kb.read</code> permission.
+            </p>
+          </div>
+        )}
+
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           <StatCard label="Articles" value={articles.length} />
           <StatCard label="Published" value={published} tone="success" />
