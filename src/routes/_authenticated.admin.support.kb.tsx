@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { BookOpen, Plus, BarChart3, MessageSquare, FolderTree, AlertTriangle } from "lucide-react";
 import { PageHeader, PageBody, EmptyState } from "@/components/admin/primitives";
@@ -10,8 +10,13 @@ import { useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/_authenticated/admin/support/kb")({
   head: () => seo({ title: "Knowledge base | Admin", description: "Help center articles & categories.", kind: "product", path: "/admin/support/kb", noindex: true }),
-  component: KbPage,
+  component: KbRouteShell,
 });
+
+function KbRouteShell() {
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
+  return pathname === "/admin/support/kb" ? <KbPage /> : <Outlet />;
+}
 
 function KbPage() {
   const { hasPermission, hasAnyRole, loading: authLoading, isSuperAdmin } = useAuth();
