@@ -14,7 +14,7 @@ const nav: NavItem[] = [
   { to: "/industries", label: "Industries" },
   { to: "/mobile-app", label: "Mobile App" },
   { to: "/blog", label: "Blog" },
-  { to: "https://help.oqlio.com", label: "Help", external: true },
+  { to: "/help", label: "Help" },
   { to: "/contact", label: "Contact" },
 ];
 

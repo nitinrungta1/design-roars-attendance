@@ -12,7 +12,7 @@ export const Route = createFileRoute("/sitemap.xml")({
     <lastmod>${today}</lastmod>
   </sitemap>
   <sitemap>
-    <loc>https://help.oqlio.com/sitemap-help.xml</loc>
+    <loc>https://oqlio.com/sitemap-help.xml</loc>
     <lastmod>${today}</lastmod>
   </sitemap>
 </sitemapindex>`;

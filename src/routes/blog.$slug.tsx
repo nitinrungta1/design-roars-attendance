@@ -63,7 +63,7 @@ export const Route = createFileRoute("/blog/$slug")({
 });
 
 function BlogPostPage() {
-  const { post } = Route.useLoaderData();
+  const { post } = Route.useLoaderData() as { post: BlogPostDetail };
   return (
     <MarketingLayout>
       <article>
@@ -119,7 +119,7 @@ function BlogPostPage() {
                 <span className="text-xs uppercase tracking-wider text-muted-foreground">
                   Tags
                 </span>
-                {post.tags.map((t) => (
+                {post.tags.map((t: string) => (
                   <Badge key={t} variant="outline">
                     {t}
                   </Badge>

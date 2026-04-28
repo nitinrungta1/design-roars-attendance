@@ -65,7 +65,7 @@ export const Route = createFileRoute("/careers/$slug")({
 });
 
 function JobPage() {
-  const { job } = Route.useLoaderData();
+  const { job } = Route.useLoaderData() as { job: JobDetail };
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
