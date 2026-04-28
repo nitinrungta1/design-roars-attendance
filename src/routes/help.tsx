@@ -6,7 +6,7 @@ import { HelpSearch } from "@/components/help/help-search";
 import { CategoryGrid } from "@/components/help/category-grid";
 import { seo } from "@/lib/seo";
 import { BookOpen, TrendingUp, ArrowRight } from "lucide-react";
-import { listPublicKbArticles } from "@/lib/public-help.functions";
+import { listPublicKbArticles, type PublicKbArticleSummary } from "@/lib/public-help.functions";
 
 const SearchSchema = z.object({
   category: z.string().max(80).optional(),
@@ -28,13 +28,13 @@ export const Route = createFileRoute("/help")({
 });
 
 function HelpPage() {
-  const { articles, categories } = Route.useLoaderData();
+  const { articles, categories } = Route.useLoaderData() as Awaited<ReturnType<typeof listPublicKbArticles>>;
   const { category, q } = Route.useSearch();
   const [filterCat, setFilterCat] = useState<string | null>(category ?? null);
   const [filterQ] = useState<string>(q ?? "");
 
   const filtered = useMemo(() => {
-    return articles.filter((a) => {
+    return articles.filter((a: PublicKbArticleSummary) => {
       if (filterCat && (a.category ?? "Other") !== filterCat) return false;
       if (filterQ.trim()) {
         const t = filterQ.toLowerCase();
@@ -161,7 +161,7 @@ function HelpPage() {
             </div>
           ) : (
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {filtered.map((a) => (
+              {filtered.map((a: PublicKbArticleSummary) => (
                 <Link
                   key={a.id}
                   to="/help/$slug"
