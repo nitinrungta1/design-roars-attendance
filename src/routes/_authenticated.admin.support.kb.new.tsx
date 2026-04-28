@@ -25,22 +25,34 @@ function NewArticlePage() {
   const [category, setCategory] = useState("");
   const [status, setStatus] = useState<"draft" | "published">("draft");
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const autoSlug = (t: string) =>
     t.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 80);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMsg(null);
     setLoading(true);
-    const res = await upsert({
-      data: { title, slug: slug || autoSlug(title), excerpt, body, category: category || null, status },
-    });
-    setLoading(false);
-    if (res.ok) {
-      toast.success("Article created");
-      nav({ to: "/admin/support/kb" });
-    } else {
-      toast.error(res.error);
+    try {
+      const res = await upsert({
+        data: { title, slug: slug || autoSlug(title), excerpt, body, category: category || null, status },
+      });
+      if (res.ok) {
+        toast.success("Article created");
+        nav({ to: "/admin/support/kb" });
+      } else {
+        console.error("upsertKbArticle failed", res);
+        setErrorMsg(res.error);
+        toast.error(res.error);
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Unexpected error creating article";
+      console.error("upsertKbArticle threw", err);
+      setErrorMsg(msg);
+      toast.error(msg);
+    } finally {
+      setLoading(false);
     }
   };
 
