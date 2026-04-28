@@ -1,11 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { BookOpen, Plus, BarChart3, MessageSquare, FolderTree } from "lucide-react";
+import { BookOpen, Plus, BarChart3, MessageSquare, FolderTree, AlertTriangle } from "lucide-react";
 import { PageHeader, PageBody, EmptyState } from "@/components/admin/primitives";
 import { DataTable, Td, Tr, StatCard, StatusBadge, fmtRelative } from "@/components/admin/data-shell";
 import { Button } from "@/components/ui/button";
 import { adminListKbArticles } from "@/lib/kb-admin.functions";
 import { seo } from "@/lib/seo";
+import { useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/_authenticated/admin/support/kb")({
   head: () => seo({ title: "Knowledge base | Admin", description: "Help center articles & categories.", kind: "product", path: "/admin/support/kb", noindex: true }),
@@ -13,9 +14,13 @@ export const Route = createFileRoute("/_authenticated/admin/support/kb")({
 });
 
 function KbPage() {
-  const { data, isLoading } = useQuery({
+  const { hasPermission } = useAuth();
+  const canWrite = hasPermission("support.kb.write");
+
+  const { data, isLoading, error, refetch, isFetching } = useQuery({
     queryKey: ["admin", "kb"],
     queryFn: () => adminListKbArticles(),
+    retry: 1,
   });
   const articles = data?.articles ?? [];
   const published = articles.filter((a) => a.status === "published").length;
@@ -40,9 +45,13 @@ function KbPage() {
             <Link to="/admin/support/kb/analytics">
               <Button variant="outline" size="sm"><BarChart3 className="mr-1 h-4 w-4" />Analytics</Button>
             </Link>
-            <Link to="/admin/support/kb/new">
-              <Button size="sm" className="bg-gradient-brand"><Plus className="mr-1 h-4 w-4" />New article</Button>
-            </Link>
+            {canWrite && (
+              <Button asChild size="sm" className="bg-gradient-brand">
+                <Link to="/admin/support/kb/new">
+                  <Plus className="mr-1 h-4 w-4" />New article
+                </Link>
+              </Button>
+            )}
           </div>
         }
       />
@@ -53,9 +62,27 @@ function KbPage() {
           <StatCard label="Drafts" value={drafts} />
           <StatCard label="Total views" value={totalViews} />
         </div>
+
+        {error && (
+          <div className="flex items-start justify-between gap-4 rounded-2xl border border-destructive/40 bg-destructive/5 p-4">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="mt-0.5 h-5 w-5 text-destructive" />
+              <div>
+                <p className="text-sm font-semibold text-destructive">Failed to load articles</p>
+                <p className="mt-1 text-xs text-muted-foreground break-words">
+                  {(error as Error)?.message ?? "Unknown error"}
+                </p>
+              </div>
+            </div>
+            <Button size="sm" variant="outline" onClick={() => refetch()} disabled={isFetching}>
+              {isFetching ? "Retrying…" : "Retry"}
+            </Button>
+          </div>
+        )}
+
         <DataTable
           headers={["Title", "Slug", "Category", "Status", "Views", "Updated"]}
-          empty={!isLoading && articles.length === 0 ? <EmptyState icon={BookOpen} title="No articles" description="Create your first KB article to help customers help themselves." /> : null}
+          empty={!isLoading && !error && articles.length === 0 ? <EmptyState icon={BookOpen} title="No articles" description="Create your first KB article to help customers help themselves." /> : null}
         >
           {articles.map((a) => (
             <Tr key={a.id}>
