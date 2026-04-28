@@ -134,7 +134,7 @@ function UsersPage() {
         </div>
 
         <DataTable
-          headers={["User", "Primary company", "Roles", "Joined", "Grant role"]}
+          headers={["User", "Primary company", "Roles", "Joined", "Manage"]}
           empty={
             !isLoading && filtered.length === 0 ? (
               <EmptyState
