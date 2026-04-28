@@ -142,25 +142,14 @@ function SettingsPage() {
     return () => window.removeEventListener("beforeunload", handler);
   }, [dirty]);
 
-  // Brand name uniqueness check (only checks against the companies table)
+  // Brand name no longer needs to be globally unique — each workspace owns its own name.
+  // We just confirm it's a valid non-empty value.
   useEffect(() => {
-    if (!form.brand_name.trim() || form.brand_name === initial.brand_name) {
+    if (!form.brand_name.trim()) {
       setNameStatus("idle");
       return;
     }
-    setNameStatus("checking");
-    if (nameTimer.current) clearTimeout(nameTimer.current);
-    nameTimer.current = setTimeout(async () => {
-      try {
-        const res = await checkCompanyNameAvailable({ data: { name: form.brand_name } });
-        setNameStatus(res.available ? "ok" : "taken");
-      } catch {
-        setNameStatus("idle");
-      }
-    }, 350);
-    return () => {
-      if (nameTimer.current) clearTimeout(nameTimer.current);
-    };
+    setNameStatus(form.brand_name.trim() === initial.brand_name.trim() ? "idle" : "ok");
   }, [form.brand_name, initial.brand_name]);
 
   const save = useMutation({
