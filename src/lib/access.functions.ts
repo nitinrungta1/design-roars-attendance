@@ -366,7 +366,7 @@ export interface TeamRow {
 }
 
 export const listTeams = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requirePermission("access.teams.write")])
   .handler(async ({ context }): Promise<{ teams: TeamRow[] }> => {
     const { supabase } = context;
     const [{ data: teams }, { data: members }, { data: companies }, { data: profiles }] =
@@ -403,7 +403,7 @@ export const listTeams = createServerFn({ method: "POST" })
   });
 
 export const createTeam = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requirePermission("access.teams.write")])
   .inputValidator(
     z.object({
       companyId: z.string().uuid(),
@@ -443,7 +443,7 @@ export const createTeam = createServerFn({ method: "POST" })
   });
 
 export const deleteTeam = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requirePermission("access.teams.write")])
   .inputValidator(z.object({ id: z.string().uuid() }))
   .handler(async ({ context, data }): Promise<{ ok: boolean; error?: string }> => {
     const { supabase } = context;
@@ -496,7 +496,7 @@ export const listTeamMembers = createServerFn({ method: "POST" })
   });
 
 export const addTeamMember = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requirePermission("access.teams.write")])
   .inputValidator(
     z.object({
       teamId: z.string().uuid(),
@@ -528,7 +528,7 @@ export const addTeamMember = createServerFn({ method: "POST" })
   });
 
 export const removeTeamMember = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requirePermission("access.teams.write")])
   .inputValidator(
     z.object({ teamId: z.string().uuid(), userId: z.string().uuid() }),
   )
@@ -550,7 +550,7 @@ export const removeTeamMember = createServerFn({ method: "POST" })
   });
 
 export const setTeamLead = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requirePermission("access.teams.write")])
   .inputValidator(
     z.object({ teamId: z.string().uuid(), userId: z.string().uuid() }),
   )
