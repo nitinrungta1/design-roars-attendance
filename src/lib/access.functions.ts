@@ -112,10 +112,7 @@ export const listPlatformUsers = createServerFn({ method: "POST" })
 
     return {
       users: Array.from(
-        new Set([
-          ...profiles.map((p) => p.id),
-          ...(authUsers.data?.users ?? []).map((u) => u.id),
-        ]),
+        new Set([...profiles.map((p) => p.id), ...(authUsers.data?.users ?? []).map((u) => u.id)]),
       ).map((id) => {
         const profile = profiles.find((p) => p.id === id) ?? null;
         const primary = primaryByUser.get(id) ?? null;
@@ -125,10 +122,12 @@ export const listPlatformUsers = createServerFn({ method: "POST" })
           full_name: profile?.full_name ?? null,
           avatar_url: profile?.avatar_url ?? null,
           roles: rolesByUser.get(id) ?? [],
-          primary_company: primary
-            ? { id: primary.id, name: primary.name }
-            : null,
-          joined_at: primary?.joined_at ?? (profile?.created_at as string | undefined) ?? joinedById.get(id) ?? null,
+          primary_company: primary ? { id: primary.id, name: primary.name } : null,
+          joined_at:
+            primary?.joined_at ??
+            (profile?.created_at as string | undefined) ??
+            joinedById.get(id) ??
+            null,
         };
       }),
     };
