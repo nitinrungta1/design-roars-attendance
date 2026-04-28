@@ -53,6 +53,7 @@ export interface PlatformUserRow {
   roles: AppRole[];
   primary_company: { id: string; name: string } | null;
   joined_at: string | null;
+  email_confirmed_at: string | null;
 }
 
 export const listPlatformUsers = createServerFn({ method: "POST" })
