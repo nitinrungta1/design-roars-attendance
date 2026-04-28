@@ -38,6 +38,7 @@ export interface KbCategoryRow {
 // ============================================================
 // Permission gate: any of these means the user can read the admin KB list.
 const KB_READ_PERMISSIONS = ["support.kb.read", "support.kb.write"] as const;
+const KB_WRITE_PERMISSIONS = ["support.kb.write"] as const;
 
 async function ensureCanReadKb(
   supabase: ReturnType<typeof Object.assign> | unknown,
@@ -72,6 +73,25 @@ async function ensureCanReadKb(
   if (!ok) {
     throw new Response("Forbidden: missing support.kb.read permission", { status: 403 });
   }
+}
+
+async function ensureCanWriteKb(
+  supabase: ReturnType<typeof Object.assign> | unknown,
+  userId: string,
+): Promise<void> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const sb = supabase as any;
+  const { data: roles } = await sb.from("user_roles").select("role").eq("user_id", userId);
+  const roleSet = new Set<string>((roles ?? []).map((r: { role: string }) => r.role));
+  if (roleSet.has("super_admin") || roleSet.has("admin") || roleSet.has("support")) return;
+
+  const { data: perms } = await sb
+    .from("role_permissions")
+    .select("permission_key")
+    .in("role", Array.from(roleSet));
+  const permSet = new Set<string>((perms ?? []).map((p: { permission_key: string }) => p.permission_key));
+  const ok = KB_WRITE_PERMISSIONS.some((k) => permSet.has(k));
+  if (!ok) throw new Response("Forbidden: missing support.kb.write permission", { status: 403 });
 }
 
 export const adminListKbArticles = createServerFn({ method: "POST" })
@@ -146,6 +166,7 @@ export const upsertKbArticle = createServerFn({ method: "POST" })
   .handler(
     async ({ data, context }): Promise<{ ok: true; id: string } | { ok: false; error: string }> => {
       const { supabase } = context;
+      await ensureCanWriteKb(supabase, context.userId);
       const payload = {
         slug: data.slug,
         title: data.title,
@@ -163,11 +184,12 @@ export const upsertKbArticle = createServerFn({ method: "POST" })
             : data.published_at ?? null,
       };
       let id = data.id;
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
       if (id) {
-        const { error } = await supabase.from("kb_articles").update(payload).eq("id", id);
+        const { error } = await supabaseAdmin.from("kb_articles").update(payload).eq("id", id);
         if (error) return { ok: false, error: error.message };
       } else {
-        const { data: row, error } = await supabase
+        const { data: row, error } = await supabaseAdmin
           .from("kb_articles")
           .insert(payload)
           .select("id")
@@ -177,9 +199,9 @@ export const upsertKbArticle = createServerFn({ method: "POST" })
       }
       // Sync tags (delete + insert)
       if (data.tags) {
-        await supabase.from("kb_article_tags").delete().eq("article_id", id);
+        await supabaseAdmin.from("kb_article_tags").delete().eq("article_id", id);
         if (data.tags.length > 0) {
-          await supabase
+          await supabaseAdmin
             .from("kb_article_tags")
             .insert(data.tags.map((t) => ({ article_id: id!, tag: t.toLowerCase().trim() })));
         }
