@@ -148,7 +148,14 @@ function UsersPage() {
                     </AvatarFallback>
                   </Avatar>
                   <div className="min-w-0">
-                    <div className="truncate font-medium">{u.full_name ?? "Unnamed"}</div>
+                    <div className="flex items-center gap-2 truncate font-medium">
+                      <span className="truncate">{u.full_name ?? "Unnamed"}</span>
+                      {!u.email_confirmed_at && (
+                        <Badge variant="secondary" className="rounded-full bg-amber-100 text-[10px] text-amber-800 dark:bg-amber-950 dark:text-amber-300">
+                          Pending email
+                        </Badge>
+                      )}
+                    </div>
                     <div className="truncate text-xs text-muted-foreground">
                       {u.email ?? (
                         <span className="font-mono text-[10px]">{u.user_id.slice(0, 8)}…</span>

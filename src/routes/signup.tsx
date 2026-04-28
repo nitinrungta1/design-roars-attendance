@@ -21,6 +21,12 @@ function SignupPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const params = new URLSearchParams(
+    typeof window !== "undefined" ? window.location.search : "",
+  );
+  const planCode = params.get("plan");
+  const isPaidPlan = !!planCode && planCode !== "free";
+
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -29,7 +35,7 @@ function SignupPage() {
       password,
       options: {
         emailRedirectTo: `${window.location.origin}/auth-callback`,
-        data: { full_name: fullName },
+        data: { full_name: fullName, signup_plan: planCode ?? "free" },
       },
     });
     setLoading(false);
@@ -39,7 +45,11 @@ function SignupPage() {
     }
     if (data.session) {
       toast.success("Account created! Welcome to Punchly.");
-      navigate({ to: "/admin" });
+      if (isPaidPlan) {
+        window.location.href = `/admin/billing/plans?plan=${encodeURIComponent(planCode!)}`;
+      } else {
+        navigate({ to: "/admin" });
+      }
     } else {
       toast.success("Check your email to confirm your account.");
     }

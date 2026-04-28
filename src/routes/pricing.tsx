@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Check, Minus, Sparkles, ShieldCheck, RefreshCcw, Zap, Users, HelpCircle } from "lucide-react";
 import { MarketingLayout } from "@/components/brand/marketing-layout";
@@ -377,7 +377,9 @@ function PlanCard({
   const ctaLabel =
     plan.cta_label ??
     (isFree ? "Start Free" : isEnterprise ? "Talk to Sales" : "Start Free Trial");
-  const ctaHref = isEnterprise ? "/contact" : isFree ? "/signup" : "/demo";
+  const ctaHref = isEnterprise
+    ? "/contact"
+    : `/signup?plan=${encodeURIComponent(plan.code)}&cycle=${cycle}`;
 
   const onCtaClick = () =>
     trackPricingEvent({
@@ -466,7 +468,7 @@ function PlanCard({
         )}
         variant={plan.popular ? "default" : "outline"}
       >
-        <Link to={ctaHref}>{ctaLabel}</Link>
+        <a href={ctaHref}>{ctaLabel}</a>
       </Button>
 
       {/* Plan size hint */}
