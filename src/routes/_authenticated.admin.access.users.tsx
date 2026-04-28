@@ -132,13 +132,15 @@ function UsersPage() {
                   <Avatar className="h-9 w-9">
                     {u.avatar_url && <AvatarImage src={u.avatar_url} alt={u.full_name ?? ""} />}
                     <AvatarFallback className="text-xs">
-                      {(u.full_name ?? "?").slice(0, 2).toUpperCase()}
+                      {(u.full_name ?? u.email ?? "?").slice(0, 2).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                   <div className="min-w-0">
-                    <div className="font-medium">{u.full_name ?? "Unnamed"}</div>
-                    <div className="font-mono text-[10px] text-muted-foreground">
-                      {u.user_id.slice(0, 8)}…
+                    <div className="truncate font-medium">{u.full_name ?? "Unnamed"}</div>
+                    <div className="truncate text-xs text-muted-foreground">
+                      {u.email ?? (
+                        <span className="font-mono text-[10px]">{u.user_id.slice(0, 8)}…</span>
+                      )}
                     </div>
                   </div>
                 </div>
