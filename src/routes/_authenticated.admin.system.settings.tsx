@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Save,
   Settings as SettingsIcon,
@@ -25,7 +25,6 @@ import { toast } from "sonner";
 import {
   getPlatformSettings,
   updatePlatformSettings,
-  checkCompanyNameAvailable,
   extractLogoColors,
 } from "@/lib/system.functions";
 import { LogoUploader } from "@/components/admin/logo-uploader";
@@ -35,6 +34,9 @@ import { CurrencySelect } from "@/components/admin/currency-select";
 import { TimezoneSelect } from "@/components/admin/timezone-select";
 import { seo } from "@/lib/seo";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/lib/auth";
+import { Link } from "@tanstack/react-router";
+import { User as UserIcon, Mail, ShieldCheck } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin/system/settings")({
   head: () =>
@@ -98,9 +100,8 @@ function SettingsPage() {
   const [aiBusy, setAiBusy] = useState(false);
   const [aiSuggestion, setAiSuggestion] = useState<{ primary?: string; secondary?: string; accent?: string } | null>(null);
 
-  // Brand-name availability check (debounced)
+  // Brand-name validity status (no global uniqueness check — workspace-local).
   const [nameStatus, setNameStatus] = useState<"idle" | "checking" | "ok" | "taken">("idle");
-  const nameTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (data?.settings) {
@@ -142,35 +143,27 @@ function SettingsPage() {
     return () => window.removeEventListener("beforeunload", handler);
   }, [dirty]);
 
-  // Brand name uniqueness check (only checks against the companies table)
+  // Brand name no longer needs to be globally unique — each workspace owns its own name.
+  // We just confirm it's a valid non-empty value.
   useEffect(() => {
-    if (!form.brand_name.trim() || form.brand_name === initial.brand_name) {
+    if (!form.brand_name.trim()) {
       setNameStatus("idle");
       return;
     }
-    setNameStatus("checking");
-    if (nameTimer.current) clearTimeout(nameTimer.current);
-    nameTimer.current = setTimeout(async () => {
-      try {
-        const res = await checkCompanyNameAvailable({ data: { name: form.brand_name } });
-        setNameStatus(res.available ? "ok" : "taken");
-      } catch {
-        setNameStatus("idle");
-      }
-    }, 350);
-    return () => {
-      if (nameTimer.current) clearTimeout(nameTimer.current);
-    };
+    setNameStatus(form.brand_name.trim() === initial.brand_name.trim() ? "idle" : "ok");
   }, [form.brand_name, initial.brand_name]);
 
   const save = useMutation({
-    mutationFn: () =>
-      updatePlatformSettings({
+    mutationFn: () => {
+      const brand = form.brand_name.trim();
+      const product = form.product_name.trim() || brand; // fallback to brand if blank
+      const support = form.support_email.trim() || initial.support_email; // keep prior on blank
+      return updatePlatformSettings({
         data: {
           patch: {
-            brand_name: form.brand_name.trim(),
-            product_name: form.product_name.trim(),
-            support_email: form.support_email.trim(),
+            brand_name: brand,
+            product_name: product,
+            support_email: support,
             default_currency: form.default_currency,
             default_timezone: form.default_timezone,
             default_plan_code: form.default_plan_code || null,
@@ -184,7 +177,8 @@ function SettingsPage() {
             week_start: form.week_start,
           },
         },
-      }),
+      });
+    },
     onSuccess: (res) => {
       if (res.ok) {
         toast.success("Settings saved");
@@ -222,7 +216,7 @@ function SettingsPage() {
   };
 
   const reset = () => setForm(initial);
-  const blockSave = !form.brand_name.trim() || !form.product_name.trim() || nameStatus === "taken" || !dirty || save.isPending;
+  const blockSave = !form.brand_name.trim() || !dirty || save.isPending;
 
   return (
     <>
@@ -306,19 +300,23 @@ function SettingsPage() {
                 </div>
 
                 <Field
-                  label="Product name"
+                  label="Product name (optional)"
                   value={form.product_name}
                   onChange={(v) => setForm({ ...form, product_name: v })}
-                  hint="Shown in the app shell and product UI."
-                  required
+                  placeholder={form.brand_name || "e.g. Punchly"}
+                  hint="The internal product name shown inside the app shell. Leave blank to reuse the company name."
                 />
                 <Field
-                  label="Support email"
+                  label="Support email (optional)"
                   type="email"
                   value={form.support_email}
                   onChange={(v) => setForm({ ...form, support_email: v })}
+                  placeholder="support@yourcompany.com"
+                  hint="Where customers can reach your team. Used in invoices and outgoing emails."
                 />
               </Section>
+
+              <CurrentAdminCard />
             </TabsContent>
 
             {/* BRANDING */}
@@ -495,16 +493,30 @@ function SettingsPage() {
             {/* PREFERENCES */}
             <TabsContent value="preferences" className="space-y-6">
               <Section
-                title="Defaults"
-                description="Applied to new tenants on signup."
+                title="Default plan for new sign-ups"
+                description="When someone creates a new workspace through your sign-up page, this is the billing plan they'll be placed on automatically. You can change a tenant's plan later from Billing → Subscriptions."
                 icon={<SettingsIcon className="h-4 w-4" />}
               >
-                <Field
-                  label="Default plan code"
-                  value={form.default_plan_code}
-                  onChange={(v) => setForm({ ...form, default_plan_code: v })}
-                  placeholder="starter"
-                />
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Default plan</Label>
+                  <Select
+                    value={form.default_plan_code || "free"}
+                    onValueChange={(v) => setForm({ ...form, default_plan_code: v })}
+                  >
+                    <SelectTrigger><SelectValue placeholder="Select a plan" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="free">Free — limited usage, no card required</SelectItem>
+                      <SelectItem value="starter">Starter — small teams getting started</SelectItem>
+                      <SelectItem value="growth">Growth — growing companies</SelectItem>
+                      <SelectItem value="business">Business — established businesses</SelectItem>
+                      <SelectItem value="enterprise">Enterprise — custom limits & SLA</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-[11px] text-muted-foreground">
+                    Tip: most teams pick <strong>Free</strong> or <strong>Starter</strong> here so users can try
+                    Punchly without a credit card. The 14-day trial of higher plans is handled separately under Billing.
+                  </p>
+                </div>
               </Section>
             </TabsContent>
           </Tabs>
@@ -590,6 +602,47 @@ function Field({
         placeholder={placeholder}
       />
       {hint && <p className="text-[10px] text-muted-foreground">{hint}</p>}
+    </div>
+  );
+}
+
+function CurrentAdminCard() {
+  const { user, profile, roles } = useAuth();
+  if (!user) return null;
+  const role = roles[0] ?? "—";
+  return (
+    <div className="rounded-2xl border border-border bg-card/40 p-5">
+      <div className="mb-1 flex items-center gap-2">
+        <UserIcon className="h-4 w-4" />
+        <h2 className="text-base font-semibold">Workspace owner</h2>
+      </div>
+      <p className="mb-4 text-xs text-muted-foreground">
+        You're signed in as the account that originally created this workspace.
+        To update your own name, avatar or password, open your profile.
+      </p>
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
+          {(profile?.full_name || user.email || "?").slice(0, 1).toUpperCase()}
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-medium">
+            {profile?.full_name || "Unnamed user"}
+          </p>
+          <p className="flex items-center gap-1.5 truncate text-xs text-muted-foreground">
+            <Mail className="h-3 w-3" />
+            {user.email}
+          </p>
+          <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
+            <ShieldCheck className="h-3 w-3 text-emerald-500" />
+            Role: <span className="font-medium capitalize">{role.replace(/_/g, " ")}</span>
+          </p>
+        </div>
+        <div className="flex shrink-0 gap-2">
+          <Button asChild size="sm" variant="outline">
+            <Link to="/admin/access/users">Manage users</Link>
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }
