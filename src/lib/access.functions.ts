@@ -71,6 +71,25 @@ export const listPlatformUsers = createServerFn({ method: "POST" })
         supabase.from("companies").select("id, name"),
       ]);
 
+    // Enrich with auth emails using service-role admin client (bypasses RLS).
+    const emailById = new Map<string, string>();
+    try {
+      const SUPABASE_URL = process.env.SUPABASE_URL;
+      const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+      if (SUPABASE_URL && SERVICE_KEY) {
+        const { createClient } = await import("@supabase/supabase-js");
+        const admin = createClient(SUPABASE_URL, SERVICE_KEY, {
+          auth: { persistSession: false, autoRefreshToken: false },
+        });
+        const { data: list } = await admin.auth.admin.listUsers({ perPage: 1000 });
+        for (const u of list?.users ?? []) {
+          if (u.email) emailById.set(u.id, u.email);
+        }
+      }
+    } catch {
+      // best-effort; emails just stay null
+    }
+
     const companiesById = new Map((companies ?? []).map((c) => [c.id, c.name]));
     const rolesByUser = new Map<string, AppRole[]>();
     for (const r of roles ?? []) {
