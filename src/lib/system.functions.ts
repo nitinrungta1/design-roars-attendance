@@ -378,3 +378,137 @@ export const createFeatureFlag = createServerFn({ method: "POST" })
     });
     return { ok: true };
   });
+
+// ============================================================
+// Company name uniqueness check
+// ============================================================
+
+export const checkCompanyNameAvailable = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(
+    z.object({
+      name: z.string().min(1).max(120),
+      excludeId: z.string().uuid().optional(),
+    }),
+  )
+  .handler(async ({ context, data }): Promise<{ available: boolean }> => {
+    const { supabase } = context;
+    const normalized = data.name.trim().toLowerCase();
+    if (!normalized) return { available: false };
+    let q = supabase.from("companies").select("id, name");
+    if (data.excludeId) q = q.neq("id", data.excludeId);
+    const { data: rows, error } = await q;
+    if (error) {
+      console.error("checkCompanyNameAvailable", error);
+      return { available: true }; // fail open — server-side unique index is the source of truth
+    }
+    const taken = (rows ?? []).some(
+      (r) => (r.name ?? "").trim().toLowerCase() === normalized,
+    );
+    return { available: !taken };
+  });
+
+// ============================================================
+// AI brand color extraction from a logo URL
+// ============================================================
+
+export const extractLogoColors = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(z.object({ logoUrl: z.string().url() }))
+  .handler(
+    async ({
+      data,
+    }): Promise<{
+      ok: boolean;
+      primary?: string;
+      secondary?: string;
+      accent?: string;
+      error?: string;
+    }> => {
+      const apiKey = process.env.LOVABLE_API_KEY;
+      if (!apiKey) return { ok: false, error: "AI gateway not configured" };
+
+      try {
+        const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${apiKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: "google/gemini-2.5-flash",
+            messages: [
+              {
+                role: "system",
+                content:
+                  "You are a brand designer. Look at the provided company logo image and identify the dominant brand colors. Return three harmonious hex colors that would work well as a UI palette.",
+              },
+              {
+                role: "user",
+                content: [
+                  {
+                    type: "text",
+                    text: "Extract the brand palette from this logo. Return primary (most dominant), secondary (supporting), and accent (highlight) hex codes.",
+                  },
+                  { type: "image_url", image_url: { url: data.logoUrl } },
+                ],
+              },
+            ],
+            tools: [
+              {
+                type: "function",
+                function: {
+                  name: "set_brand_palette",
+                  description: "Return the extracted brand palette as 3 hex colors.",
+                  parameters: {
+                    type: "object",
+                    properties: {
+                      primary: {
+                        type: "string",
+                        description: "Primary brand color in #RRGGBB hex format",
+                      },
+                      secondary: {
+                        type: "string",
+                        description: "Secondary color in #RRGGBB hex format",
+                      },
+                      accent: {
+                        type: "string",
+                        description: "Accent / highlight color in #RRGGBB hex format",
+                      },
+                    },
+                    required: ["primary", "secondary", "accent"],
+                    additionalProperties: false,
+                  },
+                },
+              },
+            ],
+            tool_choice: { type: "function", function: { name: "set_brand_palette" } },
+          }),
+        });
+
+        if (resp.status === 429) return { ok: false, error: "Rate limit exceeded. Try again shortly." };
+        if (resp.status === 402) return { ok: false, error: "AI credits exhausted." };
+        if (!resp.ok) return { ok: false, error: `AI gateway error (${resp.status})` };
+
+        const json = await resp.json();
+        const call = json?.choices?.[0]?.message?.tool_calls?.[0];
+        const args = call?.function?.arguments;
+        if (!args) return { ok: false, error: "No palette returned" };
+        const parsed = typeof args === "string" ? JSON.parse(args) : args;
+        const hex = (s: unknown): string | undefined => {
+          if (typeof s !== "string") return undefined;
+          const v = s.trim();
+          return /^#[0-9a-f]{6}$/i.test(v) ? v.toLowerCase() : undefined;
+        };
+        return {
+          ok: true,
+          primary: hex(parsed.primary),
+          secondary: hex(parsed.secondary),
+          accent: hex(parsed.accent),
+        };
+      } catch (e) {
+        console.error("extractLogoColors", e);
+        return { ok: false, error: "Failed to analyze logo" };
+      }
+    },
+  );
