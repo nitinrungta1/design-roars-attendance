@@ -224,14 +224,14 @@ export const submitPublicApplication = createServerFn({ method: "POST" })
         notice_period: data.notice_period || null,
         experience_years: data.experience_years ?? null,
         source: data.source || "careers_page",
-        screening_answers: data.screening_answers ?? {},
+        screening_answers: (data.screening_answers ?? {}) as Record<string, never>,
       };
 
       let appId: string;
       if (dup) {
         const { data: updated, error: uErr } = await supabase
           .from("applications")
-          .update({ ...insertPayload, status: "new", allow_reapply: false, applied_at: new Date().toISOString() })
+          .update({ ...insertPayload, status: "new" as const, allow_reapply: false, applied_at: new Date().toISOString() })
           .eq("id", dup.id)
           .select("id")
           .single();
@@ -240,7 +240,7 @@ export const submitPublicApplication = createServerFn({ method: "POST" })
       } else {
         const { data: created, error: aErr } = await supabase
           .from("applications")
-          .insert(insertPayload)
+          .insert(insertPayload as never)
           .select("id")
           .single();
         if (aErr || !created) return { ok: false, error: "Could not submit application." };
