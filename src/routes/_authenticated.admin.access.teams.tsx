@@ -97,6 +97,8 @@ function TeamsPage() {
   const teams = teamsData?.teams ?? [];
   const companies = companiesData?.companies ?? [];
 
+  if (blocked) return blocked;
+
   return (
     <>
       <PageHeader
