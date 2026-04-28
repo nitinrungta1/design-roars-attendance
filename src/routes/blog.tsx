@@ -28,7 +28,7 @@ export const Route = createFileRoute("/blog")({
 });
 
 function BlogIndex() {
-  const { posts } = Route.useLoaderData();
+  const { posts } = Route.useLoaderData() as { posts: BlogPostRow[] };
   const [q, setQ] = useState("");
   const [cat, setCat] = useState<string | null>(null);
 
@@ -40,13 +40,13 @@ function BlogIndex() {
 
   const filtered = useMemo(() => {
     const needle = q.trim().toLowerCase();
-    return posts.filter((p) => {
+    return posts.filter((p: BlogPostRow) => {
       if (cat && p.category !== cat) return false;
       if (!needle) return true;
       return (
         p.title.toLowerCase().includes(needle) ||
         (p.excerpt ?? "").toLowerCase().includes(needle) ||
-        (p.tags ?? []).some((t) => t.toLowerCase().includes(needle))
+        (p.tags ?? []).some((t: string) => t.toLowerCase().includes(needle))
       );
     });
   }, [posts, q, cat]);
@@ -111,7 +111,7 @@ function BlogIndex() {
             </div>
           ) : (
             <div className="grid gap-6 lg:grid-cols-2">
-              {filtered.map((p) => (
+              {filtered.map((p: BlogPostRow) => (
                 <Link
                   key={p.slug}
                   to="/blog/$slug"
