@@ -78,7 +78,7 @@ export interface ApplicationRow {
   allow_reapply: boolean;
   rating: number | null;
   rejection_reason: string | null;
-  screening_answers: Record<string, never>;
+  screening_answers: { [key: string]: unknown } | null;
   candidate?: CandidateRow;
   job?: Pick<JobRow, "id" | "slug" | "title" | "department" | "location">;
   updated_at: string;
