@@ -108,7 +108,7 @@ export const listPublicJobs = createServerFn({ method: "GET" }).handler(
       .eq("status", "published")
       .order("order_index", { ascending: true })
       .order("published_at", { ascending: false, nullsFirst: false });
-    return { jobs: (data ?? []) as JobRow[] };
+    return { jobs: (data ?? []) as unknown as JobRow[] };
   },
 );
 
@@ -124,7 +124,7 @@ export const getPublicJob = createServerFn({ method: "POST" })
       .eq("slug", data.slug)
       .eq("status", "published")
       .maybeSingle();
-    return { job: (row as JobRow | null) ?? null };
+    return { job: (row as unknown as JobRow | null) ?? null };
   });
 
 const ApplySchema = z.object({
@@ -342,7 +342,7 @@ export const listJobs = createServerFn({ method: "POST" })
       )
       .order("updated_at", { ascending: false })
       .limit(500);
-    return { jobs: (data ?? []) as JobRow[] };
+    return { jobs: (data ?? []) as unknown as JobRow[] };
   });
 
 export const getJob = createServerFn({ method: "POST" })
@@ -356,7 +356,7 @@ export const getJob = createServerFn({ method: "POST" })
       )
       .eq("id", data.id)
       .maybeSingle();
-    return { job: (row as JobRow | null) ?? null };
+    return { job: (row as unknown as JobRow | null) ?? null };
   });
 
 const JobInputSchema = z.object({
