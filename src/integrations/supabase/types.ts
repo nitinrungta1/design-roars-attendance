@@ -3116,6 +3116,7 @@ export type Database = {
       }
       plans: {
         Row: {
+          billing_model: string
           code: string
           comparison: Json
           created_at: string
@@ -3125,11 +3126,15 @@ export type Database = {
           employee_limit: number | null
           features: Json
           id: string
+          included_seats: number
           is_active: boolean
           is_public: boolean
+          min_seats: number
           name: string
           popular: boolean
           price_monthly: number
+          price_per_user_monthly: number
+          price_per_user_yearly: number
           price_yearly: number
           sort_order: number
           tagline: string | null
@@ -3138,6 +3143,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          billing_model?: string
           code: string
           comparison?: Json
           created_at?: string
@@ -3147,11 +3153,15 @@ export type Database = {
           employee_limit?: number | null
           features?: Json
           id?: string
+          included_seats?: number
           is_active?: boolean
           is_public?: boolean
+          min_seats?: number
           name: string
           popular?: boolean
           price_monthly?: number
+          price_per_user_monthly?: number
+          price_per_user_yearly?: number
           price_yearly?: number
           sort_order?: number
           tagline?: string | null
@@ -3160,6 +3170,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          billing_model?: string
           code?: string
           comparison?: Json
           created_at?: string
@@ -3169,11 +3180,15 @@ export type Database = {
           employee_limit?: number | null
           features?: Json
           id?: string
+          included_seats?: number
           is_active?: boolean
           is_public?: boolean
+          min_seats?: number
           name?: string
           popular?: boolean
           price_monthly?: number
+          price_per_user_monthly?: number
+          price_per_user_yearly?: number
           price_yearly?: number
           sort_order?: number
           tagline?: string | null
