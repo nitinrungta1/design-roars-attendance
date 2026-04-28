@@ -70,6 +70,7 @@ function UsersPage() {
         const q = search.toLowerCase();
         return (
           (u.full_name ?? "").toLowerCase().includes(q) ||
+          (u.email ?? "").toLowerCase().includes(q) ||
           (u.primary_company?.name ?? "").toLowerCase().includes(q) ||
           u.roles.some((r) => r.includes(q))
         );
