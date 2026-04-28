@@ -1,17 +1,40 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
-import { Save, Settings as SettingsIcon } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  Save,
+  Settings as SettingsIcon,
+  Loader2,
+  CheckCircle2,
+  AlertCircle,
+  Building2,
+  Palette,
+  Globe2,
+  SlidersHorizontal,
+  Sparkles,
+  Undo2,
+} from "lucide-react";
 import { PageHeader, PageBody } from "@/components/admin/primitives";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import {
   getPlatformSettings,
   updatePlatformSettings,
+  checkCompanyNameAvailable,
+  extractLogoColors,
 } from "@/lib/system.functions";
+import { LogoUploader } from "@/components/admin/logo-uploader";
+import { BrandColorField } from "@/components/admin/brand-color-field";
+import { BrandPreview } from "@/components/admin/brand-preview";
+import { CurrencySelect } from "@/components/admin/currency-select";
+import { TimezoneSelect } from "@/components/admin/timezone-select";
 import { seo } from "@/lib/seo";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/admin/system/settings")({
   head: () =>
@@ -25,6 +48,44 @@ export const Route = createFileRoute("/_authenticated/admin/system/settings")({
   component: SettingsPage,
 });
 
+interface FormState {
+  brand_name: string;
+  product_name: string;
+  support_email: string;
+  default_currency: string;
+  default_timezone: string;
+  default_plan_code: string;
+  primary_color: string | null;
+  secondary_color: string | null;
+  accent_color: string | null;
+  logo_url: string | null;
+  date_format: string;
+  time_format: "12h" | "24h";
+  number_format: string;
+  week_start: number;
+}
+
+const EMPTY: FormState = {
+  brand_name: "",
+  product_name: "",
+  support_email: "",
+  default_currency: "INR",
+  default_timezone: "Asia/Kolkata",
+  default_plan_code: "",
+  primary_color: null,
+  secondary_color: null,
+  accent_color: null,
+  logo_url: null,
+  date_format: "DD/MM/YYYY",
+  time_format: "24h",
+  number_format: "en-IN",
+  week_start: 1,
+};
+
+function slugify(s: string) {
+  return s.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+}
+
 function SettingsPage() {
   const qc = useQueryClient();
   const { data, isLoading } = useQuery({
@@ -32,45 +93,95 @@ function SettingsPage() {
     queryFn: () => getPlatformSettings(),
   });
 
-  const [form, setForm] = useState({
-    brand_name: "",
-    product_name: "",
-    support_email: "",
-    default_currency: "INR",
-    default_timezone: "Asia/Kolkata",
-    default_plan_code: "",
-    primary_color: "",
-    logo_url: "",
-  });
+  const [form, setForm] = useState<FormState>(EMPTY);
+  const [initial, setInitial] = useState<FormState>(EMPTY);
+  const [aiBusy, setAiBusy] = useState(false);
+  const [aiSuggestion, setAiSuggestion] = useState<{ primary?: string; secondary?: string; accent?: string } | null>(null);
+
+  // Brand-name availability check (debounced)
+  const [nameStatus, setNameStatus] = useState<"idle" | "checking" | "ok" | "taken">("idle");
+  const nameTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (data?.settings) {
-      setForm({
-        brand_name: data.settings.brand_name,
-        product_name: data.settings.product_name,
-        support_email: data.settings.support_email,
-        default_currency: data.settings.default_currency,
-        default_timezone: data.settings.default_timezone,
-        default_plan_code: data.settings.default_plan_code ?? "",
-        primary_color: data.settings.primary_color ?? "",
-        logo_url: data.settings.logo_url ?? "",
-      });
+      const s = data.settings;
+      const next: FormState = {
+        brand_name: s.brand_name,
+        product_name: s.product_name,
+        support_email: s.support_email,
+        default_currency: s.default_currency,
+        default_timezone: s.default_timezone,
+        default_plan_code: s.default_plan_code ?? "",
+        primary_color: s.primary_color,
+        secondary_color: s.secondary_color,
+        accent_color: s.accent_color,
+        logo_url: s.logo_url,
+        date_format: s.date_format,
+        time_format: (s.time_format as "12h" | "24h") ?? "24h",
+        number_format: s.number_format,
+        week_start: s.week_start,
+      };
+      setForm(next);
+      setInitial(next);
     }
   }, [data]);
+
+  const dirty = useMemo(
+    () => JSON.stringify(form) !== JSON.stringify(initial),
+    [form, initial],
+  );
+
+  // Warn on unload when there are unsaved changes
+  useEffect(() => {
+    if (!dirty) return;
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [dirty]);
+
+  // Brand name uniqueness check (only checks against the companies table)
+  useEffect(() => {
+    if (!form.brand_name.trim() || form.brand_name === initial.brand_name) {
+      setNameStatus("idle");
+      return;
+    }
+    setNameStatus("checking");
+    if (nameTimer.current) clearTimeout(nameTimer.current);
+    nameTimer.current = setTimeout(async () => {
+      try {
+        const res = await checkCompanyNameAvailable({ data: { name: form.brand_name } });
+        setNameStatus(res.available ? "ok" : "taken");
+      } catch {
+        setNameStatus("idle");
+      }
+    }, 350);
+    return () => {
+      if (nameTimer.current) clearTimeout(nameTimer.current);
+    };
+  }, [form.brand_name, initial.brand_name]);
 
   const save = useMutation({
     mutationFn: () =>
       updatePlatformSettings({
         data: {
           patch: {
-            brand_name: form.brand_name,
-            product_name: form.product_name,
-            support_email: form.support_email,
+            brand_name: form.brand_name.trim(),
+            product_name: form.product_name.trim(),
+            support_email: form.support_email.trim(),
             default_currency: form.default_currency,
             default_timezone: form.default_timezone,
             default_plan_code: form.default_plan_code || null,
-            primary_color: form.primary_color || null,
-            logo_url: form.logo_url || null,
+            primary_color: form.primary_color,
+            secondary_color: form.secondary_color,
+            accent_color: form.accent_color,
+            logo_url: form.logo_url,
+            date_format: form.date_format,
+            time_format: form.time_format,
+            number_format: form.number_format,
+            week_start: form.week_start,
           },
         },
       }),
@@ -78,9 +189,40 @@ function SettingsPage() {
       if (res.ok) {
         toast.success("Settings saved");
         qc.invalidateQueries({ queryKey: ["admin", "platform-settings"] });
-      } else toast.error(res.error);
+      } else {
+        toast.error(res.error || "Failed to save");
+      }
     },
   });
+
+  const onLogoUploaded = async (url: string) => {
+    setAiBusy(true);
+    try {
+      const res = await extractLogoColors({ data: { logoUrl: url } });
+      if (res.ok && (res.primary || res.secondary || res.accent)) {
+        setAiSuggestion({ primary: res.primary, secondary: res.secondary, accent: res.accent });
+        toast.success("AI palette detected", {
+          description: "Tap “Use suggestion” to apply the detected brand colors.",
+        });
+      }
+    } finally {
+      setAiBusy(false);
+    }
+  };
+
+  const applyAi = () => {
+    if (!aiSuggestion) return;
+    setForm((f) => ({
+      ...f,
+      primary_color: aiSuggestion.primary ?? f.primary_color,
+      secondary_color: aiSuggestion.secondary ?? f.secondary_color,
+      accent_color: aiSuggestion.accent ?? f.accent_color,
+    }));
+    setAiSuggestion(null);
+  };
+
+  const reset = () => setForm(initial);
+  const blockSave = !form.brand_name.trim() || !form.product_name.trim() || nameStatus === "taken" || !dirty || save.isPending;
 
   return (
     <>
@@ -90,80 +232,307 @@ function SettingsPage() {
         description="Global branding, defaults, and product configuration."
         breadcrumbs={[{ label: "Admin", to: "/admin" }, { label: "Settings" }]}
         actions={
-          <Button size="sm" onClick={() => save.mutate()} disabled={save.isPending || isLoading}>
-            <Save className="mr-2 h-4 w-4" />
-            Save changes
-          </Button>
+          dirty ? (
+            <Badge variant="outline" className="border-amber-500/40 text-amber-500">
+              Unsaved changes
+            </Badge>
+          ) : null
         }
       />
-      <PageBody className="space-y-6">
+      <PageBody className="pb-24">
         {isLoading ? (
           <div className="rounded-2xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
-            Loading…
+            <Loader2 className="mx-auto mb-2 h-5 w-5 animate-spin" /> Loading…
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            <Section
-              title="Brand"
-              description="Used in the marketing site, emails, and admin shell."
-              icon={<SettingsIcon className="h-4 w-4" />}
-            >
-              <Field
-                label="Company / brand name"
-                value={form.brand_name}
-                onChange={(v) => setForm({ ...form, brand_name: v })}
-              />
-              <Field
-                label="Product name"
-                value={form.product_name}
-                onChange={(v) => setForm({ ...form, product_name: v })}
-                hint="Shown in the app shell and product UI."
-              />
-              <Field
-                label="Support email"
-                type="email"
-                value={form.support_email}
-                onChange={(v) => setForm({ ...form, support_email: v })}
-              />
-              <Field
-                label="Logo URL"
-                value={form.logo_url}
-                onChange={(v) => setForm({ ...form, logo_url: v })}
-                placeholder="https://…"
-              />
-              <Field
-                label="Primary color"
-                value={form.primary_color}
-                onChange={(v) => setForm({ ...form, primary_color: v })}
-                placeholder="oklch(0.6 0.2 250)"
-              />
-            </Section>
-            <Section
-              title="Defaults"
-              description="Applied to new tenants and invoices."
-            >
-              <Field
-                label="Default currency"
-                value={form.default_currency}
-                onChange={(v) => setForm({ ...form, default_currency: v.toUpperCase() })}
-                placeholder="INR"
-              />
-              <Field
-                label="Default timezone"
-                value={form.default_timezone}
-                onChange={(v) => setForm({ ...form, default_timezone: v })}
-                placeholder="Asia/Kolkata"
-              />
-              <Field
-                label="Default plan code"
-                value={form.default_plan_code}
-                onChange={(v) => setForm({ ...form, default_plan_code: v })}
-                placeholder="starter"
-              />
-            </Section>
-          </div>
+          <Tabs defaultValue="profile">
+            <TabsList className="mb-4 w-full justify-start overflow-x-auto">
+              <TabsTrigger value="profile" className="gap-1.5">
+                <Building2 className="h-3.5 w-3.5" />
+                Company Profile
+              </TabsTrigger>
+              <TabsTrigger value="branding" className="gap-1.5">
+                <Palette className="h-3.5 w-3.5" />
+                Branding
+              </TabsTrigger>
+              <TabsTrigger value="localization" className="gap-1.5">
+                <Globe2 className="h-3.5 w-3.5" />
+                Localization
+              </TabsTrigger>
+              <TabsTrigger value="preferences" className="gap-1.5">
+                <SlidersHorizontal className="h-3.5 w-3.5" />
+                Preferences
+              </TabsTrigger>
+            </TabsList>
+
+            {/* COMPANY PROFILE */}
+            <TabsContent value="profile" className="space-y-6">
+              <Section
+                title="Company"
+                description="Identifies your workspace across emails, the marketing site, and the admin shell."
+                icon={<Building2 className="h-4 w-4" />}
+              >
+                <div className="space-y-1.5">
+                  <Label className="text-xs">
+                    Company / brand name <span className="text-destructive">*</span>
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      value={form.brand_name}
+                      onChange={(e) => setForm({ ...form, brand_name: e.target.value })}
+                      onBlur={(e) => setForm({ ...form, brand_name: e.target.value.trim() })}
+                      placeholder="Acme Pvt Ltd"
+                      className={cn(
+                        "pr-9",
+                        nameStatus === "taken" && "border-destructive focus-visible:ring-destructive",
+                        nameStatus === "ok" && "border-emerald-500/60",
+                      )}
+                    />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2">
+                      {nameStatus === "checking" && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+                      {nameStatus === "ok" && <CheckCircle2 className="h-4 w-4 text-emerald-500" />}
+                      {nameStatus === "taken" && <AlertCircle className="h-4 w-4 text-destructive" />}
+                    </span>
+                  </div>
+                  {nameStatus === "taken" ? (
+                    <p className="text-[11px] text-destructive">
+                      This company name is already in use. Please choose another.
+                    </p>
+                  ) : (
+                    <p className="text-[11px] text-muted-foreground">
+                      Slug preview: <code className="rounded bg-muted px-1 py-0.5">{slugify(form.brand_name) || "—"}</code>
+                    </p>
+                  )}
+                </div>
+
+                <Field
+                  label="Product name"
+                  value={form.product_name}
+                  onChange={(v) => setForm({ ...form, product_name: v })}
+                  hint="Shown in the app shell and product UI."
+                  required
+                />
+                <Field
+                  label="Support email"
+                  type="email"
+                  value={form.support_email}
+                  onChange={(v) => setForm({ ...form, support_email: v })}
+                />
+              </Section>
+            </TabsContent>
+
+            {/* BRANDING */}
+            <TabsContent value="branding" className="space-y-6">
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_360px]">
+                <div className="space-y-6">
+                  <Section
+                    title="Logo"
+                    description="Drag & drop or upload your logo. We'll scan it for your brand palette."
+                    icon={<Sparkles className="h-4 w-4" />}
+                  >
+                    <LogoUploader
+                      value={form.logo_url}
+                      onChange={(url) => setForm({ ...form, logo_url: url })}
+                      onUploaded={onLogoUploaded}
+                    />
+                    {(aiBusy || aiSuggestion) && (
+                      <div className="flex items-center justify-between rounded-xl border border-primary/30 bg-primary/5 p-3">
+                        <div className="flex items-center gap-2 text-xs">
+                          {aiBusy ? (
+                            <>
+                              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                              Detecting brand colors with AI…
+                            </>
+                          ) : (
+                            <>
+                              <Sparkles className="h-3.5 w-3.5 text-primary" />
+                              <span>AI suggested palette:</span>
+                              {[aiSuggestion?.primary, aiSuggestion?.secondary, aiSuggestion?.accent]
+                                .filter(Boolean)
+                                .map((c) => (
+                                  <span
+                                    key={c}
+                                    className="inline-block h-4 w-4 rounded border border-border"
+                                    style={{ background: c }}
+                                  />
+                                ))}
+                            </>
+                          )}
+                        </div>
+                        {aiSuggestion && (
+                          <div className="flex gap-1.5">
+                            <Button size="sm" variant="ghost" onClick={() => setAiSuggestion(null)}>
+                              Dismiss
+                            </Button>
+                            <Button size="sm" onClick={applyAi}>
+                              Use suggestion
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </Section>
+
+                  <Section
+                    title="Brand colors"
+                    description="Click a swatch to open the picker. Presets, gradients, and hex are all supported."
+                    icon={<Palette className="h-4 w-4" />}
+                  >
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                      <BrandColorField
+                        label="Primary"
+                        value={form.primary_color}
+                        onChange={(c) => setForm({ ...form, primary_color: c })}
+                      />
+                      <BrandColorField
+                        label="Secondary"
+                        value={form.secondary_color}
+                        onChange={(c) => setForm({ ...form, secondary_color: c })}
+                      />
+                      <BrandColorField
+                        label="Accent"
+                        value={form.accent_color}
+                        onChange={(c) => setForm({ ...form, accent_color: c })}
+                      />
+                    </div>
+                  </Section>
+                </div>
+
+                <div className="lg:sticky lg:top-20 lg:self-start">
+                  <BrandPreview
+                    primary={form.primary_color}
+                    secondary={form.secondary_color}
+                    accent={form.accent_color}
+                    logoUrl={form.logo_url}
+                    brandName={form.brand_name || form.product_name || "Your brand"}
+                  />
+                </div>
+              </div>
+            </TabsContent>
+
+            {/* LOCALIZATION */}
+            <TabsContent value="localization" className="space-y-6">
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                <Section title="Currency" description="Used as the default for new tenants and invoices.">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Default currency</Label>
+                    <CurrencySelect
+                      value={form.default_currency}
+                      onChange={(v) => setForm({ ...form, default_currency: v })}
+                    />
+                  </div>
+                </Section>
+
+                <Section title="Timezone" description="The default timezone used for reporting and scheduling.">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Default timezone</Label>
+                    <TimezoneSelect
+                      value={form.default_timezone}
+                      onChange={(v) => setForm({ ...form, default_timezone: v })}
+                    />
+                  </div>
+                </Section>
+
+                <Section title="Date & time" description="Display format used across reports and the dashboard.">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Date format</Label>
+                    <Select value={form.date_format} onValueChange={(v) => setForm({ ...form, date_format: v })}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="DD/MM/YYYY">DD/MM/YYYY · 28/04/2026</SelectItem>
+                        <SelectItem value="MM/DD/YYYY">MM/DD/YYYY · 04/28/2026</SelectItem>
+                        <SelectItem value="YYYY-MM-DD">YYYY-MM-DD · 2026-04-28</SelectItem>
+                        <SelectItem value="D MMM YYYY">D MMM YYYY · 28 Apr 2026</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Time format</Label>
+                    <Select
+                      value={form.time_format}
+                      onValueChange={(v) => setForm({ ...form, time_format: v as "12h" | "24h" })}
+                    >
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="12h">12-hour · 2:30 PM</SelectItem>
+                        <SelectItem value="24h">24-hour · 14:30</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </Section>
+
+                <Section title="Numbers & week" description="Number grouping and the first day of the work week.">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Number format</Label>
+                    <Select value={form.number_format} onValueChange={(v) => setForm({ ...form, number_format: v })}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="en-IN">Indian · 12,34,567.89</SelectItem>
+                        <SelectItem value="en-US">US · 1,234,567.89</SelectItem>
+                        <SelectItem value="de-DE">European · 1.234.567,89</SelectItem>
+                        <SelectItem value="fr-FR">French · 1 234 567,89</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Week starts on</Label>
+                    <Select
+                      value={String(form.week_start)}
+                      onValueChange={(v) => setForm({ ...form, week_start: Number(v) })}
+                    >
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="0">Sunday</SelectItem>
+                        <SelectItem value="1">Monday</SelectItem>
+                        <SelectItem value="6">Saturday</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </Section>
+              </div>
+            </TabsContent>
+
+            {/* PREFERENCES */}
+            <TabsContent value="preferences" className="space-y-6">
+              <Section
+                title="Defaults"
+                description="Applied to new tenants on signup."
+                icon={<SettingsIcon className="h-4 w-4" />}
+              >
+                <Field
+                  label="Default plan code"
+                  value={form.default_plan_code}
+                  onChange={(v) => setForm({ ...form, default_plan_code: v })}
+                  placeholder="starter"
+                />
+              </Section>
+            </TabsContent>
+          </Tabs>
         )}
       </PageBody>
+
+      {/* Sticky save bar */}
+      {dirty && (
+        <div className="fixed bottom-4 left-1/2 z-40 -translate-x-1/2 rounded-2xl border border-border bg-card/95 px-4 py-2.5 shadow-2xl backdrop-blur-md">
+          <div className="flex items-center gap-3">
+            <Badge variant="outline" className="border-amber-500/40 text-amber-500">
+              Unsaved changes
+            </Badge>
+            <Button size="sm" variant="ghost" onClick={reset} disabled={save.isPending}>
+              <Undo2 className="mr-1.5 h-3.5 w-3.5" />
+              Discard
+            </Button>
+            <Button size="sm" onClick={() => save.mutate()} disabled={blockSave}>
+              {save.isPending ? (
+                <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Save className="mr-1.5 h-3.5 w-3.5" />
+              )}
+              Save changes
+            </Button>
+          </div>
+        </div>
+      )}
     </>
   );
 }
@@ -181,13 +550,11 @@ function Section({
 }) {
   return (
     <div className="rounded-2xl border border-border bg-card/40 p-5">
-      <div className="mb-4 flex items-center gap-2">
+      <div className="mb-1 flex items-center gap-2">
         {icon}
         <h2 className="text-base font-semibold">{title}</h2>
       </div>
-      {description && (
-        <p className="-mt-3 mb-4 text-xs text-muted-foreground">{description}</p>
-      )}
+      {description && <p className="mb-4 text-xs text-muted-foreground">{description}</p>}
       <div className="space-y-3">{children}</div>
     </div>
   );
@@ -200,6 +567,7 @@ function Field({
   type,
   placeholder,
   hint,
+  required,
 }: {
   label: string;
   value: string;
@@ -207,10 +575,14 @@ function Field({
   type?: string;
   placeholder?: string;
   hint?: string;
+  required?: boolean;
 }) {
   return (
     <div className="space-y-1.5">
-      <Label className="text-xs">{label}</Label>
+      <Label className="text-xs">
+        {label}
+        {required && <span className="text-destructive"> *</span>}
+      </Label>
       <Input
         type={type ?? "text"}
         value={value}
