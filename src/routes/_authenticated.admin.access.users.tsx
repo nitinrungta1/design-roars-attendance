@@ -193,21 +193,15 @@ function UsersPage() {
                 {u.joined_at ? fmtDate(u.joined_at) : "—"}
               </Td>
               <Td>
-                <Select
-                  value=""
-                  onValueChange={(v) => assign.mutate({ userId: u.user_id, role: v as AppRole })}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 gap-1.5 text-xs"
+                  onClick={() => setActiveUser(u)}
                 >
-                  <SelectTrigger className="h-8 w-32 text-xs">
-                    <SelectValue placeholder="+ Grant" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {APP_ROLES.filter((r) => !u.roles.includes(r)).map((r) => (
-                      <SelectItem key={r} value={r} className="capitalize text-xs">
-                        {r}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  <Settings2 className="h-3.5 w-3.5" />
+                  Roles & permissions
+                </Button>
               </Td>
             </Tr>
           ))}
