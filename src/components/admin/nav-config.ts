@@ -150,7 +150,7 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       { to: "/admin/support/tickets", label: "Tickets", icon: LifeBuoy, permission: "support.tickets.read" },
       { to: "/admin/support/chat", label: "Live Chat", icon: MessageSquare, permission: "support.tickets.read" },
-      { to: "/admin/support/kb", label: "Knowledge Base", icon: BookOpen, permission: "support.kb.write" },
+      { to: "/admin/support/kb", label: "Knowledge Base", icon: BookOpen, permission: "support.kb.read" },
       { to: "/admin/support/sla", label: "SLA", icon: Timer, permission: "support.tickets.write" },
     ],
   },
