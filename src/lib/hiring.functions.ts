@@ -257,7 +257,7 @@ export const submitPublicApplication = createServerFn({ method: "POST" })
 
 export const myApplications = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }): Promise<{ applications: ApplicationRow[] }> => {
+  .handler(async ({ context }) => {
     const { supabase } = context;
     const { data } = await supabase
       .from("applications")
@@ -424,7 +424,7 @@ export const listApplications = createServerFn({ method: "POST" })
       })
       .parse(v ?? {}),
   )
-  .handler(async ({ data, context }): Promise<{ applications: ApplicationRow[] }> => {
+  .handler(async ({ data, context }) => {
     let query = context.supabase
       .from("applications")
       .select(
