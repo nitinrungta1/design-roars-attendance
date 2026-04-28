@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { BookOpen, Plus, BarChart3, MessageSquare, FolderTree, AlertTriangle } from "lucide-react";
 import { PageHeader, PageBody, EmptyState } from "@/components/admin/primitives";
@@ -15,6 +15,7 @@ export const Route = createFileRoute("/_authenticated/admin/support/kb")({
 
 function KbPage() {
   const { hasPermission, hasAnyRole, loading: authLoading, isSuperAdmin } = useAuth();
+  const navigate = useNavigate();
   const canRead =
     isSuperAdmin ||
     hasPermission("support.kb.read") ||
@@ -51,13 +52,16 @@ function KbPage() {
             <Link to="/admin/support/kb/analytics">
               <Button variant="outline" size="sm"><BarChart3 className="mr-1 h-4 w-4" />Analytics</Button>
             </Link>
-            {canWrite && (
-              <Button asChild size="sm" className="bg-gradient-brand">
-                <Link to="/admin/support/kb/new">
-                  <Plus className="mr-1 h-4 w-4" />New article
-                </Link>
-              </Button>
-            )}
+            <Button
+              type="button"
+              size="sm"
+              className="bg-gradient-brand"
+              disabled={authLoading || !canWrite}
+              title={canWrite ? "Create article" : "Requires support.kb.write permission"}
+              onClick={() => navigate({ to: "/admin/support/kb/new" })}
+            >
+              <Plus className="mr-1 h-4 w-4" />New article
+            </Button>
           </div>
         }
       />
