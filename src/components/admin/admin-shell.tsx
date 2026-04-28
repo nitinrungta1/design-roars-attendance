@@ -96,9 +96,9 @@ function NavGroupBlock({
 }
 
 function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
-  const { isAdmin, isSuperAdmin } = useAuth();
+  const { isSuperAdmin, hasPermission } = useAuth();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const groups = filterNavForUser({ isSuperAdmin, isAdmin });
+  const groups = filterNavForUser({ isSuperAdmin, hasPermission });
 
   return (
     <div className="flex h-full flex-col">
