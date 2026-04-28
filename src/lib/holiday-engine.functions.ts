@@ -321,8 +321,10 @@ export const listAssignments = createServerFn({ method: "POST" })
     if (error) return { assignments: [] };
     return {
       assignments: (rows ?? []).map((r) => {
-        const pol = r.holiday_policies as { name: string } | null;
-        const emp = r.employees as { full_name: string } | null;
+        const polRaw = r.holiday_policies as unknown;
+        const pol = (Array.isArray(polRaw) ? polRaw[0] : polRaw) as { name: string } | null;
+        const empRaw = r.employees as unknown;
+        const emp = (Array.isArray(empRaw) ? empRaw[0] : empRaw) as { full_name: string } | null;
         return {
           id: r.id,
           company_id: r.company_id,
