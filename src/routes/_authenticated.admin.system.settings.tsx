@@ -311,6 +311,9 @@ function SettingsPage() {
                   placeholder="support@yourcompany.com"
                   hint="Where customers can reach your team. Used in invoices and outgoing emails."
                 />
+              </Section>
+
+              <CurrentAdminCard />
             </TabsContent>
 
             {/* BRANDING */}
