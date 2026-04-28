@@ -87,7 +87,10 @@ function readingTime(text: string | null): number {
 }
 
 function KbArticleView() {
-  const { article, related } = Route.useLoaderData();
+  const { article, related } = Route.useLoaderData() as {
+    article: PublicKbArticleDetail;
+    related: PublicKbArticleSummary[];
+  };
 
   return (
     <HelpLayout>
@@ -162,7 +165,7 @@ function KbArticleView() {
               <div className="mt-12">
                 <h2 className="text-lg font-semibold">Related articles</h2>
                 <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                  {related.map((r) => (
+                  {related.map((r: PublicKbArticleSummary) => (
                     <Link
                       key={r.id}
                       to="/help/$slug"
