@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-const HOST = "https://help.oqlio.com";
+const HOST = "https://oqlio.com/help";
 
 export const Route = createFileRoute("/sitemap-help.xml")({
   server: {
