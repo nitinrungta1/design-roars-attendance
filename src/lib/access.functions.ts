@@ -609,3 +609,136 @@ export const listCompanyMemberCandidates = createServerFn({ method: "POST" })
       };
     },
   );
+
+// ============================================================
+// Create platform user (admin/HR only)
+// ============================================================
+
+export interface CompanyLite {
+  id: string;
+  name: string;
+  slug: string;
+}
+
+export const listCompaniesLite = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<{ companies: CompanyLite[] }> => {
+    const { supabase } = context;
+    const { data } = await supabase
+      .from("companies")
+      .select("id, name, slug")
+      .order("name", { ascending: true });
+    return { companies: (data ?? []) as CompanyLite[] };
+  });
+
+export const createPlatformUser = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(
+    z.object({
+      email: z.string().email().max(254),
+      fullName: z.string().min(1).max(120),
+      password: z.string().min(8).max(120).optional(),
+      role: z.enum([
+        "super_admin",
+        "admin",
+        "hr",
+        "manager",
+        "employee",
+        "sales",
+        "support",
+        "finance",
+        "developer",
+        "viewer",
+      ]),
+      companyId: z.string().uuid().nullable().optional(),
+      sendInvite: z.boolean().optional(),
+    }),
+  )
+  .handler(
+    async ({
+      context,
+      data,
+    }): Promise<{ ok: boolean; userId?: string; error?: string }> => {
+      const { supabase, userId } = context;
+      const { data: myRoles } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId);
+      const allowed = (myRoles ?? []).some((r) =>
+        ["super_admin", "admin", "hr"].includes(r.role),
+      );
+      if (!allowed) return { ok: false, error: "Not authorized." };
+
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+      let newUserId: string | null = null;
+      if (data.sendInvite) {
+        const { data: invited, error } = await supabaseAdmin.auth.admin.inviteUserByEmail(
+          data.email,
+          { data: { full_name: data.fullName } },
+        );
+        if (error || !invited.user) {
+          return { ok: false, error: error?.message ?? "Failed to invite user." };
+        }
+        newUserId = invited.user.id;
+      } else {
+        const { data: created, error } = await supabaseAdmin.auth.admin.createUser({
+          email: data.email,
+          password: data.password ?? undefined,
+          email_confirm: true,
+          user_metadata: { full_name: data.fullName },
+        });
+        if (error || !created.user) {
+          return { ok: false, error: error?.message ?? "Failed to create user." };
+        }
+        newUserId = created.user.id;
+      }
+
+      // Ensure profile exists/updated
+      await supabaseAdmin
+        .from("profiles")
+        .upsert(
+          {
+            id: newUserId,
+            full_name: data.fullName,
+            company_id: data.companyId ?? null,
+          },
+          { onConflict: "id" },
+        );
+
+      // Replace any auto-assigned default role with the requested role
+      await supabaseAdmin.from("user_roles").delete().eq("user_id", newUserId);
+      const { error: roleErr } = await supabaseAdmin
+        .from("user_roles")
+        .insert({ user_id: newUserId, role: data.role, granted_by: userId });
+      if (roleErr) return { ok: false, error: roleErr.message };
+
+      if (data.companyId) {
+        await supabaseAdmin
+          .from("company_members")
+          .upsert(
+            {
+              company_id: data.companyId,
+              user_id: newUserId,
+              role: data.role,
+              invited_by: userId,
+            },
+            { onConflict: "company_id,user_id" },
+          );
+      }
+
+      await supabase.rpc("log_audit", {
+        _action: "user.created",
+        _entity_type: "user",
+        _entity_id: newUserId,
+        _diff: {
+          email: data.email,
+          role: data.role,
+          company_id: data.companyId ?? null,
+          via: data.sendInvite ? "invite" : "password",
+        },
+      });
+
+      return { ok: true, userId: newUserId };
+    },
+  );
