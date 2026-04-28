@@ -4,13 +4,12 @@
  * - SITE_NAME is always "Oqlio" (used in og:site_name).
  * - Product pages get titles like "Punchly — Pricing | Oqlio".
  * - Company pages get titles like "About | Oqlio".
- * - Help Centre pages canonicalize to https://help.oqlio.com.
  * - Canonical default domain is https://oqlio.com (apex).
  */
 export const SITE_NAME = "Oqlio";
 export const PRODUCT_NAME = "Punchly";
 export const SITE_URL = "https://oqlio.com";
-export const HELP_URL = "https://help.oqlio.com";
+export const HELP_URL = `${SITE_URL}/help`;
 export const DEFAULT_OG = `${SITE_URL}/og-default.jpg`;
 
 export type SeoKind = "product" | "company" | "help";
@@ -34,13 +33,7 @@ export function formatTitle(title: string, kind: SeoKind = "company") {
   return `${title} | ${SITE_NAME}`;
 }
 
-/**
- * On the help.oqlio.com subdomain a "/help" path on the marketing site
- * maps to "/" on the subdomain, and "/help/foo" maps to "/foo".
- */
 function helpCanonicalPath(path: string): string {
-  if (path === "/help" || path === "/help/") return "/";
-  if (path.startsWith("/help/")) return path.slice("/help".length);
   return path;
 }
 
