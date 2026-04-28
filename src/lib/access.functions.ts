@@ -190,7 +190,7 @@ export const assignRole = createServerFn({ method: "POST" })
   });
 
 export const revokeRole = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requirePermission("access.users.write")])
   .inputValidator(
     z.object({
       userId: z.string().uuid(),
@@ -236,7 +236,7 @@ export interface RoleSummaryRow {
 }
 
 export const listRolesWithCounts = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requirePermission("access.roles.write")])
   .handler(async ({ context }): Promise<{ roles: RoleSummaryRow[] }> => {
     const { supabase } = context;
     const [{ data: ur }, { data: rp }] = await Promise.all([
@@ -272,7 +272,7 @@ export interface PermissionMatrix {
 }
 
 export const listPermissionMatrix = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requirePermission("access.roles.write")])
   .handler(async ({ context }): Promise<PermissionMatrix> => {
     const { supabase } = context;
     const [{ data: perms }, { data: rp }] = await Promise.all([
@@ -302,7 +302,7 @@ export const listPermissionMatrix = createServerFn({ method: "POST" })
   });
 
 export const togglePermission = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requirePermission("access.roles.write")])
   .inputValidator(
     z.object({
       role: z.enum([
