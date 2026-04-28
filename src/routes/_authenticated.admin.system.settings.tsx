@@ -34,6 +34,9 @@ import { CurrencySelect } from "@/components/admin/currency-select";
 import { TimezoneSelect } from "@/components/admin/timezone-select";
 import { seo } from "@/lib/seo";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/lib/auth";
+import { Link } from "@tanstack/react-router";
+import { User as UserIcon, Mail, ShieldCheck } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin/system/settings")({
   head: () =>
