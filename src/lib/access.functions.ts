@@ -154,7 +154,7 @@ export const listPlatformUsers = createServerFn({ method: "POST" })
   );
 
 export const assignRole = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requirePermission("access.users.write")])
   .inputValidator(
     z.object({
       userId: z.string().uuid(),
