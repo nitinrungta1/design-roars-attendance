@@ -1,69 +1,64 @@
-# Why no signed-up users appear
+# Option B: Fix dashboard crash + make permissions actually enforce
 
-I checked the database directly. The reality is:
+## 1. Dashboard crash (small, safe)
 
-- `auth.users` contains only **2 records** total — `nitin@dataroars.com` and `muskan@designroars.com`. Both already show in the panel as super_admins.
-- **No "free user" or "paid plan" signup has ever reached the database.** There is nothing to display because nothing was created.
-- The `on_auth_user_created` trigger on `auth.users` is **missing** (zero triggers on the table). So even when a new person does sign up, they won't get a `profiles` row or a default `employee` role — and they'll appear as a ghost row with no name and no role.
-- The `/pricing` page does not actually start a signup for "Free" or any paid plan — its CTAs don't call `supabase.auth.signUp` or even route to `/signup` with the right context. The only working signup path is `/signup`, which requires email confirmation.
+`src/routes/_authenticated.admin.index.tsx` reads `data?.recentLeads.length` and `data?.recentAudit.length` — `?.` only protects `data`, not the arrays. When the server payload returns the empty fallback, `.length` throws "Cannot read properties of undefined".
 
-So the issue is three things stacked: the trigger is gone, the pricing flow doesn't sign anyone up, and any user who never confirms email isn't visibly flagged.
+**Fix:** change all four occurrences to `data?.recentLeads?.length ?? 0` / `data?.recentAudit?.length ?? 0` and the two `data!.recentLeads.map(...)` / `data!.recentAudit.map(...)` to `(data?.recentLeads ?? []).map(...)`.
 
-# What I will fix
+## 2. Make the Permission Matrix actually enforce access
 
-## 1. Recreate the `handle_new_user` trigger on `auth.users` (migration)
+Today the matrix UI writes to `role_permissions` but **nothing reads it** — pages and server functions are gated by role flags only. After this change, toggling a permission immediately controls who can see and use that area.
 
-The function `public.handle_new_user()` already exists and is correct. Only the trigger binding is missing. Migration:
+### 2a. Server-side enforcement (new helper + applied per function)
 
-```sql
-drop trigger if exists on_auth_user_created on auth.users;
-create trigger on_auth_user_created
-  after insert on auth.users
-  for each row execute function public.handle_new_user();
-```
+New file `src/lib/permissions.server.ts` (or appended to `auth-middleware.ts`): a `requirePermission(key)` factory that wraps `requireSupabaseAuth` and additionally calls `supabase.rpc("has_permission", { _user_id: userId, _key: key })`. If false → throw `Response(403, "Permission denied: <key>")`.
 
-This guarantees every future signup gets a `profiles` row + an `employee` role, so they show up properly in the Users panel with name, company, and role.
+Apply `requirePermission(...)` to the following groups (same key as in the matrix):
 
-## 2. Wire the Pricing page CTAs to actual signup
+| Module | Functions | Required key |
+|---|---|---|
+| Access | `listPlatformUsers`, `createPlatformUser`, `assignRole`, `revokeRole`, `listRolesWithCounts`, `listPermissionMatrix`, `togglePermission`, `listTeams`, `createTeam`, `deleteTeam`, `addTeamMember`, `removeTeamMember`, `listCompaniesLite`, `setUserAccess` | `access.users.read` for reads, `access.users.write` for writes, `access.roles.write` for matrix toggle, `access.teams.write` for teams |
+| Billing | every `*.functions.ts` write fn | `billing.<area>.write` (read fns: `billing.<area>.read`) |
+| CMS | pages/blogs/seo/forms/media writes | `cms.<area>.write` |
+| Customers | companies/contacts/usage | `customers.<area>.read|write` |
+| Leads / CRM | reads/writes | `leads.read|write` |
+| Support | tickets/kb/chat | `support.tickets.*` / `support.kb.write` |
+| Workforce admin functions | matching `workforce.*` keys |
+| Integrations | reads/writes | `integrations.read|write` (`.webhooks.write`, `.apikeys.write`) |
+| System | settings/audit/backups/security | `system.*.read|write` |
+| Analytics | reads | `analytics.read` |
 
-In `src/routes/pricing.tsx`, every plan button (Free, Starter, Growth, Business) will route to `/signup?plan=<slug>&cycle=<monthly|yearly>`. Enterprise stays on `/contact`.
+`super_admin` always passes (the SQL `has_permission` doesn't include super_admin bypass — I'll either add a super_admin shortcut in `requirePermission` JS-side, or grant all keys to super_admin in DB; I'll do the JS shortcut so the matrix stays accurate).
 
-In `src/routes/signup.tsx`, after a successful signup, read `plan` from the URL and:
-- Free → redirect to `/admin` (or `/auth-callback` if confirmation required).
-- Paid → redirect to `/admin/billing/plans?plan=<slug>` so they can complete checkout.
+Personal/self-service reads (e.g. `getMyPermissions`, things scoped only to `auth.uid()`) stay on plain `requireSupabaseAuth`.
 
-This means clicking "Start free" on `/pricing` actually creates an `auth.users` row.
+### 2b. Client-side enforcement (route guards + nav)
 
-## 3. Show unconfirmed and ghost users in the Users panel
+- **`src/components/admin/nav-config.ts`**: add `permission?: string` to `NavItem`. Set the right key on every item (e.g. `/admin/access/users` → `access.users.read`, `/admin/billing/invoices` → `billing.invoices.read`, etc.). Drop the `platform` flag in favor of permission-based filtering.
+- **`filterNavForUser`**: change signature to `(opts: { hasPermission: (k: string) => boolean; isSuperAdmin: boolean })`. Items with no `permission` are visible to anyone authenticated. Items with a `permission` are visible only if `hasPermission(key)` (super_admin always passes — already true in `useAuth`).
+- **`src/components/admin/admin-shell.tsx`**: pass `hasPermission` and `isSuperAdmin` instead of `isAdmin/isSuperAdmin`.
+- **Per-route guard**: add a small `useRequirePermission(key)` hook that, when the user lacks the permission, renders a "Permission required" empty state instead of the page body. Apply to each admin route (one-line: `const blocked = useRequirePermission("billing.plans.read"); if (blocked) return blocked;` at the top of the page component). This protects against direct URL access — the server function already returns 403 too, so the page can't actually load data without permission.
 
-Update `listPlatformUsers` in `src/lib/access.functions.ts` to also expose `email_confirmed_at` per user, and add a small "Pending email" badge in `src/routes/_authenticated.admin.access.users.tsx` for users where it's null. This way you can see people who signed up but never confirmed (today they're invisible to you).
+### 2c. Live cache refresh
 
-## 4. One-time data backfill for any orphan auth users
+After `togglePermission` succeeds in `_authenticated.admin.access.permissions.tsx`, also call `auth.refresh()` so if the admin toggled their own role's permissions, nav/route gates update without a reload.
 
-If a future or past signup landed without a profile, run an idempotent backfill in the same migration:
+## Files touched
 
-```sql
-insert into public.profiles (id, full_name)
-select u.id, coalesce(u.raw_user_meta_data->>'full_name', split_part(u.email,'@',1))
-from auth.users u
-left join public.profiles p on p.id = u.id
-where p.id is null;
+- `src/routes/_authenticated.admin.index.tsx` — crash fix
+- `src/lib/permissions.server.ts` — new `requirePermission(key)` middleware factory
+- `src/lib/access.functions.ts` — apply `requirePermission` to all admin fns
+- `src/lib/billing.functions.ts`, `cms.functions.ts`, `customers.functions.ts`, `leads.functions.ts`, `support.functions.ts`, `kb-admin.functions.ts`, `integrations.functions.ts`, `system.functions.ts`, `workforce*.functions.ts`, `analytics-queries.ts`, `admin-overview.functions.ts` — apply `requirePermission` per function
+- `src/components/admin/nav-config.ts` — add `permission` to each item, change `filterNavForUser` signature
+- `src/components/admin/admin-shell.tsx` — pass `hasPermission`/`isSuperAdmin`
+- New: `src/hooks/use-require-permission.tsx` — render-blocking gate for admin pages
+- All `src/routes/_authenticated.admin.*.tsx` route files — one-line permission gate at top of each component
+- `src/routes/_authenticated.admin.access.permissions.tsx` — call `auth.refresh()` after toggle
 
-insert into public.user_roles (user_id, role)
-select u.id, 'employee'::public.app_role
-from auth.users u
-where not exists (select 1 from public.user_roles r where r.user_id = u.id);
-```
+## What you'll see after
 
-# Files touched
-
-- New migration: trigger + backfill (section 1 & 4)
-- `src/routes/pricing.tsx` — CTA links
-- `src/routes/signup.tsx` — read `plan` query param, route accordingly
-- `src/lib/access.functions.ts` — include `email_confirmed_at` in `PlatformUserRow`
-- `src/routes/_authenticated.admin.access.users.tsx` — render "Pending email" badge
-
-# What you'll see after
-
-- Anyone who signs up via `/signup` or clicks any Pricing CTA appears in **Admin → Access → Users** with their name, default `employee` role, and a "Pending email" badge until they confirm.
-- Existing 2 super_admins continue to display as today.
+- The red "SaaS Overview failed to load" banner is gone.
+- The Permission Matrix is no longer decorative — toggling a permission immediately removes/adds the corresponding nav item, route, and server data for users in that role (super_admin always retains everything).
+- Direct URL access to a page the user lacks permission for shows a "Permission required" panel instead of loading.
+- Server functions return 403 if a non-permitted user calls them via API.

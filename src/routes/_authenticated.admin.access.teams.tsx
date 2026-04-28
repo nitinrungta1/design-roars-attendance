@@ -38,6 +38,7 @@ import {
 } from "@/lib/access.functions";
 import { listCompanies } from "@/lib/customers.functions";
 import { seo } from "@/lib/seo";
+import { useRequirePermission } from "@/hooks/use-require-permission";
 
 export const Route = createFileRoute("/_authenticated/admin/access/teams")({
   head: () =>
@@ -52,6 +53,7 @@ export const Route = createFileRoute("/_authenticated/admin/access/teams")({
 });
 
 function TeamsPage() {
+  const blocked = useRequirePermission("access.teams.write");
   const qc = useQueryClient();
   const [createOpen, setCreateOpen] = useState(false);
   const [activeTeamId, setActiveTeamId] = useState<string | null>(null);
@@ -94,6 +96,8 @@ function TeamsPage() {
 
   const teams = teamsData?.teams ?? [];
   const companies = companiesData?.companies ?? [];
+
+  if (blocked) return blocked;
 
   return (
     <>

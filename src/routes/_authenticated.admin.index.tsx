@@ -250,7 +250,7 @@ function SaasOverview() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="text-base">Recent leads</CardTitle>
-              <Badge variant="outline">{data?.recentLeads.length ?? 0}</Badge>
+              <Badge variant="outline">{data?.recentLeads?.length ?? 0}</Badge>
             </CardHeader>
             <CardContent>
               {loading ? (
@@ -259,13 +259,13 @@ function SaasOverview() {
                     <Skeleton key={i} className="h-10 w-full" />
                   ))}
                 </div>
-              ) : (data?.recentLeads.length ?? 0) === 0 ? (
+              ) : (data?.recentLeads?.length ?? 0) === 0 ? (
                 <p className="py-8 text-center text-sm text-muted-foreground">
                   No leads yet. Marketing forms will populate this list.
                 </p>
               ) : (
                 <ul className="space-y-3">
-                  {data!.recentLeads.map((l) => (
+                  {(data?.recentLeads ?? []).map((l) => (
                     <li key={l.id} className="flex items-start justify-between gap-3 text-sm">
                       <div className="min-w-0">
                         <p className="truncate font-medium">{l.name}</p>
@@ -293,7 +293,7 @@ function SaasOverview() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="text-base">Activity log</CardTitle>
-              <Badge variant="outline">{data?.recentAudit.length ?? 0}</Badge>
+              <Badge variant="outline">{data?.recentAudit?.length ?? 0}</Badge>
             </CardHeader>
             <CardContent>
               {loading ? (
@@ -302,13 +302,13 @@ function SaasOverview() {
                     <Skeleton key={i} className="h-10 w-full" />
                   ))}
                 </div>
-              ) : (data?.recentAudit.length ?? 0) === 0 ? (
+              ) : (data?.recentAudit?.length ?? 0) === 0 ? (
                 <p className="py-8 text-center text-sm text-muted-foreground">
                   No activity yet. Admin actions across the platform will appear here.
                 </p>
               ) : (
                 <ul className="space-y-3">
-                  {data!.recentAudit.map((a) => (
+                  {(data?.recentAudit ?? []).map((a) => (
                     <li key={a.id} className="flex items-start justify-between gap-3 text-sm">
                       <div className="min-w-0">
                         <p className="truncate font-medium">{a.action}</p>

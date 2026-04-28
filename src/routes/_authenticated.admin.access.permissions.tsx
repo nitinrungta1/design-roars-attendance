@@ -14,6 +14,8 @@ import {
 } from "@/lib/access.functions";
 import { seo } from "@/lib/seo";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/lib/auth";
+import { useRequirePermission } from "@/hooks/use-require-permission";
 
 export const Route = createFileRoute("/_authenticated/admin/access/permissions")({
   head: () =>
@@ -28,6 +30,8 @@ export const Route = createFileRoute("/_authenticated/admin/access/permissions")
 });
 
 function PermissionsPage() {
+  const blocked = useRequirePermission("access.roles.write");
+  const auth = useAuth();
   const qc = useQueryClient();
   const [search, setSearch] = useState("");
   const [moduleFilter, setModuleFilter] = useState<string>("all");
@@ -35,6 +39,7 @@ function PermissionsPage() {
   const { data, isLoading } = useQuery({
     queryKey: ["admin", "permission-matrix"],
     queryFn: () => listPermissionMatrix(),
+    enabled: !blocked,
   });
 
   const mut = useMutation({
@@ -57,13 +62,18 @@ function PermissionsPage() {
       if (ctx?.prev) qc.setQueryData(["admin", "permission-matrix"], ctx.prev);
       toast.error("Failed to update permission");
     },
-    onSuccess: (res) => {
+    onSuccess: async (res) => {
       if (!res.ok) {
         toast.error(res.error ?? "Failed");
         qc.invalidateQueries({ queryKey: ["admin", "permission-matrix"] });
+      } else {
+        // Refresh current user's permission set so nav/route gates update live
+        await auth.refresh();
       }
     },
   });
+
+  if (blocked) return blocked;
 
   const matrix = data;
   const modules = useMemo(() => {

@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { requirePermission } from "@/integrations/supabase/permission-middleware";
 import type { Database } from "@/integrations/supabase/types";
 
 export type AppRole = Database["public"]["Enums"]["app_role"];
@@ -57,26 +58,23 @@ export interface PlatformUserRow {
 }
 
 export const listPlatformUsers = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requirePermission("access.users.read")])
   .handler(
     async ({
       context,
     }): Promise<{ users: PlatformUserRow[]; error?: string; canCreate: boolean }> => {
       const { supabase, userId } = context;
+      // Determine if caller can also create users (write permission)
+      const { data: writeOk } = await supabase.rpc("has_permission", {
+        _user_id: userId,
+        _key: "access.users.write",
+      });
       const { data: myRoles } = await supabase
         .from("user_roles")
         .select("role")
         .eq("user_id", userId);
-      const canManageUsers = (myRoles ?? []).some((r) =>
-        ["super_admin", "admin", "hr"].includes(r.role),
-      );
-      if (!canManageUsers) {
-        return {
-          users: [],
-          canCreate: false,
-          error: "You need admin or HR access to view platform users.",
-        };
-      }
+      const isSuper = (myRoles ?? []).some((r) => r.role === "super_admin");
+      const canCreate = isSuper || writeOk === true;
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const [authUsers, profilesRes, rolesRes, membersRes, companiesRes] = await Promise.all([
@@ -151,12 +149,12 @@ export const listPlatformUsers = createServerFn({ method: "POST" })
         const db = b.joined_at ? new Date(b.joined_at).getTime() : 0;
         return da - db;
       });
-      return { users, canCreate: true };
+      return { users, canCreate };
     },
   );
 
 export const assignRole = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requirePermission("access.users.write")])
   .inputValidator(
     z.object({
       userId: z.string().uuid(),
@@ -192,7 +190,7 @@ export const assignRole = createServerFn({ method: "POST" })
   });
 
 export const revokeRole = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requirePermission("access.users.write")])
   .inputValidator(
     z.object({
       userId: z.string().uuid(),
@@ -238,7 +236,7 @@ export interface RoleSummaryRow {
 }
 
 export const listRolesWithCounts = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requirePermission("access.roles.write")])
   .handler(async ({ context }): Promise<{ roles: RoleSummaryRow[] }> => {
     const { supabase } = context;
     const [{ data: ur }, { data: rp }] = await Promise.all([
@@ -274,7 +272,7 @@ export interface PermissionMatrix {
 }
 
 export const listPermissionMatrix = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requirePermission("access.roles.write")])
   .handler(async ({ context }): Promise<PermissionMatrix> => {
     const { supabase } = context;
     const [{ data: perms }, { data: rp }] = await Promise.all([
@@ -304,7 +302,7 @@ export const listPermissionMatrix = createServerFn({ method: "POST" })
   });
 
 export const togglePermission = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requirePermission("access.roles.write")])
   .inputValidator(
     z.object({
       role: z.enum([
@@ -368,7 +366,7 @@ export interface TeamRow {
 }
 
 export const listTeams = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requirePermission("access.teams.write")])
   .handler(async ({ context }): Promise<{ teams: TeamRow[] }> => {
     const { supabase } = context;
     const [{ data: teams }, { data: members }, { data: companies }, { data: profiles }] =
@@ -405,7 +403,7 @@ export const listTeams = createServerFn({ method: "POST" })
   });
 
 export const createTeam = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requirePermission("access.teams.write")])
   .inputValidator(
     z.object({
       companyId: z.string().uuid(),
@@ -445,7 +443,7 @@ export const createTeam = createServerFn({ method: "POST" })
   });
 
 export const deleteTeam = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requirePermission("access.teams.write")])
   .inputValidator(z.object({ id: z.string().uuid() }))
   .handler(async ({ context, data }): Promise<{ ok: boolean; error?: string }> => {
     const { supabase } = context;
@@ -498,7 +496,7 @@ export const listTeamMembers = createServerFn({ method: "POST" })
   });
 
 export const addTeamMember = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requirePermission("access.teams.write")])
   .inputValidator(
     z.object({
       teamId: z.string().uuid(),
@@ -530,7 +528,7 @@ export const addTeamMember = createServerFn({ method: "POST" })
   });
 
 export const removeTeamMember = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requirePermission("access.teams.write")])
   .inputValidator(
     z.object({ teamId: z.string().uuid(), userId: z.string().uuid() }),
   )
@@ -552,7 +550,7 @@ export const removeTeamMember = createServerFn({ method: "POST" })
   });
 
 export const setTeamLead = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requirePermission("access.teams.write")])
   .inputValidator(
     z.object({ teamId: z.string().uuid(), userId: z.string().uuid() }),
   )
@@ -636,7 +634,7 @@ export const listCompaniesLite = createServerFn({ method: "POST" })
   });
 
 export const createPlatformUser = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requirePermission("access.users.write")])
   .inputValidator(
     z.object({
       email: z.string().email().max(254),
@@ -664,14 +662,7 @@ export const createPlatformUser = createServerFn({ method: "POST" })
       data,
     }): Promise<{ ok: boolean; userId?: string; error?: string }> => {
       const { supabase, userId } = context;
-      const { data: myRoles } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", userId);
-      const allowed = (myRoles ?? []).some((r) =>
-        ["super_admin", "admin", "hr"].includes(r.role),
-      );
-      if (!allowed) return { ok: false, error: "Not authorized." };
+      // permission already enforced by middleware; userId still needed for audit + invited_by
 
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 

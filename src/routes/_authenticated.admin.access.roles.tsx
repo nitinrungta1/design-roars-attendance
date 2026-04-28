@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { seo } from "@/lib/seo";
 import { cn } from "@/lib/utils";
+import { useRequirePermission } from "@/hooks/use-require-permission";
 
 export const Route = createFileRoute("/_authenticated/admin/access/roles")({
   head: () =>
@@ -64,12 +65,16 @@ const ROLE_INFO: Record<string, { tone: string; desc: string }> = {
 };
 
 function RolesPage() {
+  const blocked = useRequirePermission("access.roles.write");
   const { data, isLoading } = useQuery({
     queryKey: ["admin", "roles"],
     queryFn: () => listRolesWithCounts(),
+    enabled: !blocked,
   });
 
   const roles = data?.roles ?? [];
+
+  if (blocked) return blocked;
 
   return (
     <>
