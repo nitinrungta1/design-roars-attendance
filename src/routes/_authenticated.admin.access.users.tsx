@@ -53,17 +53,6 @@ function UsersPage() {
     queryFn: () => listPlatformUsers(),
   });
 
-  const assign = useMutation({
-    mutationFn: (vars: { userId: string; role: AppRole }) =>
-      assignRole({ data: vars }),
-    onSuccess: (res) => {
-      if (res.ok) {
-        toast.success("Role granted");
-        qc.invalidateQueries({ queryKey: ["admin", "platform-users"] });
-      } else toast.error(res.error);
-    },
-  });
-
   const revoke = useMutation({
     mutationFn: (vars: { userId: string; role: AppRole }) =>
       revokeRole({ data: vars }),
