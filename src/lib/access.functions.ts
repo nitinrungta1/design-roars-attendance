@@ -119,10 +119,13 @@ export const listPlatformUsers = createServerFn({ method: "POST" })
       }
     }
 
-    return {
-      users: Array.from(
-        new Set([...profiles.map((p) => p.id), ...(authUsers.data?.users ?? []).map((u) => u.id)]),
-      ).map((id) => {
+      const ids = Array.from(
+        new Set([
+          ...profiles.map((p) => p.id),
+          ...(authUsers.data?.users ?? []).map((u) => u.id),
+        ]),
+      );
+      const users: PlatformUserRow[] = ids.map((id) => {
         const profile = profiles.find((p) => p.id === id) ?? null;
         const primary = primaryByUser.get(id) ?? null;
         return {
@@ -138,9 +141,15 @@ export const listPlatformUsers = createServerFn({ method: "POST" })
             joinedById.get(id) ??
             null,
         };
-      }),
-    };
-  });
+      });
+      users.sort((a, b) => {
+        const da = a.joined_at ? new Date(a.joined_at).getTime() : 0;
+        const db = b.joined_at ? new Date(b.joined_at).getTime() : 0;
+        return da - db;
+      });
+      return { users, canCreate: true };
+    },
+  );
 
 export const assignRole = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
