@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Users, X, Settings2 } from "lucide-react";
+import { Users, X, Settings2, AlertCircle } from "lucide-react";
 import { UserAccessSheet } from "@/components/admin/user-access-sheet";
+import { CreateUserDialog } from "@/components/admin/create-user-dialog";
 import type { PlatformUserRow } from "@/lib/access.functions";
 import { PageHeader, PageBody, EmptyState } from "@/components/admin/primitives";
 import { DataTable, Td, Tr, fmtDate, StatCard } from "@/components/admin/data-shell";
@@ -100,18 +101,28 @@ function UsersPage() {
           <StatCard label="No roles" value={totals.none} tone={totals.none > 0 ? "danger" : "default"} />
         </div>
 
-        <div className="flex items-center gap-2">
-          <Input
-            placeholder="Search by name, company, or role…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="max-w-sm"
-          />
-          {search && (
-            <Button variant="ghost" size="sm" onClick={() => setSearch("")}>
-              Clear
-            </Button>
-          )}
+        {data?.error && (
+          <div className="flex items-start gap-2 rounded-md border border-amber-300/40 bg-amber-50 p-3 text-sm text-amber-900 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-amber-200">
+            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+            <p>{data.error}</p>
+          </div>
+        )}
+
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <Input
+              placeholder="Search by name, company, or role…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="max-w-sm"
+            />
+            {search && (
+              <Button variant="ghost" size="sm" onClick={() => setSearch("")}>
+                Clear
+              </Button>
+            )}
+          </div>
+          {data?.canCreate && <CreateUserDialog />}
         </div>
 
         <DataTable
