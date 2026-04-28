@@ -55,7 +55,7 @@ function EditArticlePage() {
         status,
         seo_title: seoTitle || null,
         seo_description: seoDesc || null,
-        tags: tagStr.split(",").map((t) => t.trim()).filter(Boolean),
+        tags: tagStr.split(",").map((t: string) => t.trim()).filter(Boolean),
       },
     });
     setLoading(false);
