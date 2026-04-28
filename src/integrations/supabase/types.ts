@@ -1529,9 +1529,127 @@ export type Database = {
         }
         Relationships: []
       }
-      employees: {
+      employee_floating_holidays: {
+        Row: {
+          created_at: string
+          employee_id: string
+          holiday_date: string
+          id: string
+          name: string
+          status: Database["public"]["Enums"]["floating_holiday_status"]
+          year: number | null
+        }
+        Insert: {
+          created_at?: string
+          employee_id: string
+          holiday_date: string
+          id?: string
+          name: string
+          status?: Database["public"]["Enums"]["floating_holiday_status"]
+          year?: number | null
+        }
+        Update: {
+          created_at?: string
+          employee_id?: string
+          holiday_date?: string
+          id?: string
+          name?: string
+          status?: Database["public"]["Enums"]["floating_holiday_status"]
+          year?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employee_floating_holidays_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      employee_holiday_assignments: {
         Row: {
           company_id: string
+          country_code: string | null
+          created_at: string
+          department_id: string | null
+          employee_id: string | null
+          id: string
+          location_id: string | null
+          policy_id: string
+          priority: number
+          region: string | null
+          scope_level: Database["public"]["Enums"]["holiday_scope_level"]
+        }
+        Insert: {
+          company_id: string
+          country_code?: string | null
+          created_at?: string
+          department_id?: string | null
+          employee_id?: string | null
+          id?: string
+          location_id?: string | null
+          policy_id: string
+          priority?: number
+          region?: string | null
+          scope_level: Database["public"]["Enums"]["holiday_scope_level"]
+        }
+        Update: {
+          company_id?: string
+          country_code?: string | null
+          created_at?: string
+          department_id?: string | null
+          employee_id?: string | null
+          id?: string
+          location_id?: string | null
+          policy_id?: string
+          priority?: number
+          region?: string | null
+          scope_level?: Database["public"]["Enums"]["holiday_scope_level"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employee_holiday_assignments_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employee_holiday_assignments_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employee_holiday_assignments_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employee_holiday_assignments_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "work_locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employee_holiday_assignments_policy_id_fkey"
+            columns: ["policy_id"]
+            isOneToOne: false
+            referencedRelation: "holiday_policies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      employees: {
+        Row: {
+          city: string | null
+          company_id: string
+          country_code: string | null
           created_at: string
           default_location_id: string | null
           department_id: string | null
@@ -1542,17 +1660,22 @@ export type Database = {
           exit_date: string | null
           full_name: string
           hire_date: string | null
+          holiday_policy_id: string | null
           id: string
           manager_id: string | null
           metadata: Json
           payroll_id: string | null
           phone: string | null
+          region: string | null
           status: string
+          timezone: string | null
           updated_at: string
           user_id: string | null
         }
         Insert: {
+          city?: string | null
           company_id: string
+          country_code?: string | null
           created_at?: string
           default_location_id?: string | null
           department_id?: string | null
@@ -1563,17 +1686,22 @@ export type Database = {
           exit_date?: string | null
           full_name: string
           hire_date?: string | null
+          holiday_policy_id?: string | null
           id?: string
           manager_id?: string | null
           metadata?: Json
           payroll_id?: string | null
           phone?: string | null
+          region?: string | null
           status?: string
+          timezone?: string | null
           updated_at?: string
           user_id?: string | null
         }
         Update: {
+          city?: string | null
           company_id?: string
+          country_code?: string | null
           created_at?: string
           default_location_id?: string | null
           department_id?: string | null
@@ -1584,12 +1712,15 @@ export type Database = {
           exit_date?: string | null
           full_name?: string
           hire_date?: string | null
+          holiday_policy_id?: string | null
           id?: string
           manager_id?: string | null
           metadata?: Json
           payroll_id?: string | null
           phone?: string | null
+          region?: string | null
           status?: string
+          timezone?: string | null
           updated_at?: string
           user_id?: string | null
         }
@@ -1620,6 +1751,13 @@ export type Database = {
             columns: ["designation_id"]
             isOneToOne: false
             referencedRelation: "designations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employees_holiday_policy_fk"
+            columns: ["holiday_policy_id"]
+            isOneToOne: false
+            referencedRelation: "holiday_policies"
             referencedColumns: ["id"]
           },
           {
@@ -1704,6 +1842,167 @@ export type Database = {
           },
         ]
       }
+      holiday_overrides: {
+        Row: {
+          action: Database["public"]["Enums"]["holiday_override_action"]
+          created_at: string
+          employee_id: string
+          holiday_date: string
+          id: string
+          name: string | null
+          original_date: string | null
+          reason: string | null
+        }
+        Insert: {
+          action: Database["public"]["Enums"]["holiday_override_action"]
+          created_at?: string
+          employee_id: string
+          holiday_date: string
+          id?: string
+          name?: string | null
+          original_date?: string | null
+          reason?: string | null
+        }
+        Update: {
+          action?: Database["public"]["Enums"]["holiday_override_action"]
+          created_at?: string
+          employee_id?: string
+          holiday_date?: string
+          id?: string
+          name?: string | null
+          original_date?: string | null
+          reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "holiday_overrides_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      holiday_policies: {
+        Row: {
+          company_id: string
+          country_code: string | null
+          created_at: string
+          description: string | null
+          floating_quota: number
+          id: string
+          is_default: boolean
+          name: string
+          office_location_id: string | null
+          region: string | null
+          updated_at: string
+          weekend_days: number[]
+        }
+        Insert: {
+          company_id: string
+          country_code?: string | null
+          created_at?: string
+          description?: string | null
+          floating_quota?: number
+          id?: string
+          is_default?: boolean
+          name: string
+          office_location_id?: string | null
+          region?: string | null
+          updated_at?: string
+          weekend_days?: number[]
+        }
+        Update: {
+          company_id?: string
+          country_code?: string | null
+          created_at?: string
+          description?: string | null
+          floating_quota?: number
+          id?: string
+          is_default?: boolean
+          name?: string
+          office_location_id?: string | null
+          region?: string | null
+          updated_at?: string
+          weekend_days?: number[]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "holiday_policies_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "holiday_policies_office_location_id_fkey"
+            columns: ["office_location_id"]
+            isOneToOne: false
+            referencedRelation: "work_locations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      holiday_policy_holidays: {
+        Row: {
+          created_at: string
+          holiday_date: string
+          id: string
+          is_optional: boolean
+          is_paid: boolean
+          is_recurring: boolean
+          name: string
+          policy_id: string
+          region: string | null
+          source_template_id: string | null
+          type: Database["public"]["Enums"]["holiday_type"]
+          year: number | null
+        }
+        Insert: {
+          created_at?: string
+          holiday_date: string
+          id?: string
+          is_optional?: boolean
+          is_paid?: boolean
+          is_recurring?: boolean
+          name: string
+          policy_id: string
+          region?: string | null
+          source_template_id?: string | null
+          type?: Database["public"]["Enums"]["holiday_type"]
+          year?: number | null
+        }
+        Update: {
+          created_at?: string
+          holiday_date?: string
+          id?: string
+          is_optional?: boolean
+          is_paid?: boolean
+          is_recurring?: boolean
+          name?: string
+          policy_id?: string
+          region?: string | null
+          source_template_id?: string | null
+          type?: Database["public"]["Enums"]["holiday_type"]
+          year?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "holiday_policy_holidays_policy_id_fkey"
+            columns: ["policy_id"]
+            isOneToOne: false
+            referencedRelation: "holiday_policies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "holiday_policy_holidays_source_template_id_fkey"
+            columns: ["source_template_id"]
+            isOneToOne: false
+            referencedRelation: "holiday_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       holiday_templates: {
         Row: {
           country_code: string
@@ -1763,7 +2062,9 @@ export type Database = {
           is_paid: boolean
           is_recurring: boolean
           name: string
+          office_location_id: string | null
           region: string | null
+          scope_level: Database["public"]["Enums"]["holiday_scope_level"]
           template_id: string | null
           type: Database["public"]["Enums"]["holiday_type"]
           updated_at: string
@@ -1780,7 +2081,9 @@ export type Database = {
           is_paid?: boolean
           is_recurring?: boolean
           name: string
+          office_location_id?: string | null
           region?: string | null
+          scope_level?: Database["public"]["Enums"]["holiday_scope_level"]
           template_id?: string | null
           type?: Database["public"]["Enums"]["holiday_type"]
           updated_at?: string
@@ -1797,7 +2100,9 @@ export type Database = {
           is_paid?: boolean
           is_recurring?: boolean
           name?: string
+          office_location_id?: string | null
           region?: string | null
+          scope_level?: Database["public"]["Enums"]["holiday_scope_level"]
           template_id?: string | null
           type?: Database["public"]["Enums"]["holiday_type"]
           updated_at?: string
@@ -1817,6 +2122,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "countries"
             referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "holidays_office_location_id_fkey"
+            columns: ["office_location_id"]
+            isOneToOne: false
+            referencedRelation: "work_locations"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "holidays_template_id_fkey"
@@ -4136,6 +4448,18 @@ export type Database = {
     }
     Functions: {
       current_company_id: { Args: never; Returns: string }
+      get_employee_holidays: {
+        Args: { _employee_id: string; _year: number }
+        Returns: {
+          holiday_date: string
+          is_optional: boolean
+          is_paid: boolean
+          name: string
+          scope_level: Database["public"]["Enums"]["holiday_scope_level"]
+          source: string
+          type: Database["public"]["Enums"]["holiday_type"]
+        }[]
+      }
       has_permission: {
         Args: { _key: string; _user_id: string }
         Returns: boolean
@@ -4257,6 +4581,14 @@ export type Database = {
         | "intern"
         | "consultant"
       experience_level: "intern" | "junior" | "mid" | "senior" | "lead"
+      floating_holiday_status: "pending" | "approved" | "used" | "cancelled"
+      holiday_override_action: "add" | "remove" | "move"
+      holiday_scope_level:
+        | "global"
+        | "country"
+        | "region"
+        | "office"
+        | "employee"
       holiday_type:
         | "national"
         | "regional"
@@ -4517,6 +4849,15 @@ export const Constants = {
         "consultant",
       ],
       experience_level: ["intern", "junior", "mid", "senior", "lead"],
+      floating_holiday_status: ["pending", "approved", "used", "cancelled"],
+      holiday_override_action: ["add", "remove", "move"],
+      holiday_scope_level: [
+        "global",
+        "country",
+        "region",
+        "office",
+        "employee",
+      ],
       holiday_type: [
         "national",
         "regional",

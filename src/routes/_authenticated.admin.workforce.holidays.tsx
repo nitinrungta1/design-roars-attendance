@@ -12,6 +12,8 @@ import {
   CalendarDays,
   Globe2,
   Settings as SettingsIcon,
+  ListTree,
+  Users2,
 } from "lucide-react";
 import { PageHeader, PageBody, EmptyState } from "@/components/admin/primitives";
 import { DataTable, Td, Tr, fmtDate, StatCard } from "@/components/admin/data-shell";
@@ -60,6 +62,8 @@ import {
 } from "@/lib/holidays.functions";
 import { listCompanyOptions } from "@/lib/workforce.functions";
 import { useRequirePermission } from "@/hooks/use-require-permission";
+import { PoliciesTab } from "@/components/admin/holidays/policies-tab";
+import { AssignmentsTab } from "@/components/admin/holidays/assignments-tab";
 import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/_authenticated/admin/workforce/holidays")({
@@ -289,6 +293,12 @@ function HolidaysPage() {
             <TabsTrigger value="long-weekends" className="gap-2">
               <Sparkles className="h-4 w-4" /> Long weekends
             </TabsTrigger>
+            <TabsTrigger value="policies" className="gap-2">
+              <ListTree className="h-4 w-4" /> Policies
+            </TabsTrigger>
+            <TabsTrigger value="assignments" className="gap-2">
+              <Users2 className="h-4 w-4" /> Assignments
+            </TabsTrigger>
             <TabsTrigger value="settings" className="gap-2">
               <SettingsIcon className="h-4 w-4" /> Settings
             </TabsTrigger>
@@ -427,6 +437,20 @@ function HolidaysPage() {
                 ))}
               </div>
             )}
+          </TabsContent>
+
+          {/* POLICIES */}
+          <TabsContent value="policies" className="mt-4">
+            <PoliciesTab
+              companyId={companyId}
+              countries={countries?.countries ?? []}
+              year={year}
+            />
+          </TabsContent>
+
+          {/* ASSIGNMENTS */}
+          <TabsContent value="assignments" className="mt-4">
+            <AssignmentsTab companyId={companyId} countries={countries?.countries ?? []} />
           </TabsContent>
 
           {/* SETTINGS */}
