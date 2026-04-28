@@ -34,7 +34,7 @@ const cols: { title: string; links: { to: string; label: string; external?: bool
       { to: "/blog", label: "Blog" },
       { to: "/careers", label: "Careers" },
       { to: "/contact", label: "Contact" },
-      { to: "https://help.oqlio.com", label: "Help Center", external: true },
+      { to: "/help", label: "Help Center" },
     ],
   },
   {
