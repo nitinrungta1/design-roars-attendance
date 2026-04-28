@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { requirePermission } from "@/integrations/supabase/permission-middleware";
 import type { Database } from "@/integrations/supabase/types";
 
 export type AppRole = Database["public"]["Enums"]["app_role"];
@@ -57,7 +58,7 @@ export interface PlatformUserRow {
 }
 
 export const listPlatformUsers = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requirePermission("access.users.read")])
   .handler(
     async ({
       context,
@@ -70,13 +71,6 @@ export const listPlatformUsers = createServerFn({ method: "POST" })
       const canManageUsers = (myRoles ?? []).some((r) =>
         ["super_admin", "admin", "hr"].includes(r.role),
       );
-      if (!canManageUsers) {
-        return {
-          users: [],
-          canCreate: false,
-          error: "You need admin or HR access to view platform users.",
-        };
-      }
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const [authUsers, profilesRes, rolesRes, membersRes, companiesRes] = await Promise.all([
