@@ -50,7 +50,7 @@ export const adminListKbArticles = createServerFn({ method: "POST" })
       .limit(1000);
     if (error) {
       console.error("adminListKbArticles", error);
-      return { articles: [] };
+      throw new Response(`Failed to load KB articles: ${error.message}`, { status: 500 });
     }
     return { articles: (data ?? []) as AdminKbArticle[] };
   });

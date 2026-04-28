@@ -25,22 +25,34 @@ function NewArticlePage() {
   const [category, setCategory] = useState("");
   const [status, setStatus] = useState<"draft" | "published">("draft");
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const autoSlug = (t: string) =>
     t.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 80);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMsg(null);
     setLoading(true);
-    const res = await upsert({
-      data: { title, slug: slug || autoSlug(title), excerpt, body, category: category || null, status },
-    });
-    setLoading(false);
-    if (res.ok) {
-      toast.success("Article created");
-      nav({ to: "/admin/support/kb" });
-    } else {
-      toast.error(res.error);
+    try {
+      const res = await upsert({
+        data: { title, slug: slug || autoSlug(title), excerpt, body, category: category || null, status },
+      });
+      if (res.ok) {
+        toast.success("Article created");
+        nav({ to: "/admin/support/kb" });
+      } else {
+        console.error("upsertKbArticle failed", res);
+        setErrorMsg(res.error);
+        toast.error(res.error);
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Unexpected error creating article";
+      console.error("upsertKbArticle threw", err);
+      setErrorMsg(msg);
+      toast.error(msg);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -78,7 +90,19 @@ function NewArticlePage() {
               <option value="published">Published</option>
             </select>
           </div>
-          <Button type="submit" disabled={loading} className="bg-gradient-brand">Create article</Button>
+          {errorMsg && (
+            <div className="rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive">
+              {errorMsg}
+            </div>
+          )}
+          <div className="flex items-center gap-2">
+            <Button type="submit" disabled={loading} className="bg-gradient-brand">
+              {loading ? "Creating…" : "Create article"}
+            </Button>
+            <Button type="button" variant="outline" onClick={() => nav({ to: "/admin/support/kb" })}>
+              Cancel
+            </Button>
+          </div>
         </form>
       </PageBody>
     </>

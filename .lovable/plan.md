@@ -1,140 +1,81 @@
-## Global Holiday Allocation Engine
+# Fix Help Center / Knowledge Base admin issues
 
-Enhances the existing Holiday Management module without removing it. Current `holidays`, `holiday_templates`, `countries`, `company_holiday_settings` tables stay as-is. We add a **policy layer** on top that resolves the correct holiday set per employee from 5 layered scopes.
+## What's broken
 
----
+You reported two issues on `/admin/support/kb`:
 
-### 1. Database (new migration)
+1. **Articles list is empty** — even though the database has 30+ published articles.
+2. **"New article" button does nothing** — clicking it doesn't open the editor (or the form silently fails to save).
 
-New enum:
-- `holiday_scope_level` = `global | country | region | office | employee`
+## What I found
 
-New tables:
+### Database & data
+- 30+ published articles exist in `kb_articles` (verified directly).
+- RLS allows admins/super_admins to read all rows, and the public to read `published` ones. So the `SELECT` itself is not the blocker for an authed admin.
+- Both signed-in users (`muskan@…`, `nitin@…`) have the `super_admin` role, and `is_admin()` includes super_admin — so RLS reads + writes should succeed.
 
-- **`holiday_policies`** — reusable named policies per company  
-  `id, company_id, name, description, country_code, region, office_location_id?, weekend_days int[], floating_quota int default 0, is_default bool, created_at`
+### Likely root causes (high confidence)
+1. **Server function silently swallows errors.** `adminListKbArticles` does:
+   ```ts
+   if (error) { console.error(...); return { articles: [] }; }
+   ```
+   So any column / order mismatch returns an empty list with no UI feedback. This pattern is what makes the page look "blank" instead of showing the real cause. We need the error surfaced.
 
-- **`holiday_policy_holidays`** — holidays attached to a policy (replaces ad-hoc per-company list at the policy layer; existing `holidays` rows continue to work as company-level)  
-  `id, policy_id, name, holiday_date, type holiday_type, is_paid, is_optional, is_recurring, region, source_template_id?, year (generated)`
+2. **"New article" CTA navigates to `/admin/support/kb/new`, but two things can break the user-visible flow:**
+   - The link only renders when the user has the `support.kb.write` permission (nav gating). If the permission is missing on the role, the entire **Knowledge Base** entry disappears from the sidebar (and the New button's parent group is hidden), making the CTA "not work."
+   - The new-article form posts via `useServerFn(upsertKbArticle)`. If the server throws (RLS/insert error), the toast shows, but if the server *route* itself isn't reachable (mis-cached client) the click looks dead. We'll add console logging + a hard navigation fallback.
 
-- **`employee_holiday_assignments`** — links employees / scopes to policies (bulk by office/dept/country, or individual)  
-  `id, company_id, policy_id, scope_level holiday_scope_level, employee_id?, department_id?, location_id?, country_code?, region?, priority int default 100`
+3. **Permission key mismatch in the sidebar.** `nav-config.ts` gates the KB entry on `support.kb.write`, but there is no `support.kb.read` permission — only `support.kb.write`, `support.tickets.read`, `support.tickets.write` exist. If a role has read-only KB access, they can't see the link at all. The nav should gate on a *read* permission and we should add `support.kb.read`.
 
-- **`employee_floating_holidays`** — used floating/optional holidays per employee  
-  `id, employee_id, holiday_date, name, year, status (pending/approved/used), created_at`
+## Plan
 
-- **`holiday_overrides`** — per-employee override (skip a holiday or add a custom one)  
-  `id, employee_id, holiday_date, action (add|remove|move), original_date?, name?, reason, created_at`
+### 1. Surface real errors in the KB admin server functions
+- In `src/lib/kb-admin.functions.ts`:
+  - Stop swallowing errors in `adminListKbArticles`, `adminGetKbArticle`, `listKbCategories`, `listKbFeedback`. Throw a `Response` with the Postgres error message so the UI shows what's wrong instead of an empty table.
+  - Keep `console.error` for server logs.
 
-Extend `employees`: add `country_code text`, `region text`, `city text`, `timezone text`, `holiday_policy_id uuid references holiday_policies` (all nullable, additive).
+### 2. Fix the KB list page to show errors and handle loading robustly
+- In `src/routes/_authenticated.admin.support.kb.tsx`:
+  - Use `useQuery`'s `error` state and render an inline error block (red banner) with the message + a Retry button.
+  - Differentiate "loading" vs "no rows" vs "error" states properly.
+  - Verify the columns selected match the DB schema (they do today, but lock it down).
 
-Extend `holidays` table: add `scope_level holiday_scope_level default 'global'`, `office_location_id uuid` (nullable) — keeps existing rows valid.
+### 3. Fix the "New article" CTA
+- In `src/routes/_authenticated.admin.support.kb.tsx`:
+  - Wrap the New article button in the `Link` correctly (already correct) — but also add an `onClick` log + use `useNavigate` as a programmatic fallback so a stale router state can't dead-click.
+- In `src/routes/_authenticated.admin.support.kb.new.tsx`:
+  - Surface server errors better: keep `toast.error(res.error)` but also `console.error` the raw response; add a visible inline error message under the form.
+  - Auto-focus the title input.
 
-Resolver SQL function `get_employee_holidays(_employee_id uuid, _year int)` returns the merged set by:
-1. Global company holidays (`holidays` where scope=global)
-2. Country holidays (employee.country_code matches)
-3. Region holidays (employee.region matches)
-4. Office holidays (employee.default_location_id matches)
-5. Policy holidays (via `employee_holiday_assignments`)
-6. Apply `holiday_overrides` (remove/move/add)
-7. De-dupe by `(holiday_date, name)`
+### 4. Fix permission gating so the link actually shows
+- Add a new permission `support.kb.read` (migration):
+  - Insert into `permissions` table with description.
+  - Grant it to roles that previously held `support.kb.write` (admin, support, etc.).
+- In `src/components/admin/nav-config.ts`:
+  - Change the `Knowledge Base` entry gate from `support.kb.write` → `support.kb.read` so read-only roles can open the page; the New button itself stays for `write`-level users.
+- In `src/routes/_authenticated.admin.support.kb.tsx`:
+  - Hide the **New article** button (and similar mutators) for users without `support.kb.write`, using the existing `useRequirePermission`/`hasPermission` helper pattern from access pages.
 
-RLS: company-scoped via `is_member_of(company_id)`; employees see only their own resolved set; admins manage via `workforce.holidays.write` permission.
+### 5. Confirm RLS still works for super_admin
+- No RLS migration needed. Existing policies already allow super_admin via `is_admin()`. We only add a permission row (RBAC layer used by the UI), not an RLS change.
 
-New permission keys (granted to existing roles via `role_permissions`):
-- `workforce.holidays.policies.read` / `.write`
-- `workforce.holidays.assign` (bulk assignment)
+### 6. Quick sanity checks
+- After deploy, the list will either:
+  - Show the existing 30+ rows (expected), or
+  - Show a clear red error banner with the Postgres reason — which we can fix in a follow-up turn.
+- Clicking **New article** will navigate to `/admin/support/kb/new`. Saving a draft will either succeed and redirect, or display the exact error inline.
 
-Permission `workforce.holidays.read` already exists.
+## Files I'll touch
 
----
+- `src/lib/kb-admin.functions.ts` — error propagation
+- `src/routes/_authenticated.admin.support.kb.tsx` — error/loading UX, CTA fallback, permission-gated New button
+- `src/routes/_authenticated.admin.support.kb.new.tsx` — error visibility, autofocus
+- `src/components/admin/nav-config.ts` — gate KB on `support.kb.read`
+- New migration in `supabase/migrations/` — register `support.kb.read` permission and grant to existing roles
 
-### 2. Server functions (`src/lib/holiday-engine.functions.ts` — new)
+## Out of scope
+- No DB schema changes to `kb_articles`.
+- No changes to public help center routes (`/help/*`).
+- No changes to KB categories / feedback / analytics pages beyond the shared error-surfacing in their list functions.
 
-All wrapped with `requirePermission(...)` middleware.
-
-- `listHolidayPolicies({ company_id })`
-- `createHolidayPolicy(input)` / `updateHolidayPolicy` / `deleteHolidayPolicy`
-- `clonePolicy({ policy_id, name })`
-- `addPolicyHoliday({ policy_id, ... })` / `removePolicyHoliday`
-- `importTemplateIntoPolicy({ policy_id, country_code, year, mode })` — reuses `holiday_templates`
-- `assignPolicy({ policy_id, scope, employee_ids?|department_id?|location_id?|country_code? })` — bulk
-- `unassignPolicy({ assignment_id })`
-- `listEmployeeHolidays({ employee_id, year })` — calls SQL resolver, returns merged + colored
-- `addEmployeeOverride({ employee_id, action, ... })`
-- `claimFloatingHoliday({ employee_id, holiday_date, name })`
-- `cloneYearForward({ company_id, from_year, to_year })` — auto rollover
-- `holidayCoverageReport({ company_id, year })` — counts by country/office for dashboard
-
-Existing `holidays.functions.ts` stays untouched (templates, settings, long-weekends, CSV import all reused).
-
----
-
-### 3. UI
-
-**Existing route** `_authenticated.admin.workforce.holidays.tsx` — keep all 5 tabs (List, Calendar, Templates, Long Weekends, Settings). Add **2 new tabs**:
-
-- **Policies** — list of holiday policies for selected company; create/edit/clone; per-policy holiday list; "Import country template into this policy" action.
-- **Assignments** — table of who-gets-what (by employee/department/office/country); bulk-assign dialog with scope picker; shows resolved counts per employee.
-
-**New route** `_authenticated.admin.workforce.holidays.employee.$employeeId.tsx`:
-- Personalized year calendar for one employee (color-coded: red=public, blue=company, orange=optional, purple=personal floating).
-- Override actions: Skip / Move / Add custom.
-- Floating quota tracker.
-
-**Employee profile** (`_authenticated.admin.workforce.employees.tsx`): add Country/Region/City/Timezone/Policy fields to the edit form so the resolver has data to work with.
-
-**Reports widget** in Holidays page header strip:
-- Employees on holiday today / Upcoming global / Country breakdown / Office coverage.
-
-PDF export of yearly calendar per office/country (server function returning HTML → user prints, no new deps).
-
----
-
-### 4. Module integrations
-
-- **Attendance** (`workforce.functions.ts` mark logic): when computing late/absent, call resolver; if date is a holiday for that employee, skip flags and tag the day `holiday`. Holiday work hours feed into existing overtime calc with `holiday_multiplier` setting.
-- **Leave** (`_authenticated.admin.workforce.leave.tsx` + leave create flow): on date pick, fetch `listEmployeeHolidays` and warn "X is a holiday — leave not needed"; suggest bridge days when holiday is adjacent to weekend.
-- **Roster/Shifts**: overlay holiday markers; conflict alert badge if a shift sits on an employee's holiday.
-- **Payroll-ready hooks**: resolver output exposed via existing `isHolidayOnDate` (extend to accept `employee_id`).
-
----
-
-### 5. Permissions & nav
-
-Add new nav items under Workforce (gated):
-- `Holidays → Policies` (`workforce.holidays.policies.read`)
-- `Holidays → Assignments` (`workforce.holidays.assign`)
-
-Both rendered inside the existing Holidays page tabs, plus optional sidebar shortcuts.
-
----
-
-### 6. Out of scope (this iteration)
-
-- Excel (.xlsx) parsing on import — CSV import already exists; .xlsx can be added later if requested.
-- External holiday API sync (Calendarific etc.) — templates remain seeded.
-- Mobile-specific layout polish beyond current responsive grid.
-
----
-
-### Files
-
-**Created**
-- `supabase/migrations/<ts>_holiday_engine.sql`
-- `src/lib/holiday-engine.functions.ts`
-- `src/routes/_authenticated.admin.workforce.holidays.employee.$employeeId.tsx`
-- `src/components/admin/holidays/policy-form-dialog.tsx`
-- `src/components/admin/holidays/assignment-dialog.tsx`
-- `src/components/admin/holidays/policies-tab.tsx`
-- `src/components/admin/holidays/assignments-tab.tsx`
-
-**Edited**
-- `src/routes/_authenticated.admin.workforce.holidays.tsx` (add 2 tabs + reports strip)
-- `src/routes/_authenticated.admin.workforce.employees.tsx` (location/policy fields in edit form)
-- `src/routes/_authenticated.admin.workforce.leave.tsx` (holiday warning on date pick)
-- `src/routes/_authenticated.admin.workforce.attendance.tsx` (holiday badge in rows)
-- `src/routes/_authenticated.admin.workforce.roster.tsx` (holiday overlay)
-- `src/lib/holidays.functions.ts` (extend `isHolidayOnDate` to accept `employee_id`)
-- `src/lib/workforce.functions.ts` (skip late/absent on holidays)
-- `src/components/admin/nav-config.ts` (new sub-items)
+Approve this and I'll implement it in one pass.
