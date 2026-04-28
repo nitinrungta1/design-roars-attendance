@@ -468,7 +468,7 @@ function PlanCard({
         )}
         variant={plan.popular ? "default" : "outline"}
       >
-        <Link to={ctaHref}>{ctaLabel}</Link>
+        <a href={ctaHref}>{ctaLabel}</a>
       </Button>
 
       {/* Plan size hint */}
