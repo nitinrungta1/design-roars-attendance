@@ -634,7 +634,7 @@ export const listCompaniesLite = createServerFn({ method: "POST" })
   });
 
 export const createPlatformUser = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requirePermission("access.users.write")])
   .inputValidator(
     z.object({
       email: z.string().email().max(254),
@@ -662,14 +662,7 @@ export const createPlatformUser = createServerFn({ method: "POST" })
       data,
     }): Promise<{ ok: boolean; userId?: string; error?: string }> => {
       const { supabase, userId } = context;
-      const { data: myRoles } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", userId);
-      const allowed = (myRoles ?? []).some((r) =>
-        ["super_admin", "admin", "hr"].includes(r.role),
-      );
-      if (!allowed) return { ok: false, error: "Not authorized." };
+      // permission already enforced by middleware; userId still needed for audit + invited_by
 
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
