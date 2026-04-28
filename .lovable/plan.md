@@ -1,34 +1,22 @@
-I confirmed the live issue: `https://help.oqlio.com` is being redirected by hosting/domain configuration to `https://oqlio.com/` before the app code runs. That means the app-level fix in `__root.tsx` never gets a chance to route it to the Help Centre.
+I found the cause: the Help Centre database tables currently have 0 articles and 0 categories, so `/help` renders the shell/search but has no content to list.
 
-I’ll fix the user-facing problem by making the site stop depending on `help.oqlio.com` for navigation.
+Plan to fix it:
 
-## Plan
+1. Add starter Help Centre content
+   - Create a safe database migration that inserts a useful set of published help articles and categories for Punchly/Oqlio.
+   - Include categories like Getting Started, Attendance, Mobile App, Admin Settings, Billing, Integrations, and Troubleshooting.
+   - Give each article a slug, title, excerpt, body, category, status `published`, position, SEO title/description, and published timestamp.
 
-1. Update all header and footer Help links
-   - Change the marketing header Help link from `https://help.oqlio.com` to the working in-app route `/help`.
-   - Change the footer Help Center link to `/help`.
-   - This will make clicks work immediately on `oqlio.com` and `www.oqlio.com` after publishing.
+2. Make the public Help page less confusing when content is missing
+   - Update `/help` to show a clear empty-state message if no published articles exist, instead of looking broken.
+   - Keep “Contact support” available from the empty state.
 
-2. Update Help Centre internal navigation
-   - Review `HelpLayout`, `HelpSearch`, article pages, category links, and support/contact links.
-   - Keep Help Centre links on `/help` and `/help/:slug` so they work reliably on the main domain.
+3. Verify the Help Centre data path
+   - Confirm `/help` loads published articles from the database.
+   - Confirm category cards, popular articles, article links, search, and `/help/{slug}` pages work with the seeded content.
+   - Run typecheck/build checks after the changes.
 
-3. Remove broken public references to `help.oqlio.com`
-   - Update SEO canonical URLs for Help Centre pages from `https://help.oqlio.com/...` to `https://oqlio.com/help/...`.
-   - Update Help sitemap and robots references so search engines are not sent to the broken subdomain.
-
-4. Keep the existing route fallback harmless
-   - Leave or simplify the existing host-detection redirect so it doesn’t break anything if the domain configuration is later changed.
-   - The key fix is not relying on that redirect because the domain currently redirects before the app receives the request.
-
-## Important note about `help.oqlio.com`
-
-The actual subdomain itself is not failing because of the React app. It is redirecting at the domain/hosting layer to the primary domain. App code cannot override that redirect.
-
-If you want `help.oqlio.com` to show the Help Centre directly, the domain setup needs to be changed outside the app routing, for example by using a separate Help Centre deployment/project for that subdomain or a DNS/proxy redirect from `help.oqlio.com` to `https://oqlio.com/help`.
-
-After this app fix, the Help links in the header and footer will work by using `https://oqlio.com/help` instead of the currently broken subdomain.
-
-<lov-actions>
-<lov-link url="https://docs.lovable.dev/tips-tricks/troubleshooting">Troubleshooting docs</lov-link>
-</lov-actions>
+Technical notes:
+- This uses the existing `kb_articles` and `kb_categories` tables and existing RLS policies.
+- No change is needed to authentication for public viewing; published articles are already public.
+- This does not try to fix `help.oqlio.com` at DNS/hosting level. It fixes the working path-based Help Centre at `https://oqlio.com/help` and the preview `/help` route.
