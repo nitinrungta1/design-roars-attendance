@@ -25,7 +25,6 @@ import { toast } from "sonner";
 import {
   getPlatformSettings,
   updatePlatformSettings,
-  checkCompanyNameAvailable,
   extractLogoColors,
 } from "@/lib/system.functions";
 import { LogoUploader } from "@/components/admin/logo-uploader";
