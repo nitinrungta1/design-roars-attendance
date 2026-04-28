@@ -490,16 +490,30 @@ function SettingsPage() {
             {/* PREFERENCES */}
             <TabsContent value="preferences" className="space-y-6">
               <Section
-                title="Defaults"
-                description="Applied to new tenants on signup."
+                title="Default plan for new sign-ups"
+                description="When someone creates a new workspace through your sign-up page, this is the billing plan they'll be placed on automatically. You can change a tenant's plan later from Billing → Subscriptions."
                 icon={<SettingsIcon className="h-4 w-4" />}
               >
-                <Field
-                  label="Default plan code"
-                  value={form.default_plan_code}
-                  onChange={(v) => setForm({ ...form, default_plan_code: v })}
-                  placeholder="starter"
-                />
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Default plan</Label>
+                  <Select
+                    value={form.default_plan_code || "free"}
+                    onValueChange={(v) => setForm({ ...form, default_plan_code: v })}
+                  >
+                    <SelectTrigger><SelectValue placeholder="Select a plan" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="free">Free — limited usage, no card required</SelectItem>
+                      <SelectItem value="starter">Starter — small teams getting started</SelectItem>
+                      <SelectItem value="growth">Growth — growing companies</SelectItem>
+                      <SelectItem value="business">Business — established businesses</SelectItem>
+                      <SelectItem value="enterprise">Enterprise — custom limits & SLA</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-[11px] text-muted-foreground">
+                    Tip: most teams pick <strong>Free</strong> or <strong>Starter</strong> here so users can try
+                    Punchly without a credit card. The 14-day trial of higher plans is handled separately under Billing.
+                  </p>
+                </div>
               </Section>
             </TabsContent>
           </Tabs>
