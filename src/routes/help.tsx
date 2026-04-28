@@ -1,6 +1,6 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { HelpLayout } from "@/components/help/help-layout";
 import { HelpSearch } from "@/components/help/help-search";
 import { CategoryGrid } from "@/components/help/category-grid";
@@ -30,8 +30,13 @@ export const Route = createFileRoute("/help")({
 function HelpPage() {
   const { articles, categories } = Route.useLoaderData() as Awaited<ReturnType<typeof listPublicKbArticles>>;
   const { category, q } = Route.useSearch();
+  const navigate = useNavigate();
   const [filterCat, setFilterCat] = useState<string | null>(category ?? null);
-  const [filterQ] = useState<string>(q ?? "");
+  const filterQ = q ?? "";
+
+  useEffect(() => {
+    setFilterCat(category ?? null);
+  }, [category]);
 
   const filtered = useMemo(() => {
     return articles.filter((a: PublicKbArticleSummary) => {
@@ -92,7 +97,10 @@ function HelpPage() {
             <div className="mb-6 flex items-end justify-between">
               <h2 className="text-2xl font-bold tracking-tight">Browse by category</h2>
               <button
-                onClick={() => setFilterCat(null)}
+                onClick={() => {
+                  setFilterCat(null);
+                  navigate({ to: "/help" });
+                }}
                 className={`text-sm ${filterCat ? "text-primary underline" : "text-muted-foreground"}`}
               >
                 {filterCat ? "Clear filter" : "All categories"}
@@ -147,7 +155,18 @@ function HelpPage() {
             </h2>
             <p className="text-sm text-muted-foreground">{filtered.length} articles</p>
           </div>
-          {filtered.length === 0 ? (
+          {articles.length === 0 ? (
+            <div className="rounded-2xl border border-border bg-card p-12 text-center">
+              <BookOpen className="mx-auto mb-3 h-10 w-10 text-muted-foreground" />
+              <p className="font-semibold">No help articles are published yet</p>
+              <p className="mx-auto mt-1 max-w-md text-sm text-muted-foreground">
+                The Help Centre content is being prepared. If you need help now, contact support.
+              </p>
+              <Link to="/contact" className="mt-4 inline-flex text-sm font-medium text-primary underline">
+                Contact support
+              </Link>
+            </div>
+          ) : filtered.length === 0 ? (
             <div className="rounded-2xl border border-border bg-card p-12 text-center">
               <BookOpen className="mx-auto mb-3 h-10 w-10 text-muted-foreground" />
               <p className="font-semibold">No matching articles</p>
