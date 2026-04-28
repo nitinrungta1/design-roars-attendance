@@ -58,36 +58,38 @@ export interface PlatformUserRow {
 export const listPlatformUsers = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<{ users: PlatformUserRow[] }> => {
-    const { supabase } = context;
-    const [{ data: profiles }, { data: roles }, { data: members }, { data: companies }] =
-      await Promise.all([
-        supabase.from("profiles").select("id, full_name, avatar_url, created_at"),
-        supabase.from("user_roles").select("user_id, role"),
-        supabase
-          .from("company_members")
-          .select("user_id, company_id, is_owner, joined_at")
-          .order("is_owner", { ascending: false })
-          .order("joined_at", { ascending: true }),
-        supabase.from("companies").select("id, name"),
-      ]);
+    const { supabase, userId } = context;
+    const { data: myRoles } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId);
+    const canManageUsers = (myRoles ?? []).some((r) =>
+      ["super_admin", "admin", "hr"].includes(r.role),
+    );
+    if (!canManageUsers) return { users: [] };
 
-    // Enrich with auth emails using service-role admin client (bypasses RLS).
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const [authUsers, profilesRes, rolesRes, membersRes, companiesRes] = await Promise.all([
+      supabaseAdmin.auth.admin.listUsers({ perPage: 1000 }),
+      supabaseAdmin.from("profiles").select("id, full_name, avatar_url, created_at"),
+      supabaseAdmin.from("user_roles").select("user_id, role"),
+      supabaseAdmin
+        .from("company_members")
+        .select("user_id, company_id, is_owner, joined_at")
+        .order("is_owner", { ascending: false })
+        .order("joined_at", { ascending: true }),
+      supabaseAdmin.from("companies").select("id, name"),
+    ]);
+
+    const profiles = profilesRes.data ?? [];
+    const roles = rolesRes.data ?? [];
+    const members = membersRes.data ?? [];
+    const companies = companiesRes.data ?? [];
     const emailById = new Map<string, string>();
-    try {
-      const SUPABASE_URL = process.env.SUPABASE_URL;
-      const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-      if (SUPABASE_URL && SERVICE_KEY) {
-        const { createClient } = await import("@supabase/supabase-js");
-        const admin = createClient(SUPABASE_URL, SERVICE_KEY, {
-          auth: { persistSession: false, autoRefreshToken: false },
-        });
-        const { data: list } = await admin.auth.admin.listUsers({ perPage: 1000 });
-        for (const u of list?.users ?? []) {
-          if (u.email) emailById.set(u.id, u.email);
-        }
-      }
-    } catch {
-      // best-effort; emails just stay null
+    const joinedById = new Map<string, string>();
+    for (const u of authUsers.data?.users ?? []) {
+      if (u.email) emailById.set(u.id, u.email);
+      if (u.created_at) joinedById.set(u.id, u.created_at);
     }
 
     const companiesById = new Map((companies ?? []).map((c) => [c.id, c.name]));
@@ -109,18 +111,23 @@ export const listPlatformUsers = createServerFn({ method: "POST" })
     }
 
     return {
-      users: (profiles ?? []).map((p) => {
-        const primary = primaryByUser.get(p.id) ?? null;
+      users: Array.from(
+        new Set([...profiles.map((p) => p.id), ...(authUsers.data?.users ?? []).map((u) => u.id)]),
+      ).map((id) => {
+        const profile = profiles.find((p) => p.id === id) ?? null;
+        const primary = primaryByUser.get(id) ?? null;
         return {
-          user_id: p.id,
-          email: emailById.get(p.id) ?? null,
-          full_name: p.full_name,
-          avatar_url: p.avatar_url,
-          roles: rolesByUser.get(p.id) ?? [],
-          primary_company: primary
-            ? { id: primary.id, name: primary.name }
-            : null,
-          joined_at: primary?.joined_at ?? (p.created_at as string),
+          user_id: id,
+          email: emailById.get(id) ?? null,
+          full_name: profile?.full_name ?? null,
+          avatar_url: profile?.avatar_url ?? null,
+          roles: rolesByUser.get(id) ?? [],
+          primary_company: primary ? { id: primary.id, name: primary.name } : null,
+          joined_at:
+            primary?.joined_at ??
+            (profile?.created_at as string | undefined) ??
+            joinedById.get(id) ??
+            null,
         };
       }),
     };
