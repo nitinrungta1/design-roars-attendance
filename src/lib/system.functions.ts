@@ -19,6 +19,12 @@ export interface PlatformSettings {
   default_timezone: string;
   logo_url: string | null;
   primary_color: string | null;
+  secondary_color: string | null;
+  accent_color: string | null;
+  date_format: string;
+  time_format: string;
+  number_format: string;
+  week_start: number;
   role_labels: Record<string, string>;
   security: {
     enforce_2fa: boolean;
@@ -59,21 +65,29 @@ export const getPlatformSettings = createServerFn({ method: "POST" })
       return { settings: null };
     }
     if (!data) return { settings: null };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const d = data as any;
     return {
       settings: {
-        id: data.id,
-        brand_name: data.brand_name,
-        product_name: data.product_name,
-        support_email: data.support_email,
-        default_plan_code: data.default_plan_code,
-        default_currency: data.default_currency,
-        default_timezone: data.default_timezone,
-        logo_url: data.logo_url,
-        primary_color: data.primary_color,
-        role_labels: (data.role_labels as Record<string, string>) ?? {},
-        security: { ...DEFAULT_SECURITY, ...((data.security as object) ?? {}) },
-        email: (data.email as Json) ?? {},
-        updated_at: data.updated_at as string,
+        id: d.id,
+        brand_name: d.brand_name,
+        product_name: d.product_name,
+        support_email: d.support_email,
+        default_plan_code: d.default_plan_code,
+        default_currency: d.default_currency,
+        default_timezone: d.default_timezone,
+        logo_url: d.logo_url,
+        primary_color: d.primary_color,
+        secondary_color: d.secondary_color ?? null,
+        accent_color: d.accent_color ?? null,
+        date_format: d.date_format ?? "DD/MM/YYYY",
+        time_format: d.time_format ?? "24h",
+        number_format: d.number_format ?? "en-IN",
+        week_start: typeof d.week_start === "number" ? d.week_start : 1,
+        role_labels: (d.role_labels as Record<string, string>) ?? {},
+        security: { ...DEFAULT_SECURITY, ...((d.security as object) ?? {}) },
+        email: (d.email as Json) ?? {},
+        updated_at: d.updated_at as string,
       },
     };
   });
@@ -91,6 +105,12 @@ export const updatePlatformSettings = createServerFn({ method: "POST" })
         default_timezone: z.string().max(80).optional(),
         logo_url: z.string().max(500).nullable().optional(),
         primary_color: z.string().max(20).nullable().optional(),
+        secondary_color: z.string().max(20).nullable().optional(),
+        accent_color: z.string().max(20).nullable().optional(),
+        date_format: z.string().max(20).optional(),
+        time_format: z.enum(["12h", "24h"]).optional(),
+        number_format: z.string().max(20).optional(),
+        week_start: z.number().int().min(0).max(6).optional(),
         role_labels: z.record(z.string(), z.string()).optional(),
         security: z
           .object({
