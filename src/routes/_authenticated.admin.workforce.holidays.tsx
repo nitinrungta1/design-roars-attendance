@@ -439,6 +439,20 @@ function HolidaysPage() {
             )}
           </TabsContent>
 
+          {/* POLICIES */}
+          <TabsContent value="policies" className="mt-4">
+            <PoliciesTab
+              companyId={companyId}
+              countries={countries?.countries ?? []}
+              year={year}
+            />
+          </TabsContent>
+
+          {/* ASSIGNMENTS */}
+          <TabsContent value="assignments" className="mt-4">
+            <AssignmentsTab companyId={companyId} countries={countries?.countries ?? []} />
+          </TabsContent>
+
           {/* SETTINGS */}
           <TabsContent value="settings" className="mt-4">
             <SettingsPanel
