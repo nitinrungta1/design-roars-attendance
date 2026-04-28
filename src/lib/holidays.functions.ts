@@ -164,7 +164,7 @@ export const listCompanyHolidays = createServerFn({ method: "POST" })
           is_optional: h.is_optional,
           description: h.description,
           template_id: h.template_id,
-          year: h.year,
+          year: h.year ?? new Date(h.holiday_date).getUTCFullYear(),
         };
       }),
     };
@@ -224,7 +224,8 @@ export const updateHolidayV2 = createServerFn({ method: "POST" })
         patch[k] = null;
       else if (v !== undefined) patch[k] = v;
     }
-    const { error } = await supabase.from("holidays").update(patch).eq("id", id);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await supabase.from("holidays").update(patch as any).eq("id", id);
     if (error) return { ok: false as const, error: error.message };
     return { ok: true as const };
   });
@@ -421,7 +422,8 @@ export const updateCompanyHolidaySettings = createServerFn({ method: "POST" })
       payload.auto_import_enabled = data.auto_import_enabled;
     const { error } = await supabase
       .from("company_holiday_settings")
-      .upsert(payload, { onConflict: "company_id" });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .upsert(payload as any, { onConflict: "company_id" });
     if (error) return { ok: false as const, error: error.message };
     return { ok: true as const };
   });
