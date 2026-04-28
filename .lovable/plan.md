@@ -1,40 +1,40 @@
-# Remove visible Lovable branding & add copy/inspect deterrent
+## Problem
 
-## What's actually visible
+Visiting `help.oqlio.com` currently shows the Oqlio marketing home page instead of the Help Centre. The "Help" links in the header and footer correctly point to `https://help.oqlio.com`, but because the destination subdomain is broken, clicking them appears to do nothing useful (lands back on the same marketing home).
 
-After scanning the codebase, **there is no visible "Made with Lovable" or "Powered by Supabase" text anywhere in the site**. The only Lovable-branded thing on your published site is the floating **"Edit with Lovable" badge** (injected by the platform, not in your code). All other "lovable" / "supabase" references are SDK imports — code identifiers the user never sees.
+Root cause is in `src/routes/__root.tsx`. The host-based redirect is wrapped in `typeof window !== "undefined"`, so it only runs in the browser. By that point the server has already shipped the marketing index HTML for `/`, and the redirect inside `beforeLoad` doesn't take effect on the initial SSR render. Result: `help.oqlio.com/` keeps serving the marketing home.
 
-✅ **Already done in this turn:** badge hidden via publish settings.
+## Fix
 
-## What still to build: Copy / inspect deterrent (light)
+Move the host-based routing so it runs on the server (during SSR) using the request's `Host` header, not just on the client after hydration.
 
-A new `CopyGuard` component mounted in `__root.tsx` that, on public pages only, blocks:
-- Right-click context menu
-- Text selection & drag
-- `Ctrl/Cmd + C / X / S / U / P / A`
-- `F12`, `Ctrl+Shift+I/J/C` (DevTools shortcuts)
-- Copy/cut events at the document level
+### 1. `src/routes/__root.tsx` — server-aware help subdomain handling
 
-**Scoped off** (so admin work and forms keep working):
-- `/admin/**` — staff need full DevTools & copy
-- `/login`, `/signup`, `/forgot-password`, `/reset-password`, `/auth-callback`
-- `/contact`, `/demo` — forms need paste
+Replace the current `beforeLoad` with logic that:
+- Uses `getRequestHeaders()` from `@tanstack/react-start/server` (or the equivalent `getHeaders`) on the server to read the `host` header.
+- Falls back to `window.location.host` on the client.
+- If the host is `help.oqlio.com` (or any `help.*` subdomain) AND the path is `/` (or empty), throw `redirect({ to: "/help", replace: true })`.
+- Also handle the inverse cleanup: if a Help URL like `/help` is accessed on `help.oqlio.com`, leave it alone (the redirect to `/help` already covers initial visits, and direct navigation to `/help/$slug` works as-is).
 
-**Form fields always pass through** even on protected pages: any `<input>`, `<textarea>`, `<select>`, or `contentEditable` element keeps normal behavior — so the help search box, ticket form, and KB feedback widget all still work.
+This means a request to `https://help.oqlio.com/` is redirected server-side (HTTP 302) to `https://help.oqlio.com/help`, and from there the existing Help routes render correctly.
 
-## Honest disclosure
+### 2. Verify Help links in header/footer
 
-I want to be upfront: this is a **deterrent, not real protection**. Anyone with technical skill can:
-- Open DevTools via the browser menu (not a shortcut)
-- View source via `view-source:` URL prefix
-- Disable JS and bypass the entire guard
-- Read the SSR HTML directly with `curl`
+`src/components/brand/marketing-header.tsx` and `src/components/brand/marketing-footer.tsx` already render external links via `<a href>` when `external: true`. No changes needed there — they will start working as soon as the destination subdomain serves the Help Centre.
 
-A web app's HTML/CSS/JS is **fundamentally downloaded by the browser to render** — it cannot be hidden from a determined viewer. What we can do is stop casual copying, which this does well.
+### 3. Verify CopyGuard doesn't block link clicks
 
-## Files
+`src/components/copy-guard.tsx` only blocks `contextmenu`, `selectstart`, `dragstart`, and a few keyboard shortcuts. Plain left-click on an `<a href>` is unaffected. No change needed.
 
-- **Create:** `src/components/copy-guard.tsx` (~80 lines, pure client effect)
-- **Edit:** `src/routes/__root.tsx` — import & mount `<CopyGuard />` next to `<TrackingProvider />`
+## Verification
 
-No DB, no backend changes, no UI changes other than blocked interactions.
+After the change:
+1. `https://help.oqlio.com/` → 302 → `https://help.oqlio.com/help` → renders the Help Centre.
+2. Click "Help" in the marketing header → opens the Help Centre.
+3. Click "Help Center" in the marketing footer → opens the Help Centre.
+4. `https://oqlio.com/help` → still renders the Help Centre on the apex domain (unchanged behaviour, used for crawlers and direct deep links).
+
+## Out of scope
+
+- No DNS or domain configuration changes — `help.oqlio.com` is already connected as a custom domain pointing at the same project, which is correct.
+- No changes to Help Centre content, search, or layout.
