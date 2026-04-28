@@ -80,7 +80,7 @@ export function LogoUploader({ value, onChange, onUploaded, disabled }: LogoUplo
         const path = `platform/logo-${Date.now()}.${ext}`;
         const { error } = await supabase.storage
           .from("brand-assets")
-          .upload(path, processed, { cacheControl: "3600", upsert: true, contentType: processed.type });
+          .upload(path, processed, { cacheControl: "3600", upsert: false, contentType: processed.type });
         if (error) throw error;
         const { data } = supabase.storage.from("brand-assets").getPublicUrl(path);
         onChange(data.publicUrl);
