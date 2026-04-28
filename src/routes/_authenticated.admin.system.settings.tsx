@@ -297,19 +297,20 @@ function SettingsPage() {
                 </div>
 
                 <Field
-                  label="Product name"
+                  label="Product name (optional)"
                   value={form.product_name}
                   onChange={(v) => setForm({ ...form, product_name: v })}
-                  hint="Shown in the app shell and product UI."
-                  required
+                  placeholder={form.brand_name || "e.g. Punchly"}
+                  hint="The internal product name shown inside the app shell. Leave blank to reuse the company name."
                 />
                 <Field
-                  label="Support email"
+                  label="Support email (optional)"
                   type="email"
                   value={form.support_email}
                   onChange={(v) => setForm({ ...form, support_email: v })}
+                  placeholder="support@yourcompany.com"
+                  hint="Where customers can reach your team. Used in invoices and outgoing emails."
                 />
-              </Section>
             </TabsContent>
 
             {/* BRANDING */}
