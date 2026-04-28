@@ -10,7 +10,7 @@ import {
   Building2,
   Palette,
   Globe2,
-  SlidersHorizontal,
+  
   Sparkles,
   Undo2,
 } from "lucide-react";
