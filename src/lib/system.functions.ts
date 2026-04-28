@@ -19,6 +19,12 @@ export interface PlatformSettings {
   default_timezone: string;
   logo_url: string | null;
   primary_color: string | null;
+  secondary_color: string | null;
+  accent_color: string | null;
+  date_format: string;
+  time_format: string;
+  number_format: string;
+  week_start: number;
   role_labels: Record<string, string>;
   security: {
     enforce_2fa: boolean;
@@ -59,21 +65,29 @@ export const getPlatformSettings = createServerFn({ method: "POST" })
       return { settings: null };
     }
     if (!data) return { settings: null };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const d = data as any;
     return {
       settings: {
-        id: data.id,
-        brand_name: data.brand_name,
-        product_name: data.product_name,
-        support_email: data.support_email,
-        default_plan_code: data.default_plan_code,
-        default_currency: data.default_currency,
-        default_timezone: data.default_timezone,
-        logo_url: data.logo_url,
-        primary_color: data.primary_color,
-        role_labels: (data.role_labels as Record<string, string>) ?? {},
-        security: { ...DEFAULT_SECURITY, ...((data.security as object) ?? {}) },
-        email: (data.email as Json) ?? {},
-        updated_at: data.updated_at as string,
+        id: d.id,
+        brand_name: d.brand_name,
+        product_name: d.product_name,
+        support_email: d.support_email,
+        default_plan_code: d.default_plan_code,
+        default_currency: d.default_currency,
+        default_timezone: d.default_timezone,
+        logo_url: d.logo_url,
+        primary_color: d.primary_color,
+        secondary_color: d.secondary_color ?? null,
+        accent_color: d.accent_color ?? null,
+        date_format: d.date_format ?? "DD/MM/YYYY",
+        time_format: d.time_format ?? "24h",
+        number_format: d.number_format ?? "en-IN",
+        week_start: typeof d.week_start === "number" ? d.week_start : 1,
+        role_labels: (d.role_labels as Record<string, string>) ?? {},
+        security: { ...DEFAULT_SECURITY, ...((d.security as object) ?? {}) },
+        email: (d.email as Json) ?? {},
+        updated_at: d.updated_at as string,
       },
     };
   });
@@ -91,6 +105,12 @@ export const updatePlatformSettings = createServerFn({ method: "POST" })
         default_timezone: z.string().max(80).optional(),
         logo_url: z.string().max(500).nullable().optional(),
         primary_color: z.string().max(20).nullable().optional(),
+        secondary_color: z.string().max(20).nullable().optional(),
+        accent_color: z.string().max(20).nullable().optional(),
+        date_format: z.string().max(20).optional(),
+        time_format: z.enum(["12h", "24h"]).optional(),
+        number_format: z.string().max(20).optional(),
+        week_start: z.number().int().min(0).max(6).optional(),
         role_labels: z.record(z.string(), z.string()).optional(),
         security: z
           .object({
@@ -358,3 +378,137 @@ export const createFeatureFlag = createServerFn({ method: "POST" })
     });
     return { ok: true };
   });
+
+// ============================================================
+// Company name uniqueness check
+// ============================================================
+
+export const checkCompanyNameAvailable = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(
+    z.object({
+      name: z.string().min(1).max(120),
+      excludeId: z.string().uuid().optional(),
+    }),
+  )
+  .handler(async ({ context, data }): Promise<{ available: boolean }> => {
+    const { supabase } = context;
+    const normalized = data.name.trim().toLowerCase();
+    if (!normalized) return { available: false };
+    let q = supabase.from("companies").select("id, name");
+    if (data.excludeId) q = q.neq("id", data.excludeId);
+    const { data: rows, error } = await q;
+    if (error) {
+      console.error("checkCompanyNameAvailable", error);
+      return { available: true }; // fail open — server-side unique index is the source of truth
+    }
+    const taken = (rows ?? []).some(
+      (r) => (r.name ?? "").trim().toLowerCase() === normalized,
+    );
+    return { available: !taken };
+  });
+
+// ============================================================
+// AI brand color extraction from a logo URL
+// ============================================================
+
+export const extractLogoColors = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(z.object({ logoUrl: z.string().url() }))
+  .handler(
+    async ({
+      data,
+    }): Promise<{
+      ok: boolean;
+      primary?: string;
+      secondary?: string;
+      accent?: string;
+      error?: string;
+    }> => {
+      const apiKey = process.env.LOVABLE_API_KEY;
+      if (!apiKey) return { ok: false, error: "AI gateway not configured" };
+
+      try {
+        const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${apiKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: "google/gemini-2.5-flash",
+            messages: [
+              {
+                role: "system",
+                content:
+                  "You are a brand designer. Look at the provided company logo image and identify the dominant brand colors. Return three harmonious hex colors that would work well as a UI palette.",
+              },
+              {
+                role: "user",
+                content: [
+                  {
+                    type: "text",
+                    text: "Extract the brand palette from this logo. Return primary (most dominant), secondary (supporting), and accent (highlight) hex codes.",
+                  },
+                  { type: "image_url", image_url: { url: data.logoUrl } },
+                ],
+              },
+            ],
+            tools: [
+              {
+                type: "function",
+                function: {
+                  name: "set_brand_palette",
+                  description: "Return the extracted brand palette as 3 hex colors.",
+                  parameters: {
+                    type: "object",
+                    properties: {
+                      primary: {
+                        type: "string",
+                        description: "Primary brand color in #RRGGBB hex format",
+                      },
+                      secondary: {
+                        type: "string",
+                        description: "Secondary color in #RRGGBB hex format",
+                      },
+                      accent: {
+                        type: "string",
+                        description: "Accent / highlight color in #RRGGBB hex format",
+                      },
+                    },
+                    required: ["primary", "secondary", "accent"],
+                    additionalProperties: false,
+                  },
+                },
+              },
+            ],
+            tool_choice: { type: "function", function: { name: "set_brand_palette" } },
+          }),
+        });
+
+        if (resp.status === 429) return { ok: false, error: "Rate limit exceeded. Try again shortly." };
+        if (resp.status === 402) return { ok: false, error: "AI credits exhausted." };
+        if (!resp.ok) return { ok: false, error: `AI gateway error (${resp.status})` };
+
+        const json = await resp.json();
+        const call = json?.choices?.[0]?.message?.tool_calls?.[0];
+        const args = call?.function?.arguments;
+        if (!args) return { ok: false, error: "No palette returned" };
+        const parsed = typeof args === "string" ? JSON.parse(args) : args;
+        const hex = (s: unknown): string | undefined => {
+          if (typeof s !== "string") return undefined;
+          const v = s.trim();
+          return /^#[0-9a-f]{6}$/i.test(v) ? v.toLowerCase() : undefined;
+        };
+        return {
+          ok: true,
+          primary: hex(parsed.primary),
+          secondary: hex(parsed.secondary),
+          accent: hex(parsed.accent),
+        };
+      } catch (e) {
+        console.error("extractLogoColors", e);
+        return { ok: false, error: "Failed to analyze logo" };
+      }
+    },
+  );
