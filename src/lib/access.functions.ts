@@ -64,13 +64,17 @@ export const listPlatformUsers = createServerFn({ method: "POST" })
       context,
     }): Promise<{ users: PlatformUserRow[]; error?: string; canCreate: boolean }> => {
       const { supabase, userId } = context;
+      // Determine if caller can also create users (write permission)
+      const { data: writeOk } = await supabase.rpc("has_permission", {
+        _user_id: userId,
+        _key: "access.users.write",
+      });
       const { data: myRoles } = await supabase
         .from("user_roles")
         .select("role")
         .eq("user_id", userId);
-      const canManageUsers = (myRoles ?? []).some((r) =>
-        ["super_admin", "admin", "hr"].includes(r.role),
-      );
+      const isSuper = (myRoles ?? []).some((r) => r.role === "super_admin");
+      const canCreate = isSuper || writeOk === true;
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const [authUsers, profilesRes, rolesRes, membersRes, companiesRes] = await Promise.all([
