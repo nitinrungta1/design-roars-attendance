@@ -57,16 +57,25 @@ export interface PlatformUserRow {
 
 export const listPlatformUsers = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }): Promise<{ users: PlatformUserRow[] }> => {
-    const { supabase, userId } = context;
-    const { data: myRoles } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", userId);
-    const canManageUsers = (myRoles ?? []).some((r) =>
-      ["super_admin", "admin", "hr"].includes(r.role),
-    );
-    if (!canManageUsers) return { users: [] };
+  .handler(
+    async ({
+      context,
+    }): Promise<{ users: PlatformUserRow[]; error?: string; canCreate: boolean }> => {
+      const { supabase, userId } = context;
+      const { data: myRoles } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId);
+      const canManageUsers = (myRoles ?? []).some((r) =>
+        ["super_admin", "admin", "hr"].includes(r.role),
+      );
+      if (!canManageUsers) {
+        return {
+          users: [],
+          canCreate: false,
+          error: "You need admin or HR access to view platform users.",
+        };
+      }
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const [authUsers, profilesRes, rolesRes, membersRes, companiesRes] = await Promise.all([
