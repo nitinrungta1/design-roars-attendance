@@ -1,35 +1,69 @@
-Plan to fix the Users panel and add user creation
+# Why no signed-up users appear
 
-1. Make the Users panel show actual users reliably
-- Update the users fetch function so it returns a clear success/error shape instead of silently returning an empty list when the current account is not allowed or when the backend query fails.
-- Keep the secure server-side admin lookup for registered identities, but add defensive error handling for auth users, profiles, roles, memberships, and companies.
-- Sort users by joined date/name so the main account is easy to find.
-- Add a visible error/permission message in the Users page instead of only showing “No users found”.
+I checked the database directly. The reality is:
 
-2. Add a Create user option in the Users page
-- Add a “Create user” button in the Users page header/toolbar.
-- Open a dialog with fields:
-  - Full name
-  - Work email
-  - Initial password or “send invite/reset email” flow, depending on supported backend behavior
-  - Role dropdown
-  - Company dropdown, defaulting to Oqlio/current default company when available
-- After creation, refresh the table and show a success toast.
+- `auth.users` contains only **2 records** total — `nitin@dataroars.com` and `muskan@designroars.com`. Both already show in the panel as super_admins.
+- **No "free user" or "paid plan" signup has ever reached the database.** There is nothing to display because nothing was created.
+- The `on_auth_user_created` trigger on `auth.users` is **missing** (zero triggers on the table). So even when a new person does sign up, they won't get a `profiles` row or a default `employee` role — and they'll appear as a ghost row with no name and no role.
+- The `/pricing` page does not actually start a signup for "Free" or any paid plan — its CTAs don't call `supabase.auth.signUp` or even route to `/signup` with the right context. The only working signup path is `/signup`, which requires email confirmation.
 
-3. Create the backend user safely
-- Add a server function such as `createPlatformUser` that only `super_admin`, `admin`, or `hr` can call.
-- Use the backend admin client on the server only to create the auth identity.
-- Create/backfill the matching `profiles` row.
-- Assign the selected role in `user_roles`.
-- Add the user to `company_members` when a company is selected.
-- Write an audit log for user creation and role assignment.
+So the issue is three things stacked: the trigger is gone, the pricing flow doesn't sign anyone up, and any user who never confirms email isn't visibly flagged.
 
-4. Keep role and permission management inside each user
-- Keep the existing “Roles & permissions” button and side sheet.
-- Ensure role dropdown changes made in the sheet refresh the row being displayed, so the selected user’s badges don’t stay stale after a role is granted/revoked.
+# What I will fix
 
-Technical details
-- Do not put roles on the profile/user record; continue using `user_roles`.
-- Do not expose service credentials to the browser; all user creation and full user listing stays inside server functions.
-- Do not edit generated Lovable Cloud integration files.
-- A database migration should also repair the company link for the existing main user if missing, because the current data shows one profile without `company_id` even though roles exist.
+## 1. Recreate the `handle_new_user` trigger on `auth.users` (migration)
+
+The function `public.handle_new_user()` already exists and is correct. Only the trigger binding is missing. Migration:
+
+```sql
+drop trigger if exists on_auth_user_created on auth.users;
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute function public.handle_new_user();
+```
+
+This guarantees every future signup gets a `profiles` row + an `employee` role, so they show up properly in the Users panel with name, company, and role.
+
+## 2. Wire the Pricing page CTAs to actual signup
+
+In `src/routes/pricing.tsx`, every plan button (Free, Starter, Growth, Business) will route to `/signup?plan=<slug>&cycle=<monthly|yearly>`. Enterprise stays on `/contact`.
+
+In `src/routes/signup.tsx`, after a successful signup, read `plan` from the URL and:
+- Free → redirect to `/admin` (or `/auth-callback` if confirmation required).
+- Paid → redirect to `/admin/billing/plans?plan=<slug>` so they can complete checkout.
+
+This means clicking "Start free" on `/pricing` actually creates an `auth.users` row.
+
+## 3. Show unconfirmed and ghost users in the Users panel
+
+Update `listPlatformUsers` in `src/lib/access.functions.ts` to also expose `email_confirmed_at` per user, and add a small "Pending email" badge in `src/routes/_authenticated.admin.access.users.tsx` for users where it's null. This way you can see people who signed up but never confirmed (today they're invisible to you).
+
+## 4. One-time data backfill for any orphan auth users
+
+If a future or past signup landed without a profile, run an idempotent backfill in the same migration:
+
+```sql
+insert into public.profiles (id, full_name)
+select u.id, coalesce(u.raw_user_meta_data->>'full_name', split_part(u.email,'@',1))
+from auth.users u
+left join public.profiles p on p.id = u.id
+where p.id is null;
+
+insert into public.user_roles (user_id, role)
+select u.id, 'employee'::public.app_role
+from auth.users u
+where not exists (select 1 from public.user_roles r where r.user_id = u.id);
+```
+
+# Files touched
+
+- New migration: trigger + backfill (section 1 & 4)
+- `src/routes/pricing.tsx` — CTA links
+- `src/routes/signup.tsx` — read `plan` query param, route accordingly
+- `src/lib/access.functions.ts` — include `email_confirmed_at` in `PlatformUserRow`
+- `src/routes/_authenticated.admin.access.users.tsx` — render "Pending email" badge
+
+# What you'll see after
+
+- Anyone who signs up via `/signup` or clicks any Pricing CTA appears in **Admin → Access → Users** with their name, default `employee` role, and a "Pending email" badge until they confirm.
+- Existing 2 super_admins continue to display as today.
