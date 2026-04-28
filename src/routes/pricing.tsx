@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Check, Minus, Sparkles, ShieldCheck, RefreshCcw, Zap, Users, HelpCircle } from "lucide-react";
 import { MarketingLayout } from "@/components/brand/marketing-layout";
