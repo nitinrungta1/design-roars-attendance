@@ -362,17 +362,53 @@ function PlanCard({
 }) {
   const isEnterprise = plan.tier === "enterprise";
   const isFree = plan.tier === "free";
+  const isPerUser =
+    plan.billing_model === "per_user" || plan.billing_model === "hybrid";
 
-  // Compute per-month display price
-  const monthlyUsd = planAmountInUsd(plan.price_monthly, plan.currency);
-  // For yearly cycle: prefer yearly DB price ÷ 12 if present, else 20% off monthly
-  const yearlyTotalUsd = plan.price_yearly > 0
-    ? planAmountInUsd(plan.price_yearly, plan.currency)
-    : monthlyUsd * 12 * 0.8;
-  const yearlyPerMonthUsd = yearlyTotalUsd / 12;
+  // Per-user pricing (preferred)
+  const perUserMonthlyUsd = planAmountInUsd(
+    plan.price_per_user_monthly,
+    plan.currency,
+  );
+  const perUserYearlyTotalUsd =
+    plan.price_per_user_yearly > 0
+      ? planAmountInUsd(plan.price_per_user_yearly, plan.currency)
+      : perUserMonthlyUsd * 12 * 0.8;
+  const perUserPerMonthYearlyUsd = perUserYearlyTotalUsd / 12;
 
-  const perMonthUsd = cycle === "yearly" ? yearlyPerMonthUsd : monthlyUsd;
-  const annualSavingsUsd = monthlyUsd * 12 - yearlyTotalUsd;
+  // Base/flat pricing (fallback)
+  const baseMonthlyUsd = planAmountInUsd(plan.price_monthly, plan.currency);
+  const baseYearlyTotalUsd =
+    plan.price_yearly > 0
+      ? planAmountInUsd(plan.price_yearly, plan.currency)
+      : baseMonthlyUsd * 12 * 0.8;
+
+  // What we actually display in the headline
+  const headlineMonthlyUsd = isPerUser
+    ? cycle === "yearly"
+      ? perUserPerMonthYearlyUsd
+      : perUserMonthlyUsd
+    : cycle === "yearly"
+      ? baseYearlyTotalUsd / 12
+      : baseMonthlyUsd;
+
+  const annualBilledUsd = isPerUser
+    ? perUserYearlyTotalUsd * Math.max(plan.min_seats, 1)
+    : baseYearlyTotalUsd;
+
+  // Real savings (no hardcoded %)
+  const monthlyRefUsd = isPerUser ? perUserMonthlyUsd : baseMonthlyUsd;
+  const yearlyRefUsd = isPerUser ? perUserYearlyTotalUsd : baseYearlyTotalUsd;
+  const annualSavingsPctReal =
+    monthlyRefUsd > 0 && yearlyRefUsd > 0 && yearlyRefUsd < monthlyRefUsd * 12
+      ? Math.round(
+          ((monthlyRefUsd * 12 - yearlyRefUsd) / (monthlyRefUsd * 12)) * 100,
+        )
+      : 0;
+  const annualSavingsPerSeatUsd = Math.max(
+    monthlyRefUsd * 12 - yearlyRefUsd,
+    0,
+  );
 
   const ctaLabel =
     plan.cta_label ??
@@ -408,9 +444,9 @@ function PlanCard({
 
       <div className="flex items-baseline justify-between">
         <h3 className="text-lg font-semibold">{plan.name}</h3>
-        {cycle === "yearly" && !isEnterprise && !isFree && (
+        {cycle === "yearly" && annualSavingsPctReal > 0 && !isEnterprise && !isFree && (
           <span className="rounded-full bg-success/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-success">
-            -20%
+            -{annualSavingsPctReal}%
           </span>
         )}
       </div>
@@ -419,7 +455,7 @@ function PlanCard({
       )}
 
       {/* PRICE */}
-      <div className="mt-5 min-h-[88px]">
+      <div className="mt-5 min-h-[100px]">
         {isEnterprise ? (
           <>
             <div className="text-3xl font-bold tabular-nums">Custom</div>
@@ -435,24 +471,49 @@ function PlanCard({
         ) : (
           <>
             <div className="flex items-baseline gap-1.5">
-              <AnimatedPrice usdAmount={perMonthUsd} format={format} />
-              <span className="text-sm text-muted-foreground">/mo</span>
+              <AnimatedPrice usdAmount={headlineMonthlyUsd} format={format} />
+              <span className="text-sm text-muted-foreground">
+                {isPerUser ? "/user /mo" : "/mo"}
+              </span>
             </div>
             <p className="mt-1 text-xs text-muted-foreground">
               {cycle === "yearly" ? (
+                isPerUser ? (
+                  <>
+                    Billed annually. Min{" "}
+                    <span className="font-medium text-foreground">
+                      {plan.min_seats}
+                    </span>{" "}
+                    {plan.min_seats === 1 ? "user" : "users"} ={" "}
+                    <span className="font-medium text-foreground">
+                      {format(annualBilledUsd)}
+                    </span>
+                    /yr
+                  </>
+                ) : (
+                  <>
+                    Billed annually as{" "}
+                    <span className="font-medium text-foreground">
+                      {format(annualBilledUsd)}
+                    </span>
+                  </>
+                )
+              ) : isPerUser ? (
                 <>
-                  Billed annually as{" "}
+                  Billed monthly. Min{" "}
                   <span className="font-medium text-foreground">
-                    {format(yearlyTotalUsd)}
-                  </span>
+                    {plan.min_seats}
+                  </span>{" "}
+                  {plan.min_seats === 1 ? "user" : "users"}
                 </>
               ) : (
                 "Billed monthly"
               )}
             </p>
-            {cycle === "yearly" && annualSavingsUsd > 0 && (
+            {cycle === "yearly" && annualSavingsPerSeatUsd > 0 && (
               <p className="mt-1 text-xs font-medium text-success">
-                Save {format(annualSavingsUsd)} per year
+                Save {format(annualSavingsPerSeatUsd)}
+                {isPerUser ? " per user / year" : " per year"}
               </p>
             )}
           </>
