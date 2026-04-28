@@ -19,6 +19,7 @@ import {
 } from "@/lib/access.functions";
 import { seo } from "@/lib/seo";
 import { cn } from "@/lib/utils";
+import { useRequirePermission } from "@/hooks/use-require-permission";
 
 export const Route = createFileRoute("/_authenticated/admin/access/users")({
   head: () =>
@@ -46,12 +47,14 @@ const ROLE_TONES: Record<string, string> = {
 };
 
 function UsersPage() {
+  const blocked = useRequirePermission("access.users.read");
   const qc = useQueryClient();
   const [search, setSearch] = useState("");
   const [activeUser, setActiveUser] = useState<PlatformUserRow | null>(null);
   const { data, isLoading } = useQuery({
     queryKey: ["admin", "platform-users"],
     queryFn: () => listPlatformUsers(),
+    enabled: !blocked,
   });
 
   const revoke = useMutation({
