@@ -97,9 +97,11 @@ export const listPlatformUsers = createServerFn({ method: "POST" })
     const companies = companiesRes.data ?? [];
     const emailById = new Map<string, string>();
     const joinedById = new Map<string, string>();
+    const confirmedById = new Map<string, string | null>();
     for (const u of authUsers.data?.users ?? []) {
       if (u.email) emailById.set(u.id, u.email);
       if (u.created_at) joinedById.set(u.id, u.created_at);
+      confirmedById.set(u.id, u.email_confirmed_at ?? null);
     }
 
     const companiesById = new Map((companies ?? []).map((c) => [c.id, c.name]));
@@ -141,6 +143,7 @@ export const listPlatformUsers = createServerFn({ method: "POST" })
             (profile?.created_at as string | undefined) ??
             joinedById.get(id) ??
             null,
+          email_confirmed_at: confirmedById.get(id) ?? null,
         };
       });
       users.sort((a, b) => {
