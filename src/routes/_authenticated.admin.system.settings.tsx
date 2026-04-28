@@ -97,9 +97,8 @@ function SettingsPage() {
   const [aiBusy, setAiBusy] = useState(false);
   const [aiSuggestion, setAiSuggestion] = useState<{ primary?: string; secondary?: string; accent?: string } | null>(null);
 
-  // Brand-name availability check (debounced)
+  // Brand-name validity status (no global uniqueness check — workspace-local).
   const [nameStatus, setNameStatus] = useState<"idle" | "checking" | "ok" | "taken">("idle");
-  const nameTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (data?.settings) {
