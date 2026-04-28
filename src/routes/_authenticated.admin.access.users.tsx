@@ -1,26 +1,19 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Users, X } from "lucide-react";
+import { Users, X, Settings2 } from "lucide-react";
+import { UserAccessSheet } from "@/components/admin/user-access-sheet";
+import type { PlatformUserRow } from "@/lib/access.functions";
 import { PageHeader, PageBody, EmptyState } from "@/components/admin/primitives";
 import { DataTable, Td, Tr, fmtDate, StatCard } from "@/components/admin/data-shell";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import {
   listPlatformUsers,
-  assignRole,
   revokeRole,
-  APP_ROLES,
   type AppRole,
 } from "@/lib/access.functions";
 import { seo } from "@/lib/seo";
@@ -54,20 +47,10 @@ const ROLE_TONES: Record<string, string> = {
 function UsersPage() {
   const qc = useQueryClient();
   const [search, setSearch] = useState("");
+  const [activeUser, setActiveUser] = useState<PlatformUserRow | null>(null);
   const { data, isLoading } = useQuery({
     queryKey: ["admin", "platform-users"],
     queryFn: () => listPlatformUsers(),
-  });
-
-  const assign = useMutation({
-    mutationFn: (vars: { userId: string; role: AppRole }) =>
-      assignRole({ data: vars }),
-    onSuccess: (res) => {
-      if (res.ok) {
-        toast.success("Role granted");
-        qc.invalidateQueries({ queryKey: ["admin", "platform-users"] });
-      } else toast.error(res.error);
-    },
   });
 
   const revoke = useMutation({
@@ -131,7 +114,7 @@ function UsersPage() {
         </div>
 
         <DataTable
-          headers={["User", "Primary company", "Roles", "Joined", "Grant role"]}
+          headers={["User", "Primary company", "Roles", "Joined", "Manage"]}
           empty={
             !isLoading && filtered.length === 0 ? (
               <EmptyState
@@ -190,21 +173,15 @@ function UsersPage() {
                 {u.joined_at ? fmtDate(u.joined_at) : "—"}
               </Td>
               <Td>
-                <Select
-                  value=""
-                  onValueChange={(v) => assign.mutate({ userId: u.user_id, role: v as AppRole })}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 gap-1.5 text-xs"
+                  onClick={() => setActiveUser(u)}
                 >
-                  <SelectTrigger className="h-8 w-32 text-xs">
-                    <SelectValue placeholder="+ Grant" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {APP_ROLES.filter((r) => !u.roles.includes(r)).map((r) => (
-                      <SelectItem key={r} value={r} className="capitalize text-xs">
-                        {r}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  <Settings2 className="h-3.5 w-3.5" />
+                  Roles & permissions
+                </Button>
               </Td>
             </Tr>
           ))}
@@ -217,6 +194,11 @@ function UsersPage() {
           )}
         </DataTable>
       </PageBody>
+      <UserAccessSheet
+        user={activeUser}
+        open={!!activeUser}
+        onOpenChange={(o) => !o && setActiveUser(null)}
+      />
     </>
   );
 }
