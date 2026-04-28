@@ -213,7 +213,7 @@ function SettingsPage() {
   };
 
   const reset = () => setForm(initial);
-  const blockSave = !form.brand_name.trim() || !form.product_name.trim() || nameStatus === "taken" || !dirty || save.isPending;
+  const blockSave = !form.brand_name.trim() || !dirty || save.isPending;
 
   return (
     <>
