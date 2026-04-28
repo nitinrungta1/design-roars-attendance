@@ -1,7 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Users, X } from "lucide-react";
+import { Users, X, Settings2 } from "lucide-react";
+import { UserAccessSheet } from "@/components/admin/user-access-sheet";
+import type { PlatformUserRow } from "@/lib/access.functions";
 import { PageHeader, PageBody, EmptyState } from "@/components/admin/primitives";
 import { DataTable, Td, Tr, fmtDate, StatCard } from "@/components/admin/data-shell";
 import { Badge } from "@/components/ui/badge";
