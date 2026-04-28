@@ -264,6 +264,10 @@ export const updatePlan = createServerFn({ method: "POST" })
     return { ok: true as const };
   });
 
+const { name: _omitName, currency: _omitCurrency, ...PlanWriteFieldsForCreate } = PlanWriteFields;
+void _omitName;
+void _omitCurrency;
+
 const CreatePlanSchema = z.object({
   code: z
     .string()
@@ -275,7 +279,7 @@ const CreatePlanSchema = z.object({
   name: z.string().trim().min(1).max(120),
   tier: z.enum(PLAN_TIERS).default("starter"),
   currency: z.enum(SUPPORTED_CURRENCIES).default("INR"),
-  ...PlanWriteFields,
+  ...PlanWriteFieldsForCreate,
 });
 
 export const createPlan = createServerFn({ method: "POST" })
