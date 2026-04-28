@@ -113,7 +113,7 @@ export const listPlatformUsers = createServerFn({ method: "POST" })
         const primary = primaryByUser.get(p.id) ?? null;
         return {
           user_id: p.id,
-          email: null, // auth.users not exposed via PostgREST; surfaced later via admin call
+          email: emailById.get(p.id) ?? null,
           full_name: p.full_name,
           avatar_url: p.avatar_url,
           roles: rolesByUser.get(p.id) ?? [],
