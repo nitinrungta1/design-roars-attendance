@@ -101,7 +101,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { to: "/admin/workforce/timesheets", label: "Timesheets", icon: ClipboardList, permission: "workforce.timesheets.read" },
       { to: "/admin/workforce/overtime", label: "Overtime", icon: Timer, permission: "workforce.timesheets.read" },
       { to: "/admin/workforce/leave", label: "Leave", icon: Sun, permission: "workforce.leave.write" },
-      { to: "/admin/workforce/holidays", label: "Holidays", icon: CalendarRange, permission: "workforce.holidays.write" },
+      { to: "/admin/workforce/holidays", label: "Holidays", icon: CalendarRange, permission: "workforce.holidays.read" },
       { to: "/admin/workforce/productivity", label: "Productivity", icon: BarChart3, permission: "workforce.productivity.read" },
       { to: "/admin/workforce/assets", label: "Assets", icon: HardDrive, permission: "workforce.assets.manage" },
       { to: "/admin/workforce/documents", label: "Documents", icon: FileText, permission: "workforce.documents.manage" },
