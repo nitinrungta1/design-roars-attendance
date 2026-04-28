@@ -62,6 +62,16 @@ function KbPage() {
         }
       />
       <PageBody className="space-y-6">
+        {!authLoading && !canRead && (
+          <div className="rounded-2xl border border-amber-500/40 bg-amber-500/5 p-4 text-sm">
+            <p className="font-semibold text-amber-600 dark:text-amber-400">Access denied</p>
+            <p className="mt-1 text-muted-foreground">
+              Your account does not have permission to view the Knowledge Base. Ask a super admin to grant you the
+              <code className="mx-1 rounded bg-muted px-1 py-0.5 text-xs">support.kb.read</code> permission.
+            </p>
+          </div>
+        )}
+
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           <StatCard label="Articles" value={articles.length} />
           <StatCard label="Published" value={published} tone="success" />
