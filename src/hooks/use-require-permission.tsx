@@ -1,3 +1,4 @@
+import type { ReactElement } from "react";
 import { ShieldAlert } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth";
@@ -13,7 +14,7 @@ import { PageHeader, PageBody } from "@/components/admin/primitives";
  *   const blocked = useRequirePermission("billing.plans.read");
  *   if (blocked) return blocked;
  */
-export function useRequirePermission(key: string): JSX.Element | null {
+export function useRequirePermission(key: string): ReactElement | null {
   const { hasPermission, loading } = useAuth();
 
   if (loading) return null;
