@@ -1,64 +1,143 @@
-# Option B: Fix dashboard crash + make permissions actually enforce
 
-## 1. Dashboard crash (small, safe)
+# Holiday Management — Full Build Plan
 
-`src/routes/_authenticated.admin.index.tsx` reads `data?.recentLeads.length` and `data?.recentAudit.length` — `?.` only protects `data`, not the arrays. When the server payload returns the empty fallback, `.length` throws "Cannot read properties of undefined".
+Replaces the existing minimal `Holidays` page with a complete, country-aware Holiday Management system. Existing modules stay intact; we extend the schema (no destructive changes) and rebuild the UI.
 
-**Fix:** change all four occurrences to `data?.recentLeads?.length ?? 0` / `data?.recentAudit?.length ?? 0` and the two `data!.recentLeads.map(...)` / `data!.recentAudit.map(...)` to `(data?.recentLeads ?? []).map(...)`.
+---
 
-## 2. Make the Permission Matrix actually enforce access
+## 1. Database Schema (migration)
 
-Today the matrix UI writes to `role_permissions` but **nothing reads it** — pages and server functions are gated by role flags only. After this change, toggling a permission immediately controls who can see and use that area.
+Keep existing `public.holidays` table (rename usage as "company holiday instances"). Add the following:
 
-### 2a. Server-side enforcement (new helper + applied per function)
+**`countries`** — master list of supported countries
+- `code` (text, PK, ISO-2, e.g. "IN", "US", "AE")
+- `name`, `flag_emoji`, `weekend_days` (int[] — 0=Sun…6=Sat), `default_timezone`
 
-New file `src/lib/permissions.server.ts` (or appended to `auth-middleware.ts`): a `requirePermission(key)` factory that wraps `requireSupabaseAuth` and additionally calls `supabase.rpc("has_permission", { _user_id: userId, _key: key })`. If false → throw `Response(403, "Permission denied: <key>")`.
+**`holiday_templates`** — prebuilt national/regional holidays per country/year
+- `id`, `country_code` (FK), `year` (int), `name`, `holiday_date` (date), `region` (nullable, e.g. state), `type` (enum), `is_recurring` (bool), `source` (text)
 
-Apply `requirePermission(...)` to the following groups (same key as in the matrix):
+**`holiday_types`** — enum: `national`, `regional`, `religious`, `optional`, `company`, `half_day`
 
-| Module | Functions | Required key |
-|---|---|---|
-| Access | `listPlatformUsers`, `createPlatformUser`, `assignRole`, `revokeRole`, `listRolesWithCounts`, `listPermissionMatrix`, `togglePermission`, `listTeams`, `createTeam`, `deleteTeam`, `addTeamMember`, `removeTeamMember`, `listCompaniesLite`, `setUserAccess` | `access.users.read` for reads, `access.users.write` for writes, `access.roles.write` for matrix toggle, `access.teams.write` for teams |
-| Billing | every `*.functions.ts` write fn | `billing.<area>.write` (read fns: `billing.<area>.read`) |
-| CMS | pages/blogs/seo/forms/media writes | `cms.<area>.write` |
-| Customers | companies/contacts/usage | `customers.<area>.read|write` |
-| Leads / CRM | reads/writes | `leads.read|write` |
-| Support | tickets/kb/chat | `support.tickets.*` / `support.kb.write` |
-| Workforce admin functions | matching `workforce.*` keys |
-| Integrations | reads/writes | `integrations.read|write` (`.webhooks.write`, `.apikeys.write`) |
-| System | settings/audit/backups/security | `system.*.read|write` |
-| Analytics | reads | `analytics.read` |
+**Extend `public.holidays`** (additive only — no data loss):
+- `country_code` (text, nullable), `type` (holiday_type, default `company`), `is_paid` (bool, default true), `is_recurring` (bool, default false), `template_id` (uuid nullable, links to source template), `description` (text nullable), `year` (int generated from `holiday_date`)
 
-`super_admin` always passes (the SQL `has_permission` doesn't include super_admin bypass — I'll either add a super_admin shortcut in `requirePermission` JS-side, or grant all keys to super_admin in DB; I'll do the JS shortcut so the matrix stays accurate).
+**`company_holiday_settings`** — per-company config
+- `company_id` (PK FK), `country_code`, `weekend_days` (int[]), `auto_import_enabled` (bool), `last_synced_year` (int)
 
-Personal/self-service reads (e.g. `getMyPermissions`, things scoped only to `auth.uid()`) stay on plain `requireSupabaseAuth`.
+**RLS:** templates & countries readable to all authenticated users; `holidays` and `company_holiday_settings` gated by company membership + `workforce.holidays.write` permission for mutations. `super_admin` bypass.
 
-### 2b. Client-side enforcement (route guards + nav)
+**Seed data:** Insert ~30 countries (IN, US, GB, AE, CA, AU, SG, DE, FR, SA, ZA, JP, CN, BR, MX, IT, ES, NL, NZ, IE, MY, ID, PH, TH, VN, EG, NG, KE, AR, CH) with weekend rules. Seed `holiday_templates` for years 2025–2027 for the major markets (curated list — ~15 holidays/country/year).
 
-- **`src/components/admin/nav-config.ts`**: add `permission?: string` to `NavItem`. Set the right key on every item (e.g. `/admin/access/users` → `access.users.read`, `/admin/billing/invoices` → `billing.invoices.read`, etc.). Drop the `platform` flag in favor of permission-based filtering.
-- **`filterNavForUser`**: change signature to `(opts: { hasPermission: (k: string) => boolean; isSuperAdmin: boolean })`. Items with no `permission` are visible to anyone authenticated. Items with a `permission` are visible only if `hasPermission(key)` (super_admin always passes — already true in `useAuth`).
-- **`src/components/admin/admin-shell.tsx`**: pass `hasPermission` and `isSuperAdmin` instead of `isAdmin/isSuperAdmin`.
-- **Per-route guard**: add a small `useRequirePermission(key)` hook that, when the user lacks the permission, renders a "Permission required" empty state instead of the page body. Apply to each admin route (one-line: `const blocked = useRequirePermission("billing.plans.read"); if (blocked) return blocked;` at the top of the page component). This protects against direct URL access — the server function already returns 403 too, so the page can't actually load data without permission.
+---
 
-### 2c. Live cache refresh
+## 2. Server Functions (`src/lib/holidays.functions.ts`)
 
-After `togglePermission` succeeds in `_authenticated.admin.access.permissions.tsx`, also call `auth.refresh()` so if the admin toggled their own role's permissions, nav/route gates update without a reload.
+All gated by `requirePermission` middleware where appropriate.
 
-## Files touched
+- `listCountries()` — public to authenticated users
+- `listHolidayTemplates({ country_code, year })` — preview prebuilt list
+- `listCompanyHolidays({ company_id?, year?, type? })` — main list
+- `getCompanyHolidaySettings({ company_id })`
+- `updateCompanyHolidaySettings({ company_id, country_code, weekend_days, auto_import_enabled })`
+- `importHolidayTemplate({ company_id, country_code, year, mode: 'replace' | 'merge' | 'skip_duplicates' })` — bulk insert from templates with conflict resolution
+- `createHoliday(...)` / `updateHoliday(...)` / `deleteHoliday(...)` — extended fields (type, is_paid, description, is_recurring)
+- `duplicateHolidayToYears({ holiday_id, target_years[] })`
+- `bulkImportHolidaysFromCSV({ company_id, rows })` — CSV/Excel import
+- `exportHolidays({ company_id, year, format: 'csv'|'pdf' })` — returns CSV string / triggers PDF generation
+- `isHolidayOnDate({ company_id, date })` — used by Attendance/Leave/Shift modules
+- `getLongWeekends({ company_id, year })` — bridge holiday detection
+- `getUpcomingHolidays({ company_id, days })` — for notifications
 
-- `src/routes/_authenticated.admin.index.tsx` — crash fix
-- `src/lib/permissions.server.ts` — new `requirePermission(key)` middleware factory
-- `src/lib/access.functions.ts` — apply `requirePermission` to all admin fns
-- `src/lib/billing.functions.ts`, `cms.functions.ts`, `customers.functions.ts`, `leads.functions.ts`, `support.functions.ts`, `kb-admin.functions.ts`, `integrations.functions.ts`, `system.functions.ts`, `workforce*.functions.ts`, `analytics-queries.ts`, `admin-overview.functions.ts` — apply `requirePermission` per function
-- `src/components/admin/nav-config.ts` — add `permission` to each item, change `filterNavForUser` signature
-- `src/components/admin/admin-shell.tsx` — pass `hasPermission`/`isSuperAdmin`
-- New: `src/hooks/use-require-permission.tsx` — render-blocking gate for admin pages
-- All `src/routes/_authenticated.admin.*.tsx` route files — one-line permission gate at top of each component
-- `src/routes/_authenticated.admin.access.permissions.tsx` — call `auth.refresh()` after toggle
+---
 
-## What you'll see after
+## 3. UI — Holiday Management Module
 
-- The red "SaaS Overview failed to load" banner is gone.
-- The Permission Matrix is no longer decorative — toggling a permission immediately removes/adds the corresponding nav item, route, and server data for users in that role (super_admin always retains everything).
-- Direct URL access to a page the user lacks permission for shows a "Permission required" panel instead of loading.
-- Server functions return 403 if a non-permitted user calls them via API.
+**Route:** `/admin/workforce/holidays` (replace existing page) with sub-tabs.
+
+### Page layout
+- **Header:** company selector (super-admin sees all; admins see own), year selector (2024–2028), country selector with flag
+- **Tabs:**
+  1. **Calendar View** — month grid + year overview, color-coded by type (red=national, blue=company, orange=optional, purple=half-day, green=religious)
+  2. **List View** — `DataTable` with columns: Date | Name | Country | Type | Paid | Recurring | Status | Actions
+  3. **Templates** — browse prebuilt holidays for any country/year, preview, then "Import to company" button (modal asks Replace / Merge / Skip)
+  4. **Settings** — set company default country, weekend days (Mon–Sun checkboxes with presets: "Sat-Sun", "Fri-Sat", "Fri only"), auto-import toggle
+  5. **Long Weekends** — auto-computed list of upcoming long weekends + bridge-day suggestions
+
+### Dialogs / actions
+- Add/Edit holiday: name, date, type (select), country, region, paid checkbox, recurring checkbox, description
+- Duplicate to years: multi-select 2025/2026/2027
+- Import CSV: file upload with column-mapping preview
+- Export: CSV / PDF (PDF uses `@react-pdf/renderer` or simple HTML→print)
+- Country change wizard: when changing default country, modal with three options (Replace all / Merge / Keep custom only)
+
+### Components
+- `src/components/admin/holidays/holiday-calendar.tsx` — month-grid calendar with legend
+- `src/components/admin/holidays/holiday-form-dialog.tsx`
+- `src/components/admin/holidays/import-template-dialog.tsx`
+- `src/components/admin/holidays/csv-import-dialog.tsx`
+- `src/components/admin/holidays/country-select.tsx` — flag dropdown
+- `src/components/admin/holidays/long-weekend-card.tsx`
+
+---
+
+## 4. Integration Hooks (lightweight, non-breaking)
+
+- **Attendance** (`workforce.functions.ts` attendance queries): when computing late/absence for a date, call `isHolidayOnDate` and skip flags. Add a "Holiday" badge in attendance day cells.
+- **Leave** (`workforce.leave.tsx`): when employee selects leave dates, fetch holidays in range and show inline warning "X of these days are holidays". Disable submit if all days are holidays.
+- **Shifts/Roster** (`workforce.roster.tsx`): overlay holiday markers on roster cells; managers can still assign with a confirmation.
+- **Payroll-ready flags**: holidays already carry `is_paid` and `type` — exposed via `isHolidayOnDate` for future payroll calc (no payroll UI changes this round; just data ready).
+
+These integrations are read-only fetches added at the edges — no rewrites of existing logic.
+
+---
+
+## 5. Permissions
+
+Add to `role_permissions` seed and the matrix UI:
+- `workforce.holidays.read` — all employees (view calendar)
+- `workforce.holidays.write` — admin/HR (CRUD, import)
+- `workforce.holidays.manage_templates` — super_admin only (edit global templates)
+
+Update `nav-config.ts` Holidays item to use `workforce.holidays.read` so employees see it too.
+
+---
+
+## 6. Notifications (basic, optional polish)
+
+A daily server function `notifyUpcomingHolidays` that can be wired to pg_cron later. Not scheduled this round — just exposed as an admin-triggered "Send reminder" button for the next upcoming holiday.
+
+---
+
+## 7. Out of scope (this round)
+- pg_cron scheduling for notifications (manual trigger only)
+- Mobile native app surface (responsive web only)
+- Real-time multi-region API sync (templates are seeded, not fetched live)
+- Comp-off auto-grant logic (we surface holiday flags; payroll module will consume later)
+
+---
+
+## Files to create/edit
+
+**Migrations**
+- `supabase/migrations/<ts>_holidays_global_system.sql` — schema + country seed + 2025–2027 template seed for ~10 major countries + permissions
+
+**Server**
+- `src/lib/holidays.functions.ts` (new)
+- `src/lib/workforce.functions.ts` (extend listHolidays/createHoliday for new columns)
+
+**Routes / UI**
+- `src/routes/_authenticated.admin.workforce.holidays.tsx` (rewrite — tabs shell)
+- `src/components/admin/holidays/*` (6 new components above)
+
+**Integrations**
+- `src/routes/_authenticated.admin.workforce.attendance.tsx` (small holiday badge + skip-flag fetch)
+- `src/routes/_authenticated.admin.workforce.leave.tsx` (date-range warning)
+- `src/routes/_authenticated.admin.workforce.roster.tsx` (calendar overlay)
+
+**Nav / perms**
+- `src/components/admin/nav-config.ts` (permission key tweak)
+- Permission seed in migration
+
+---
+
+Approve to proceed and I'll switch to build mode and execute.
