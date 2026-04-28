@@ -151,13 +151,16 @@ function SettingsPage() {
   }, [form.brand_name, initial.brand_name]);
 
   const save = useMutation({
-    mutationFn: () =>
-      updatePlatformSettings({
+    mutationFn: () => {
+      const brand = form.brand_name.trim();
+      const product = form.product_name.trim() || brand; // fallback to brand if blank
+      const support = form.support_email.trim() || initial.support_email; // keep prior on blank
+      return updatePlatformSettings({
         data: {
           patch: {
-            brand_name: form.brand_name.trim(),
-            product_name: form.product_name.trim(),
-            support_email: form.support_email.trim(),
+            brand_name: brand,
+            product_name: product,
+            support_email: support,
             default_currency: form.default_currency,
             default_timezone: form.default_timezone,
             default_plan_code: form.default_plan_code || null,
@@ -171,7 +174,8 @@ function SettingsPage() {
             week_start: form.week_start,
           },
         },
-      }),
+      });
+    },
     onSuccess: (res) => {
       if (res.ok) {
         toast.success("Settings saved");
