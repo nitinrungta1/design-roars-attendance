@@ -14,13 +14,19 @@ export const Route = createFileRoute("/_authenticated/admin/support/kb")({
 });
 
 function KbPage() {
-  const { hasPermission } = useAuth();
-  const canWrite = hasPermission("support.kb.write");
+  const { hasPermission, hasAnyRole, loading: authLoading, isSuperAdmin } = useAuth();
+  const canRead =
+    isSuperAdmin ||
+    hasPermission("support.kb.read") ||
+    hasPermission("support.kb.write") ||
+    hasAnyRole(["admin", "hr", "support"]);
+  const canWrite = isSuperAdmin || hasPermission("support.kb.write") || hasAnyRole(["admin", "support"]);
 
   const { data, isLoading, error, refetch, isFetching } = useQuery({
     queryKey: ["admin", "kb"],
     queryFn: () => adminListKbArticles(),
     retry: 1,
+    enabled: !authLoading && canRead,
   });
   const articles = data?.articles ?? [];
   const published = articles.filter((a) => a.status === "published").length;
