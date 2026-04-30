@@ -52,7 +52,7 @@ import {
   type UserStatus,
 } from "@/lib/platform-users.functions";
 
-export const Route = createFileRoute("/_authenticated/admin/users")({
+export const Route = createFileRoute("/_authenticated/admin_/users")({
   head: () =>
     seo({
       title: "Users | Admin",

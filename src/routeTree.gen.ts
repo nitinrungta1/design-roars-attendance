@@ -54,7 +54,7 @@ import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated.h
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated.admin'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated.admin.index'
 import { Route as ApiPublicTrackRouteImport } from './routes/api.public.track'
-import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated.admin.users'
+import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated.admin_.users'
 import { Route as AuthenticatedAdminAnalyticsRouteImport } from './routes/_authenticated.admin.analytics'
 import { Route as AuthenticatedAdminWorkforceIndexRouteImport } from './routes/_authenticated.admin.workforce.index'
 import { Route as AuthenticatedAdminLeadsIndexRouteImport } from './routes/_authenticated.admin.leads.index'
@@ -357,9 +357,9 @@ const ApiPublicTrackRoute = ApiPublicTrackRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
-  id: '/users',
-  path: '/users',
-  getParentRoute: () => AuthenticatedAdminRoute,
+  id: '/admin_/users',
+  path: '/admin/users',
+  getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedAdminAnalyticsRoute =
   AuthenticatedAdminAnalyticsRouteImport.update({
@@ -1067,7 +1067,7 @@ export interface FileRoutesById {
   '/help/$slug': typeof HelpSlugRoute
   '/help/': typeof HelpIndexRoute
   '/_authenticated/admin/analytics': typeof AuthenticatedAdminAnalyticsRouteWithChildren
-  '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/_authenticated/admin_/users': typeof AuthenticatedAdminUsersRoute
   '/api/public/track': typeof ApiPublicTrackRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/admin/access/permissions': typeof AuthenticatedAdminAccessPermissionsRoute
@@ -1421,7 +1421,7 @@ export interface FileRouteTypes {
     | '/help/$slug'
     | '/help/'
     | '/_authenticated/admin/analytics'
-    | '/_authenticated/admin/users'
+    | '/_authenticated/admin_/users'
     | '/api/public/track'
     | '/_authenticated/admin/'
     | '/_authenticated/admin/access/permissions'
@@ -1854,12 +1854,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicTrackRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/admin/users': {
-      id: '/_authenticated/admin/users'
-      path: '/users'
+    '/_authenticated/admin_/users': {
+      id: '/_authenticated/admin_/users'
+      path: '/admin/users'
       fullPath: '/admin/users'
       preLoaderRoute: typeof AuthenticatedAdminUsersRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
+      parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/admin/analytics': {
       id: '/_authenticated/admin/analytics'
@@ -2418,7 +2418,6 @@ const AuthenticatedAdminSupportKbRouteWithChildren =
 
 interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminAnalyticsRoute: typeof AuthenticatedAdminAnalyticsRouteWithChildren
-  AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedAdminAccessPermissionsRoute: typeof AuthenticatedAdminAccessPermissionsRoute
   AuthenticatedAdminAccessRolesRoute: typeof AuthenticatedAdminAccessRolesRoute
@@ -2484,7 +2483,6 @@ interface AuthenticatedAdminRouteChildren {
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminAnalyticsRoute:
     AuthenticatedAdminAnalyticsRouteWithChildren,
-  AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
   AuthenticatedAdminAccessPermissionsRoute:
     AuthenticatedAdminAccessPermissionsRoute,
@@ -2586,11 +2584,13 @@ const AuthenticatedAdminRouteWithChildren =
 interface AuthenticatedRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
   AuthenticatedHomeRoute: typeof AuthenticatedHomeRoute
+  AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
   AuthenticatedHomeRoute: AuthenticatedHomeRoute,
+  AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
