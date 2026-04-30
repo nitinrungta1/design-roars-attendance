@@ -37,6 +37,7 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth";
 import { Link } from "@tanstack/react-router";
 import { User as UserIcon, Mail, ShieldCheck } from "lucide-react";
+import { PlatformShell } from "@/components/admin/platform-shell";
 
 export const Route = createFileRoute("/_authenticated/admin_/settings")({
   head: () =>
@@ -44,10 +45,24 @@ export const Route = createFileRoute("/_authenticated/admin_/settings")({
       title: "Settings | Admin",
       description: "Global platform configuration.",
       kind: "product",
-      path: "/admin/system/settings",
+      path: "/admin/settings",
       noindex: true,
     }),
   component: SettingsPage,
+  errorComponent: ({ error, reset }) => (
+    <PlatformShell>
+      <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-6">
+        <h2 className="text-lg font-semibold text-destructive">Settings failed to load</h2>
+        <p className="mt-1 text-sm text-muted-foreground">{error?.message ?? String(error)}</p>
+        <button
+          onClick={() => reset()}
+          className="mt-4 inline-flex items-center justify-center rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+        >
+          Try again
+        </button>
+      </div>
+    </PlatformShell>
+  ),
 });
 
 interface FormState {
