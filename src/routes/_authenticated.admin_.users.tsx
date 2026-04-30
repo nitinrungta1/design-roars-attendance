@@ -449,6 +449,6 @@ function PlatformUsersPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </>
+    </PlatformShell>
   );
 }
