@@ -4327,6 +4327,7 @@ export type Database = {
           granted_at: string
           granted_by: string | null
           id: string
+          permissions: Json
           role: Database["public"]["Enums"]["app_role"]
           user_id: string
         }
@@ -4335,6 +4336,7 @@ export type Database = {
           granted_at?: string
           granted_by?: string | null
           id?: string
+          permissions?: Json
           role: Database["public"]["Enums"]["app_role"]
           user_id: string
         }
@@ -4343,6 +4345,7 @@ export type Database = {
           granted_at?: string
           granted_by?: string | null
           id?: string
+          permissions?: Json
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
         }
