@@ -157,7 +157,7 @@ function UserMenu() {
           <DropdownMenuLabel>My account</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild>
-            <Link to="/admin/system/settings">Settings</Link>
+            <Link to="/admin/settings">Settings</Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
             <Link to="/">Back to website</Link>

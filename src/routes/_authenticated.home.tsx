@@ -63,7 +63,7 @@ const APPS: LauncherApp[] = [
     key: "settings",
     name: "Settings",
     description: "Platform configuration",
-    href: "/admin/system/settings",
+    href: "/admin/settings",
     icon: SettingsIcon,
     iconBg: "bg-teal-500/10",
     iconColor: "text-teal-500",
@@ -126,7 +126,7 @@ function HomePage() {
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
-                <Link to="/admin/system/settings">
+                <Link to="/admin/settings">
                   <UserIcon className="mr-2 h-4 w-4" />
                   Profile
                 </Link>
