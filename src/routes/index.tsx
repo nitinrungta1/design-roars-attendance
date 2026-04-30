@@ -38,6 +38,17 @@ export const Route = createFileRoute("/")({
 });
 
 function HomePage() {
+  const { isAuthenticated, loading } = useAuth();
+  const navigate = useNavigate();
+
+  // Logged-in visitors hitting "/" go to the app launcher.
+  // Logged-out visitors continue to see the marketing homepage.
+  useEffect(() => {
+    if (!loading && isAuthenticated) {
+      navigate({ to: "/home", replace: true });
+    }
+  }, [loading, isAuthenticated, navigate]);
+
   return (
     <MarketingLayout>
       <HomeHero />
