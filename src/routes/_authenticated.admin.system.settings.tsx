@@ -154,11 +154,14 @@ function SettingsPage() {
   }, [form.brand_name, initial.brand_name]);
 
   const save = useMutation({
-    mutationFn: () => {
+    mutationFn: async () => {
       const brand = form.brand_name.trim();
+      if (!brand) {
+        throw new Error("Company / brand name is required.");
+      }
       const product = form.product_name.trim() || brand; // fallback to brand if blank
       const support = form.support_email.trim() || initial.support_email; // keep prior on blank
-      return updatePlatformSettings({
+      return await updatePlatformSettings({
         data: {
           patch: {
             brand_name: brand,
@@ -184,8 +187,21 @@ function SettingsPage() {
         toast.success("Settings saved");
         qc.invalidateQueries({ queryKey: ["admin", "platform-settings"] });
       } else {
-        toast.error(res.error || "Failed to save");
+        toast.error("Failed to save settings", {
+          description: res.error || "The server rejected the update. Please try again.",
+        });
       }
+    },
+    onError: (err: unknown) => {
+      // Surface thrown errors (auth/network/validation) that previously failed silently.
+      const message =
+        err instanceof Error
+          ? err.message
+          : typeof err === "string"
+            ? err
+            : "Unknown error while saving settings.";
+      console.error("updatePlatformSettings failed:", err);
+      toast.error("Couldn't save settings", { description: message });
     },
   });
 
