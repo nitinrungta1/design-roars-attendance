@@ -4323,6 +4323,7 @@ export type Database = {
       }
       user_roles: {
         Row: {
+          company_id: string | null
           granted_at: string
           granted_by: string | null
           id: string
@@ -4330,6 +4331,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          company_id?: string | null
           granted_at?: string
           granted_by?: string | null
           id?: string
@@ -4337,13 +4339,22 @@ export type Database = {
           user_id: string
         }
         Update: {
+          company_id?: string | null
           granted_at?: string
           granted_by?: string | null
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "user_roles_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       webhook_endpoints: {
         Row: {
