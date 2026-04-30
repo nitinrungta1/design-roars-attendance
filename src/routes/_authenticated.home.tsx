@@ -63,7 +63,7 @@ const APPS: LauncherApp[] = [
     key: "settings",
     name: "Settings",
     description: "Platform configuration",
-    href: "/admin/settings",
+    href: "/admin/system/settings",
     icon: SettingsIcon,
     iconBg: "bg-teal-500/10",
     iconColor: "text-teal-500",
