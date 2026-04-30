@@ -172,7 +172,7 @@ export const NAV_GROUPS: NavGroup[] = [
     label: "Access Control",
     icon: ShieldCheck,
     items: [
-      { to: "/admin/access/users", label: "Users", icon: Users, permission: "access.users.read" },
+      { to: "/admin/users", label: "Users", icon: Users, permission: "access.users.read" },
       { to: "/admin/access/roles", label: "Roles", icon: ShieldCheck, permission: "access.roles.write" },
       { to: "/admin/access/permissions", label: "Permissions", icon: KeyRound, permission: "access.roles.write" },
       { to: "/admin/access/teams", label: "Teams", icon: Group, permission: "access.teams.write" },

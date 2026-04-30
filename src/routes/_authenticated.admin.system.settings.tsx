@@ -611,7 +611,7 @@ function CurrentAdminCard() {
         </div>
         <div className="flex shrink-0 gap-2">
           <Button asChild size="sm" variant="outline">
-            <Link to="/admin/access/users">Manage users</Link>
+            <Link to="/admin/users">Manage users</Link>
           </Button>
         </div>
       </div>
