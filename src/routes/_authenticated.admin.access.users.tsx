@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Users, X, Settings2, AlertCircle } from "lucide-react";
+import { Users, Settings2, AlertCircle } from "lucide-react";
 import { UserAccessSheet } from "@/components/admin/user-access-sheet";
 import { CreateUserDialog } from "@/components/admin/create-user-dialog";
 import type { PlatformUserRow } from "@/lib/access.functions";
@@ -11,10 +11,11 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import {
+  changeUserRole,
   listPlatformUsers,
-  revokeRole,
   type AppRole,
 } from "@/lib/access.functions";
 import { seo } from "@/lib/seo";
@@ -46,6 +47,9 @@ const ROLE_TONES: Record<string, string> = {
   employee: "bg-muted text-muted-foreground",
 };
 
+type ManagedRole = Extract<AppRole, "super_admin" | "admin" | "manager" | "employee">;
+const MANAGED_ROLES: ManagedRole[] = ["super_admin", "admin", "manager", "employee"];
+
 function UsersPage() {
   const blocked = useRequirePermission("access.users.read");
   const qc = useQueryClient();
@@ -57,15 +61,16 @@ function UsersPage() {
     enabled: !blocked,
   });
 
-  const revoke = useMutation({
-    mutationFn: (vars: { userId: string; role: AppRole }) =>
-      revokeRole({ data: vars }),
+  const changeRole = useMutation({
+    mutationFn: (vars: { userId: string; role: ManagedRole }) =>
+      changeUserRole({ data: vars }),
     onSuccess: (res) => {
       if (res.ok) {
-        toast.success("Role revoked");
+        toast.success("Role updated");
         qc.invalidateQueries({ queryKey: ["admin", "platform-users"] });
       } else toast.error(res.error);
     },
+    onError: (e: Error) => toast.error("Failed to update role", { description: e.message }),
   });
 
   const users = data?.users ?? [];
@@ -177,22 +182,22 @@ function UsersPage() {
                   {u.roles.length === 0 && (
                     <span className="text-xs text-muted-foreground">No roles</span>
                   )}
-                  {u.roles.map((r) => (
-                    <Badge
-                      key={r}
-                      variant="secondary"
-                      className={cn("group rounded-full pr-1", ROLE_TONES[r] ?? "bg-muted")}
-                    >
-                      <span>{r}</span>
-                      <button
-                        type="button"
-                        onClick={() => revoke.mutate({ userId: u.user_id, role: r })}
-                        className="ml-1 rounded-full p-0.5 opacity-60 hover:opacity-100"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </Badge>
-                  ))}
+                  <Select
+                    value={(MANAGED_ROLES.find((r) => u.roles.includes(r)) ?? "employee") as ManagedRole}
+                    onValueChange={(role) => changeRole.mutate({ userId: u.user_id, role: role as ManagedRole })}
+                    disabled={changeRole.isPending}
+                  >
+                    <SelectTrigger className="h-8 w-40 text-xs capitalize">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {MANAGED_ROLES.map((r) => (
+                        <SelectItem key={r} value={r} className="capitalize text-xs">
+                          {r.replace("_", " ")}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </Td>
               <Td className="text-muted-foreground text-xs">
