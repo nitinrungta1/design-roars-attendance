@@ -189,17 +189,17 @@ function PlatformUsersPage() {
 
   if (!authLoading && !allowed) {
     return (
-      <>
+      <PlatformShell>
         <PageHeader
           eyebrow="Restricted"
           title="Users"
           description="Only super admins or admins can manage users."
-          breadcrumbs={[{ label: "Admin", to: "/admin" }, { label: "Users" }]}
+          breadcrumbs={[{ label: "Home", to: "/home" }, { label: "Users" }]}
         />
         <PageBody>
           <EmptyState icon={UsersIcon} title="Permission required" description="Ask a super admin to grant access." />
         </PageBody>
-      </>
+      </PlatformShell>
     );
   }
 
