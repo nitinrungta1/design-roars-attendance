@@ -128,22 +128,74 @@ export const updatePlatformSettings = createServerFn({ method: "POST" })
       }),
     }),
   )
-  .handler(async ({ context, data }): Promise<{ ok: boolean; error?: string }> => {
-    const { supabase, userId } = context;
-    const patch = data.patch as Record<string, unknown>;
-    const { error } = await supabase
-      .from("platform_settings")
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .update({ ...(patch as any), updated_by: userId })
-      .eq("singleton", true);
-    if (error) return { ok: false, error: error.message };
-    await supabase.rpc("log_audit", {
-      _action: "settings.updated",
-      _entity_type: "platform_settings",
-      _diff: data.patch as Json,
-    });
-    return { ok: true };
-  });
+  .handler(
+    async ({
+      context,
+      data,
+    }): Promise<{
+      ok: boolean;
+      error?: string;
+      details?: { message?: string; code?: string; hint?: string; details?: string } | null;
+    }> => {
+      try {
+        const { supabase, userId } = context;
+        const patch = data.patch as Record<string, unknown>;
+        const { error, data: updated, status, statusText } = await supabase
+          .from("platform_settings")
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          .update({ ...(patch as any), updated_by: userId })
+          .eq("singleton", true)
+          .select();
+        if (error) {
+          console.error("[updatePlatformSettings] Supabase error:", {
+            message: error.message,
+            code: error.code,
+            details: error.details,
+            hint: error.hint,
+            status,
+            statusText,
+            userId,
+            patchKeys: Object.keys(patch),
+            fullError: JSON.stringify(error, Object.getOwnPropertyNames(error)),
+          });
+          return {
+            ok: false,
+            error: `${error.message}${error.hint ? ` (hint: ${error.hint})` : ""}${error.details ? ` — ${error.details}` : ""}${error.code ? ` [code: ${error.code}]` : ""}`,
+            details: {
+              message: error.message,
+              code: error.code,
+              hint: error.hint,
+              details: error.details,
+            },
+          };
+        }
+        if (!updated || updated.length === 0) {
+          console.error("[updatePlatformSettings] No row updated", { userId, status, statusText });
+          return {
+            ok: false,
+            error: "No platform_settings row was updated. The singleton row may be missing or RLS blocked the update.",
+            details: { message: "0 rows affected", code: "NO_ROWS" },
+          };
+        }
+        await supabase.rpc("log_audit", {
+          _action: "settings.updated",
+          _entity_type: "platform_settings",
+          _diff: data.patch as Json,
+        });
+        return { ok: true };
+      } catch (e) {
+        console.error("[updatePlatformSettings] Unexpected exception:", e, {
+          stringified: JSON.stringify(e, Object.getOwnPropertyNames(e as object)),
+        });
+        const err = e as Error;
+        return {
+          ok: false,
+          error: `Unexpected error: ${err?.message ?? String(e)}`,
+          details: { message: err?.message ?? String(e) },
+        };
+      }
+    },
+  );
 
 // ============================================================
 // Audit logs
