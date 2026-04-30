@@ -684,22 +684,8 @@ export const createPlatformUser = createServerFn({ method: "POST" })
   .inputValidator(
     z.object({
       email: z.string().email().max(254),
-      fullName: z.string().min(1).max(120),
-      password: z.string().min(8).max(120).optional(),
-      role: z.enum([
-        "super_admin",
-        "admin",
-        "hr",
-        "manager",
-        "employee",
-        "sales",
-        "support",
-        "finance",
-        "developer",
-        "viewer",
-      ]),
-      companyId: z.string().uuid().nullable().optional(),
-      sendInvite: z.boolean().optional(),
+      password: z.string().min(8).max(120),
+      role: z.enum(["super_admin", "admin", "manager", "employee"]),
     }),
   )
   .handler(
@@ -707,33 +693,20 @@ export const createPlatformUser = createServerFn({ method: "POST" })
       context,
       data,
     }): Promise<{ ok: boolean; userId?: string; error?: string }> => {
-      const { supabase, userId } = context;
-      // permission already enforced by middleware; userId still needed for audit + invited_by
-
+      const { userId } = context;
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-
-      let newUserId: string | null = null;
-      if (data.sendInvite) {
-        const { data: invited, error } = await supabaseAdmin.auth.admin.inviteUserByEmail(
-          data.email,
-          { data: { full_name: data.fullName } },
-        );
-        if (error || !invited.user) {
-          return { ok: false, error: error?.message ?? "Failed to invite user." };
-        }
-        newUserId = invited.user.id;
-      } else {
-        const { data: created, error } = await supabaseAdmin.auth.admin.createUser({
-          email: data.email,
-          password: data.password ?? undefined,
-          email_confirm: true,
-          user_metadata: { full_name: data.fullName },
-        });
-        if (error || !created.user) {
-          return { ok: false, error: error?.message ?? "Failed to create user." };
-        }
-        newUserId = created.user.id;
+      const { data: caller } = await supabaseAdmin.from("profiles").select("company_id").eq("id", userId).maybeSingle();
+      const companyId = caller?.company_id ?? null;
+      const { data: created, error } = await supabaseAdmin.auth.admin.createUser({
+        email: data.email,
+        password: data.password,
+        email_confirm: true,
+      });
+      if (error || !created.user) {
+        console.error("[createPlatformUser] auth admin createUser error", error);
+        return { ok: false, error: error?.message ?? "Failed to create user." };
       }
+      const newUserId = created.user.id;
 
       // Ensure profile exists/updated
       await supabaseAdmin
@@ -741,8 +714,7 @@ export const createPlatformUser = createServerFn({ method: "POST" })
         .upsert(
           {
             id: newUserId,
-            full_name: data.fullName,
-            company_id: data.companyId ?? null,
+            company_id: companyId,
           },
           { onConflict: "id" },
         );
@@ -751,15 +723,15 @@ export const createPlatformUser = createServerFn({ method: "POST" })
       await supabaseAdmin.from("user_roles").delete().eq("user_id", newUserId);
       const { error: roleErr } = await supabaseAdmin
         .from("user_roles")
-        .insert({ user_id: newUserId, role: data.role, granted_by: userId });
+        .insert({ user_id: newUserId, role: data.role, company_id: companyId, granted_by: userId });
       if (roleErr) return { ok: false, error: roleErr.message };
 
-      if (data.companyId) {
+      if (companyId) {
         await supabaseAdmin
           .from("company_members")
           .upsert(
             {
-              company_id: data.companyId,
+              company_id: companyId,
               user_id: newUserId,
               role: data.role,
               invited_by: userId,
@@ -768,15 +740,17 @@ export const createPlatformUser = createServerFn({ method: "POST" })
           );
       }
 
-      await supabase.rpc("log_audit", {
-        _action: "user.created",
-        _entity_type: "user",
-        _entity_id: newUserId,
-        _diff: {
+      await supabaseAdmin.from("audit_logs").insert({
+        actor_id: userId,
+        action: "user.created",
+        entity_type: "user",
+        entity_id: newUserId,
+        company_id: companyId,
+        diff: {
           email: data.email,
           role: data.role,
-          company_id: data.companyId ?? null,
-          via: data.sendInvite ? "invite" : "password",
+          company_id: companyId,
+          via: "password",
         },
       });
 
