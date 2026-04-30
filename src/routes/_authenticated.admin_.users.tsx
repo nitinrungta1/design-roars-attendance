@@ -1,7 +1,5 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useMemo, useState, type ReactNode } from "react";
-import { Logo } from "@/components/brand/logo";
-import { LogOut, ArrowLeft } from "lucide-react";
+import { createFileRoute } from "@tanstack/react-router";
+import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   AlertCircle,
@@ -43,6 +41,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { InviteUserDialog } from "@/components/admin/invite-user-dialog";
 import { EditRolePanel } from "@/components/admin/edit-role-panel";
+import { PlatformShell } from "@/components/admin/platform-shell";
 import {
   listUsers,
   PLATFORM_ROLES,
@@ -64,6 +63,27 @@ export const Route = createFileRoute("/_authenticated/admin_/users")({
       noindex: true,
     }),
   component: PlatformUsersPage,
+  errorComponent: ({ error, reset }) => (
+    <PlatformShell>
+      <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-6">
+        <h2 className="text-lg font-semibold text-destructive">Users page failed to load</h2>
+        <p className="mt-1 text-sm text-muted-foreground whitespace-pre-wrap">
+          {error?.message ?? String(error)}
+        </p>
+        {error?.stack && (
+          <pre className="mt-3 max-h-64 overflow-auto rounded bg-muted/50 p-2 text-[11px] text-muted-foreground">
+            {error.stack}
+          </pre>
+        )}
+        <button
+          onClick={() => reset()}
+          className="mt-4 inline-flex items-center justify-center rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+        >
+          Try again
+        </button>
+      </div>
+    </PlatformShell>
+  ),
 });
 
 function PlatformShell({ children }: { children: ReactNode }) {
