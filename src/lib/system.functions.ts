@@ -142,7 +142,7 @@ export const updatePlatformSettings = createServerFn({ method: "POST" })
         const { error, data: updated, status, statusText } = await supabaseAdmin
           .from("platform_settings")
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          .update({ ...(patch as any), updated_by: userId })
+          .update({ ...(patch as any) })
           .eq("singleton", true)
           .select();
         if (error) {
@@ -153,7 +153,6 @@ export const updatePlatformSettings = createServerFn({ method: "POST" })
             hint: error.hint,
             status,
             statusText,
-            userId,
             patchKeys: Object.keys(patch),
             fullError: JSON.stringify(error, Object.getOwnPropertyNames(error)),
           });
@@ -169,15 +168,14 @@ export const updatePlatformSettings = createServerFn({ method: "POST" })
           };
         }
         if (!updated || updated.length === 0) {
-          console.error("[updatePlatformSettings] No row updated", { userId, status, statusText });
+          console.error("[updatePlatformSettings] No row updated", { status, statusText });
           return {
             ok: false,
-            error: "No platform_settings row was updated. The singleton row may be missing or RLS blocked the update.",
+            error: "No platform_settings row was updated. The singleton row may be missing.",
             details: { message: "0 rows affected", code: "NO_ROWS" },
           };
         }
         await supabaseAdmin.from("audit_logs").insert({
-          actor_id: userId,
           action: "settings.updated",
           entity_type: "platform_settings",
           diff: data.patch as Json,
