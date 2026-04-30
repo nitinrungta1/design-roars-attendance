@@ -94,7 +94,6 @@ export const getPlatformSettings = createServerFn({ method: "POST" })
   });
 
 export const updatePlatformSettings = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
   .inputValidator(
     z.object({
       patch: z.object({
