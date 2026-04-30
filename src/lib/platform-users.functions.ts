@@ -125,10 +125,10 @@ export const listUsers = createServerFn({ method: "POST" })
     const users: PlatformUser[] = (authRes.data?.users ?? []).map((u) => {
       const profile = profileById.get(u.id) ?? null;
       const roleEntry = roleByUser.get(u.id) ?? null;
+      const banned_until = (u as unknown as { banned_until?: string | null }).banned_until ?? null;
       const status = deriveStatus({
         email_confirmed_at: u.email_confirmed_at ?? null,
-        // @ts-expect-error supabase-js v2 includes banned_until on admin getUser
-        banned_until: u.banned_until ?? null,
+        banned_until,
       });
       return {
         user_id: u.id,
@@ -140,8 +140,7 @@ export const listUsers = createServerFn({ method: "POST" })
         status,
         joined_at: u.created_at ?? null,
         email_confirmed_at: u.email_confirmed_at ?? null,
-        // @ts-expect-error supabase-js v2 includes banned_until
-        banned_until: u.banned_until ?? null,
+        banned_until,
         company_id: roleEntry?.company_id ?? profile?.company_id ?? null,
       };
     });
