@@ -56,7 +56,7 @@ export const getPlatformSettings = createServerFn({ method: "POST" })
   .middleware([requirePermission("system.settings.read")])
   .handler(async (): Promise<{ settings: PlatformSettings | null }> => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from("platform_settings")
       .select("*")
       .eq("singleton", true)
