@@ -558,10 +558,14 @@ function Field({
   );
 }
 
+const ROLE_PRIORITY = ["super_admin", "admin", "hr", "manager", "finance", "sales", "support", "developer", "viewer", "employee"] as const;
+
 function CurrentAdminCard() {
   const { user, profile, roles } = useAuth();
   if (!user) return null;
-  const role = roles[0] ?? "—";
+  // roles come from public.user_roles (joined by user_id) via useAuth, not from the profiles table.
+  // Pick the highest-privilege role for display when a user holds multiple.
+  const role = ROLE_PRIORITY.find((r) => (roles as string[]).includes(r)) ?? roles[0] ?? "—";
   return (
     <div className="rounded-2xl border border-border bg-card/40 p-5">
       <div className="mb-1 flex items-center gap-2">
