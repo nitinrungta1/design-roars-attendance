@@ -50,11 +50,12 @@ import { Route as HelpIndexRouteImport } from './routes/help.index'
 import { Route as HelpSlugRouteImport } from './routes/help.$slug'
 import { Route as CareersSlugRouteImport } from './routes/careers.$slug'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
+import { Route as AuthenticatedPunchlyRouteImport } from './routes/_authenticated.punchly'
 import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated.home'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated.admin'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated.admin.index'
 import { Route as ApiPublicTrackRouteImport } from './routes/api.public.track'
-import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated.admin.users'
+import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated.admin_.users'
 import { Route as AuthenticatedAdminAnalyticsRouteImport } from './routes/_authenticated.admin.analytics'
 import { Route as AuthenticatedAdminWorkforceIndexRouteImport } from './routes/_authenticated.admin.workforce.index'
 import { Route as AuthenticatedAdminLeadsIndexRouteImport } from './routes/_authenticated.admin.leads.index'
@@ -336,6 +337,11 @@ const BlogSlugRoute = BlogSlugRouteImport.update({
   path: '/$slug',
   getParentRoute: () => BlogRoute,
 } as any)
+const AuthenticatedPunchlyRoute = AuthenticatedPunchlyRouteImport.update({
+  id: '/punchly',
+  path: '/punchly',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedHomeRoute = AuthenticatedHomeRouteImport.update({
   id: '/home',
   path: '/home',
@@ -357,9 +363,9 @@ const ApiPublicTrackRoute = ApiPublicTrackRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
-  id: '/users',
-  path: '/users',
-  getParentRoute: () => AuthenticatedAdminRoute,
+  id: '/admin_/users',
+  path: '/admin/users',
+  getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedAdminAnalyticsRoute =
   AuthenticatedAdminAnalyticsRouteImport.update({
@@ -827,6 +833,7 @@ export interface FileRoutesByFullPath {
   '/time-tracking-software': typeof TimeTrackingSoftwareRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/home': typeof AuthenticatedHomeRoute
+  '/punchly': typeof AuthenticatedPunchlyRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/careers/$slug': typeof CareersSlugRoute
   '/help/$slug': typeof HelpSlugRoute
@@ -943,6 +950,7 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/time-tracking-software': typeof TimeTrackingSoftwareRoute
   '/home': typeof AuthenticatedHomeRoute
+  '/punchly': typeof AuthenticatedPunchlyRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/careers/$slug': typeof CareersSlugRoute
   '/help/$slug': typeof HelpSlugRoute
@@ -1062,12 +1070,13 @@ export interface FileRoutesById {
   '/time-tracking-software': typeof TimeTrackingSoftwareRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/home': typeof AuthenticatedHomeRoute
+  '/_authenticated/punchly': typeof AuthenticatedPunchlyRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/careers/$slug': typeof CareersSlugRoute
   '/help/$slug': typeof HelpSlugRoute
   '/help/': typeof HelpIndexRoute
   '/_authenticated/admin/analytics': typeof AuthenticatedAdminAnalyticsRouteWithChildren
-  '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/_authenticated/admin_/users': typeof AuthenticatedAdminUsersRoute
   '/api/public/track': typeof ApiPublicTrackRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/admin/access/permissions': typeof AuthenticatedAdminAccessPermissionsRoute
@@ -1182,6 +1191,7 @@ export interface FileRouteTypes {
     | '/time-tracking-software'
     | '/admin'
     | '/home'
+    | '/punchly'
     | '/blog/$slug'
     | '/careers/$slug'
     | '/help/$slug'
@@ -1298,6 +1308,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/time-tracking-software'
     | '/home'
+    | '/punchly'
     | '/blog/$slug'
     | '/careers/$slug'
     | '/help/$slug'
@@ -1416,12 +1427,13 @@ export interface FileRouteTypes {
     | '/time-tracking-software'
     | '/_authenticated/admin'
     | '/_authenticated/home'
+    | '/_authenticated/punchly'
     | '/blog/$slug'
     | '/careers/$slug'
     | '/help/$slug'
     | '/help/'
     | '/_authenticated/admin/analytics'
-    | '/_authenticated/admin/users'
+    | '/_authenticated/admin_/users'
     | '/api/public/track'
     | '/_authenticated/admin/'
     | '/_authenticated/admin/access/permissions'
@@ -1826,6 +1838,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BlogSlugRouteImport
       parentRoute: typeof BlogRoute
     }
+    '/_authenticated/punchly': {
+      id: '/_authenticated/punchly'
+      path: '/punchly'
+      fullPath: '/punchly'
+      preLoaderRoute: typeof AuthenticatedPunchlyRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/home': {
       id: '/_authenticated/home'
       path: '/home'
@@ -1854,12 +1873,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicTrackRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/admin/users': {
-      id: '/_authenticated/admin/users'
-      path: '/users'
+    '/_authenticated/admin_/users': {
+      id: '/_authenticated/admin_/users'
+      path: '/admin/users'
       fullPath: '/admin/users'
       preLoaderRoute: typeof AuthenticatedAdminUsersRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
+      parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/admin/analytics': {
       id: '/_authenticated/admin/analytics'
@@ -2418,7 +2437,6 @@ const AuthenticatedAdminSupportKbRouteWithChildren =
 
 interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminAnalyticsRoute: typeof AuthenticatedAdminAnalyticsRouteWithChildren
-  AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedAdminAccessPermissionsRoute: typeof AuthenticatedAdminAccessPermissionsRoute
   AuthenticatedAdminAccessRolesRoute: typeof AuthenticatedAdminAccessRolesRoute
@@ -2484,7 +2502,6 @@ interface AuthenticatedAdminRouteChildren {
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminAnalyticsRoute:
     AuthenticatedAdminAnalyticsRouteWithChildren,
-  AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
   AuthenticatedAdminAccessPermissionsRoute:
     AuthenticatedAdminAccessPermissionsRoute,
@@ -2586,11 +2603,15 @@ const AuthenticatedAdminRouteWithChildren =
 interface AuthenticatedRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
   AuthenticatedHomeRoute: typeof AuthenticatedHomeRoute
+  AuthenticatedPunchlyRoute: typeof AuthenticatedPunchlyRoute
+  AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
   AuthenticatedHomeRoute: AuthenticatedHomeRoute,
+  AuthenticatedPunchlyRoute: AuthenticatedPunchlyRoute,
+  AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
