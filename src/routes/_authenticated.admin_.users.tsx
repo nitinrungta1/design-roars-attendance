@@ -204,7 +204,7 @@ function PlatformUsersPage() {
   }
 
   return (
-    <>
+    <PlatformShell>
       <PageHeader
         eyebrow="Platform"
         title="Users"
