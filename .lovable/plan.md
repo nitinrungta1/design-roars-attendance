@@ -1,82 +1,82 @@
-## Goal
+# Stop guessing — seed real data and audit against it
 
-Two problems to solve:
+## Why the current approach is burning credits
 
-1. **Admin `/admin/billing/plans` shows nothing** even though 5 plans (Free, Starter, Growth, Business, Enterprise) exist in the database. The current reader uses the user-scoped Supabase client and silently returns `{ plans: [] }` on any RLS / auth hiccup, so the table looks empty.
-2. **Pricing must become per-user (per-seat)** instead of a flat plan fee — both in the database, in the admin editor, and on the public `/pricing` page. No dummy values; everything computed from real data.
+Every recent bug ("settings won't save", "users page crashes", "punchly card dead") has been fixed in isolation based on a single error message. That means:
 
-## What's wrong today
+- We never see the *next* error until you click the next button.
+- Server functions silently use the wrong client (regular vs `supabaseAdmin`) and we only learn when an end-user action fails.
+- There is no known-good test account, so we can't reproduce anything ourselves.
 
-- `listPlans` queries `plans` through the user-bound client. If the bearer token / role check momentarily fails, it returns an empty list with no error surfaced to the UI — the page then renders "No plans".
-- `updatePlan` has the same silent-failure shape.
-- The plans table has only `price_monthly` / `price_yearly` (flat). There's no per-seat price or seat range, so per-user pricing can't be expressed.
-- The public pricing card divides the flat plan price (not a per-seat price). Yearly discount is hardcoded to 20% when missing.
-- No "Create" or "Delete" actions exist on the admin page.
+The fix is to create a real seed (user + company + Punchly rows), then walk every platform surface against it in **one** pass and patch everything found.
 
-## Changes
+---
 
-### 1. Database (migration)
+## Step 1 — Create a seed (one migration + one script)
 
-Add per-user pricing columns to `plans`:
+Create a known test account so we (and you) can log in and reproduce every flow:
 
-- `price_per_user_monthly numeric(12,2) not null default 0`
-- `price_per_user_yearly  numeric(12,2) not null default 0`
-- `min_seats int not null default 1`
-- `included_seats int not null default 0` (seats covered by base price; seats above this are charged per-user)
-- `billing_model text not null default 'per_user' check (billing_model in ('flat','per_user','hybrid'))`
+- **Auth user**: `test@oqlio.com` / `TestPass123!` — created via `supabaseAdmin.auth.admin.createUser` with `email_confirm: true`.
+- **Role**: insert `super_admin` row in `user_roles` for that user (so we can hit every admin page).
+- **Company**: ensure one row in `companies` with `is_default = true` named "Oqlio Test Co".
+- **Platform settings**: ensure the singleton row in `platform_settings` exists (so the Settings save path has a row to update).
+- **Punchly data**: 1 department, 1 designation, 2 employees, 1 shift, a few attendance rows for the last 7 days, 1 leave request, 1 holiday — just enough that every Punchly tab renders something instead of an empty state that hides errors.
 
-Backfill from current values so nothing breaks:
-- Starter → ₹99/user/mo, Growth → ₹199/user/mo, Business → ₹299/user/mo (derived from current monthly ÷ a sensible seat count; user can edit afterwards).
-- Free / Enterprise stay at 0 (Enterprise = "Talk to sales").
-- Yearly per-user = monthly × 12 × 0.8 by default.
+Delivered as:
+- One SQL migration for the company / settings / punchly rows (idempotent — `on conflict do nothing`).
+- One server function `seedTestAccount()` (admin-only, idempotent) that creates the auth user + role and is callable once from a temporary `/admin/_seed` button or directly via `invoke-server-function`.
 
-Keep `price_monthly` / `price_yearly` for backward compatibility but treat them as the **base fee** (often 0 for pure per-user plans).
+## Step 2 — Audit pass against the seed
 
-### 2. Server functions (`src/lib/billing.functions.ts`)
+With the seed in place, log in as `test@oqlio.com` and walk every platform surface in one go using `invoke-server-function` + `server-function-logs` + `browser--navigate_to_sandbox`. For each route, record: renders / 404 / 500 / wrong layout.
 
-- Switch `listPlans` to **fail loud**: throw a descriptive Error on Supabase error so React Query surfaces it in the UI instead of showing an empty table.
-- Add an explicit permission gate (super_admin / admin / finance) using the same pattern used elsewhere; on denial, throw a 403-style error the UI can display as "Access denied".
-- For resilience against transient RLS edge cases for trusted staff, route the read through `supabaseAdmin` **after** the explicit role check (same pattern recently applied to KB).
-- Extend `PlanRow`, `UpdatePlanSchema`, and the patch builder with the new columns: `price_per_user_monthly`, `price_per_user_yearly`, `min_seats`, `included_seats`, `billing_model`.
-- Add `createPlan` (insert) and `deletePlan` (delete) server functions, both gated by the same role check.
+Routes to verify:
 
-### 3. Admin Plans page (`src/routes/_authenticated.admin.billing.plans.tsx`)
+```text
+/login                              → form renders, login works
+/                                   → redirects to /home
+/home                               → app launcher, all 3 cards
+  ├─ click Punchly                  → /punchly → /admin/workforce
+  ├─ click Users                    → /admin/users (PlatformShell, not Punchly sidebar)
+  └─ click Settings                 → /admin/settings (PlatformShell, save works)
+/admin                              → Punchly admin shell + workforce
+/admin/workforce/*                  → every tab loads with seed data
+/admin/users                        → list shows test user, no 500
+/admin/settings                     → load + save returns ok:true
+```
 
-- Show a real **error state** when `listPlans` throws (with the message), instead of a blank table.
-- Show a real **access-denied state** for users without permission.
-- Add a **"New plan"** button → opens the same dialog in create mode.
-- Add a **delete** action (with confirm) per row.
-- Replace the "Monthly / Yearly" columns with per-user-aware columns:
-  - `Per user / mo` (primary)
-  - `Per user / yr` (or auto-derived from discount %)
-  - `Included seats` and `Min seats`
-  - Keep `Base fee` as a secondary column for hybrid plans.
-- The edit dialog gets a **Pricing model** toggle (Flat · Per user · Hybrid) and inputs for the new fields. Live preview shows the price for a sample team size (e.g. 10 users).
+For every server function touched by these pages, confirm it uses the right client:
+- User-scoped reads → `requireSupabaseAuth` middleware
+- Admin reads of `auth.users` / cross-tenant data → `supabaseAdmin`
+- Writes to singleton `platform_settings` → `supabaseAdmin`
 
-### 4. Public pricing page (`src/routes/pricing.tsx` + `src/lib/pricing-public.ts`)
+## Step 3 — Fix everything found in one batch
 
-- Extend `PublicPlan` with the new fields.
-- Update `PlanCard` to render real per-user pricing:
-  - Headline shows `{currency} {per_user_price} / user / month`
-  - Sub-line shows `Billed {monthly|yearly}. Min {min_seats} users.`
-  - When `cycle === "yearly"`, use `price_per_user_yearly / 12`; compute the savings vs. monthly from real DB numbers (no more hardcoded 20%).
-  - Hybrid plans show `{base fee} + {per_user_price} / user / mo`.
-- Free and Enterprise tiers keep their current treatment (Free is free, Enterprise = "Talk to sales").
-- Remove the `FALLBACK_PLANS` array — if the DB read fails, surface a real error rather than a hardcoded plan.
+Group all discovered bugs and fix in a single edit pass instead of one-per-message. Likely categories based on history:
 
-### 5. Memory
+- Server functions still using regular `supabase` for admin reads → swap to `supabaseAdmin`.
+- Routes still wrapped in the wrong layout → rename to `_authenticated.admin_.*` (escape hatch) or move under `_authenticated.admin.*` (Punchly shell), depending on intent.
+- Missing `errorComponent` on routes that can throw → add one that prints `error.message` so future failures are visible immediately.
 
-Save a feature memory `mem://features/pricing` describing the per-user billing model so future edits stay consistent.
+## Step 4 — Leave the seed in place
 
-## Files to edit / create
+Keep `test@oqlio.com` as a permanent fixture so future bugs can be reproduced in seconds without re-seeding.
 
-- `supabase/migrations/<new>.sql` — add columns + backfill
-- `src/lib/billing.functions.ts` — fail-loud reader, role gate, new fields, create/delete
-- `src/routes/_authenticated.admin.billing.plans.tsx` — error/empty/denied states, create + delete, per-user fields
-- `src/lib/pricing-public.ts` — new fields, drop fallback
-- `src/routes/pricing.tsx` — per-user rendering
-- `mem://features/pricing` — record the model
+---
 
-## Out of scope (ask before doing)
+## Technical notes
 
-- Wiring per-user pricing into the actual checkout / Stripe / subscriptions flow. Today the project doesn't charge real money yet — this plan only fixes the catalog and how it's displayed. I'll flag this as the next step once the catalog side is solid.
+- The `seedTestAccount` server function will live at `src/lib/dev-seed.functions.ts` and be gated behind `process.env.NODE_ENV !== "production"` **plus** a check that the caller is already a super_admin — safe to ship.
+- The migration only inserts into `companies`, `platform_settings`, and Punchly tables (`departments`, `designations`, `employees`, `shifts`, `attendance`, `leave_requests`, `holidays`). No schema changes, no RLS changes.
+- After the audit, we'll publish a single summary listing every route checked, its status, and the fix applied — so you can see exactly what your credits bought.
+
+---
+
+## What I need from you
+
+Just approve this plan. I'll then:
+1. Run the migration (you'll get one approval prompt).
+2. Run `seedTestAccount` once.
+3. Do the full audit + fixes in one go and report back with the route-by-route table.
+
+No more one-bug-at-a-time loops.
