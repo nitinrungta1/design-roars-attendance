@@ -19,7 +19,6 @@ import {
   type AppRole,
 } from "@/lib/access.functions";
 import { seo } from "@/lib/seo";
-import { cn } from "@/lib/utils";
 import { useRequirePermission } from "@/hooks/use-require-permission";
 
 export const Route = createFileRoute("/_authenticated/admin/access/users")({
@@ -33,19 +32,6 @@ export const Route = createFileRoute("/_authenticated/admin/access/users")({
     }),
   component: UsersPage,
 });
-
-const ROLE_TONES: Record<string, string> = {
-  super_admin: "bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300",
-  admin: "bg-violet-100 text-violet-800 dark:bg-violet-950 dark:text-violet-300",
-  hr: "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300",
-  manager: "bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300",
-  finance: "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300",
-  sales: "bg-orange-100 text-orange-800 dark:bg-orange-950 dark:text-orange-300",
-  support: "bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300",
-  developer: "bg-pink-100 text-pink-800 dark:bg-pink-950 dark:text-pink-300",
-  viewer: "bg-slate-100 text-slate-800 dark:bg-slate-900 dark:text-slate-300",
-  employee: "bg-muted text-muted-foreground",
-};
 
 type ManagedRole = Extract<AppRole, "super_admin" | "admin" | "manager" | "employee">;
 const MANAGED_ROLES: ManagedRole[] = ["super_admin", "admin", "manager", "employee"];
