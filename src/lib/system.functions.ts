@@ -130,7 +130,6 @@ export const updatePlatformSettings = createServerFn({ method: "POST" })
   )
   .handler(
     async ({
-      context,
       data,
     }): Promise<{
       ok: boolean;
@@ -138,7 +137,6 @@ export const updatePlatformSettings = createServerFn({ method: "POST" })
       details?: { message?: string; code?: string; hint?: string; details?: string } | null;
     }> => {
       try {
-        const { userId } = context;
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const patch = data.patch as Record<string, unknown>;
         const { error, data: updated, status, statusText } = await supabaseAdmin
