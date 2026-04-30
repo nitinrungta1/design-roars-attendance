@@ -235,12 +235,12 @@ function SettingsPage() {
   const blockSave = !form.brand_name.trim() || !dirty || save.isPending;
 
   return (
-    <>
+    <PlatformShell>
       <PageHeader
         eyebrow="System"
         title="Settings"
         description="Global branding, defaults, and product configuration."
-        breadcrumbs={[{ label: "Admin", to: "/admin" }, { label: "Settings" }]}
+        breadcrumbs={[{ label: "Home", to: "/home" }, { label: "Settings" }]}
         actions={
           dirty ? (
             <Badge variant="outline" className="border-amber-500/40 text-amber-500">
@@ -513,7 +513,7 @@ function SettingsPage() {
           </div>
         </div>
       )}
-    </>
+    </PlatformShell>
   );
 }
 
