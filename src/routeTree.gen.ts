@@ -56,6 +56,7 @@ import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated.
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated.admin.index'
 import { Route as ApiPublicTrackRouteImport } from './routes/api.public.track'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated.admin_.users'
+import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated.admin_.settings'
 import { Route as AuthenticatedAdminAnalyticsRouteImport } from './routes/_authenticated.admin.analytics'
 import { Route as AuthenticatedAdminWorkforceIndexRouteImport } from './routes/_authenticated.admin.workforce.index'
 import { Route as AuthenticatedAdminLeadsIndexRouteImport } from './routes/_authenticated.admin.leads.index'
@@ -367,6 +368,12 @@ const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
   path: '/admin/users',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedAdminSettingsRoute =
+  AuthenticatedAdminSettingsRouteImport.update({
+    id: '/admin_/settings',
+    path: '/admin/settings',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedAdminAnalyticsRoute =
   AuthenticatedAdminAnalyticsRouteImport.update({
     id: '/analytics',
@@ -839,6 +846,7 @@ export interface FileRoutesByFullPath {
   '/help/$slug': typeof HelpSlugRoute
   '/help/': typeof HelpIndexRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRouteWithChildren
+  '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/api/public/track': typeof ApiPublicTrackRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
@@ -955,6 +963,7 @@ export interface FileRoutesByTo {
   '/careers/$slug': typeof CareersSlugRoute
   '/help/$slug': typeof HelpSlugRoute
   '/help': typeof HelpIndexRoute
+  '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/api/public/track': typeof ApiPublicTrackRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
@@ -1076,6 +1085,7 @@ export interface FileRoutesById {
   '/help/$slug': typeof HelpSlugRoute
   '/help/': typeof HelpIndexRoute
   '/_authenticated/admin/analytics': typeof AuthenticatedAdminAnalyticsRouteWithChildren
+  '/_authenticated/admin_/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/admin_/users': typeof AuthenticatedAdminUsersRoute
   '/api/public/track': typeof ApiPublicTrackRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
@@ -1197,6 +1207,7 @@ export interface FileRouteTypes {
     | '/help/$slug'
     | '/help/'
     | '/admin/analytics'
+    | '/admin/settings'
     | '/admin/users'
     | '/api/public/track'
     | '/admin/'
@@ -1313,6 +1324,7 @@ export interface FileRouteTypes {
     | '/careers/$slug'
     | '/help/$slug'
     | '/help'
+    | '/admin/settings'
     | '/admin/users'
     | '/api/public/track'
     | '/admin'
@@ -1433,6 +1445,7 @@ export interface FileRouteTypes {
     | '/help/$slug'
     | '/help/'
     | '/_authenticated/admin/analytics'
+    | '/_authenticated/admin_/settings'
     | '/_authenticated/admin_/users'
     | '/api/public/track'
     | '/_authenticated/admin/'
@@ -1878,6 +1891,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/users'
       fullPath: '/admin/users'
       preLoaderRoute: typeof AuthenticatedAdminUsersRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/admin_/settings': {
+      id: '/_authenticated/admin_/settings'
+      path: '/admin/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AuthenticatedAdminSettingsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/admin/analytics': {
@@ -2604,6 +2624,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
   AuthenticatedHomeRoute: typeof AuthenticatedHomeRoute
   AuthenticatedPunchlyRoute: typeof AuthenticatedPunchlyRoute
+  AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
 }
 
@@ -2611,6 +2632,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
   AuthenticatedHomeRoute: AuthenticatedHomeRoute,
   AuthenticatedPunchlyRoute: AuthenticatedPunchlyRoute,
+  AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
   AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
 }
 

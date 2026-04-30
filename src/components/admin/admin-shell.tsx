@@ -102,9 +102,17 @@ function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex h-16 shrink-0 items-center border-b border-border px-5">
-        <Link to="/admin" className="inline-flex items-center gap-2" onClick={onNavigate}>
+      <div className="flex h-16 shrink-0 items-center gap-2 border-b border-border px-4">
+        <Link
+          to="/home"
+          className="inline-flex items-center"
+          onClick={onNavigate}
+          aria-label="Back to Oqlio app launcher"
+          title="Back to Oqlio apps"
+        >
           <Logo showText={false} />
+        </Link>
+        <Link to="/admin" className="inline-flex flex-1 items-center" onClick={onNavigate}>
           <div className="leading-tight">
             <p className="text-sm font-bold tracking-tight">Punchly</p>
             <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
@@ -157,7 +165,7 @@ function UserMenu() {
           <DropdownMenuLabel>My account</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild>
-            <Link to="/admin/system/settings">Settings</Link>
+            <Link to="/admin/settings">Settings</Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
             <Link to="/">Back to website</Link>

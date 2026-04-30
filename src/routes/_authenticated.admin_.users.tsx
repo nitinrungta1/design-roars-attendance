@@ -1,7 +1,5 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useMemo, useState, type ReactNode } from "react";
-import { Logo } from "@/components/brand/logo";
-import { LogOut, ArrowLeft } from "lucide-react";
+import { createFileRoute } from "@tanstack/react-router";
+import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   AlertCircle,
@@ -43,6 +41,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { InviteUserDialog } from "@/components/admin/invite-user-dialog";
 import { EditRolePanel } from "@/components/admin/edit-role-panel";
+import { PlatformShell } from "@/components/admin/platform-shell";
 import {
   listUsers,
   PLATFORM_ROLES,
@@ -64,50 +63,28 @@ export const Route = createFileRoute("/_authenticated/admin_/users")({
       noindex: true,
     }),
   component: PlatformUsersPage,
+  errorComponent: ({ error, reset }) => (
+    <PlatformShell>
+      <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-6">
+        <h2 className="text-lg font-semibold text-destructive">Users page failed to load</h2>
+        <p className="mt-1 text-sm text-muted-foreground whitespace-pre-wrap">
+          {error?.message ?? String(error)}
+        </p>
+        {error?.stack && (
+          <pre className="mt-3 max-h-64 overflow-auto rounded bg-muted/50 p-2 text-[11px] text-muted-foreground">
+            {error.stack}
+          </pre>
+        )}
+        <button
+          onClick={() => reset()}
+          className="mt-4 inline-flex items-center justify-center rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+        >
+          Try again
+        </button>
+      </div>
+    </PlatformShell>
+  ),
 });
-
-function PlatformShell({ children }: { children: ReactNode }) {
-  const { user, profile, signOut } = useAuth();
-  const navigate = useNavigate();
-  const onSignOut = async () => {
-    await signOut();
-    navigate({ to: "/login" });
-  };
-  return (
-    <div className="min-h-screen bg-muted/30">
-      <header className="border-b border-border bg-card">
-        <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6">
-          <div className="flex items-center gap-4">
-            <Link to="/home" aria-label="Oqlio home">
-              <Logo />
-            </Link>
-            <Link
-              to="/home"
-              className="hidden items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground sm:inline-flex"
-            >
-              <ArrowLeft className="h-3.5 w-3.5" />
-              Back to apps
-            </Link>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="hidden text-right sm:block">
-              <div className="text-sm font-medium leading-tight">{profile?.full_name ?? user?.email}</div>
-              <div className="text-xs leading-tight text-muted-foreground">{user?.email}</div>
-            </div>
-            <button
-              onClick={onSignOut}
-              className="inline-flex h-9 items-center gap-1.5 rounded-md border border-border bg-background px-3 text-sm font-medium hover:bg-accent"
-            >
-              <LogOut className="h-4 w-4" />
-              Sign out
-            </button>
-          </div>
-        </div>
-      </header>
-      <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6">{children}</main>
-    </div>
-  );
-}
 
 const STATUS_TONE: Record<UserStatus, string> = {
   active: "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300",
