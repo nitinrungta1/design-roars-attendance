@@ -13,20 +13,20 @@ export function requirePermission(key: string) {
   return createMiddleware({ type: "function" })
     .middleware([requireSupabaseAuth])
     .server(async ({ next, context }) => {
-      const { supabase, userId } = context as {
-        supabase: import("@supabase/supabase-js").SupabaseClient;
+      const { userId } = context as {
         userId: string;
       };
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
       // super_admin shortcut — always allowed
-      const { data: rolesData } = await supabase
+      const { data: rolesData } = await supabaseAdmin
         .from("user_roles")
         .select("role")
         .eq("user_id", userId);
       const roles = (rolesData ?? []).map((r) => r.role as string);
       if (roles.includes("super_admin")) return next();
 
-      const { data: ok } = await supabase.rpc("has_permission", {
+      const { data: ok } = await supabaseAdmin.rpc("has_permission", {
         _user_id: userId,
         _key: key,
       });

@@ -60,94 +60,101 @@ export interface PlatformUserRow {
 export const listPlatformUsers = createServerFn({ method: "POST" })
   .middleware([requirePermission("access.users.read")])
   .handler(
-    async ({
-      context,
-    }): Promise<{ users: PlatformUserRow[]; error?: string; canCreate: boolean }> => {
-      const { supabase, userId } = context;
-      // Determine if caller can also create users (write permission)
-      const { data: writeOk } = await supabase.rpc("has_permission", {
-        _user_id: userId,
-        _key: "access.users.write",
-      });
-      const { data: myRoles } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", userId);
+    async ({ context }): Promise<{ users: PlatformUserRow[]; error?: string; canCreate: boolean }> => {
+      const { userId } = context;
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+      const [{ data: myRoles }, { data: writeOk }, authUsers, profilesRes, rolesRes, membersRes, companiesRes] =
+        await Promise.all([
+          supabaseAdmin.from("user_roles").select("role").eq("user_id", userId),
+          supabaseAdmin.rpc("has_permission", { _user_id: userId, _key: "access.users.write" }),
+          supabaseAdmin.auth.admin.listUsers({ perPage: 1000 }),
+          supabaseAdmin.from("profiles").select("id, full_name, avatar_url, created_at"),
+          supabaseAdmin.from("user_roles").select("user_id, role, company_id"),
+          supabaseAdmin
+            .from("company_members")
+            .select("user_id, company_id, is_owner, joined_at")
+            .order("is_owner", { ascending: false })
+            .order("joined_at", { ascending: true }),
+          supabaseAdmin.from("companies").select("id, name"),
+        ]);
+
+      if (authUsers.error) {
+        console.error("[listPlatformUsers] auth admin listUsers error", authUsers.error);
+        return { users: [], canCreate: false, error: authUsers.error.message };
+      }
+      if (profilesRes.error || rolesRes.error || membersRes.error || companiesRes.error) {
+        const error = profilesRes.error ?? rolesRes.error ?? membersRes.error ?? companiesRes.error;
+        console.error("[listPlatformUsers] admin data fetch error", {
+          profiles: profilesRes.error,
+          roles: rolesRes.error,
+          members: membersRes.error,
+          companies: companiesRes.error,
+        });
+        return { users: [], canCreate: false, error: error?.message ?? "Failed to load users." };
+      }
+
       const isSuper = (myRoles ?? []).some((r) => r.role === "super_admin");
       const canCreate = isSuper || writeOk === true;
-
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const [authUsers, profilesRes, rolesRes, membersRes, companiesRes] = await Promise.all([
-      supabaseAdmin.auth.admin.listUsers({ perPage: 1000 }),
-      supabaseAdmin.from("profiles").select("id, full_name, avatar_url, created_at"),
-      supabaseAdmin.from("user_roles").select("user_id, role"),
-      supabaseAdmin
-        .from("company_members")
-        .select("user_id, company_id, is_owner, joined_at")
-        .order("is_owner", { ascending: false })
-        .order("joined_at", { ascending: true }),
-      supabaseAdmin.from("companies").select("id, name"),
-    ]);
-
-    const profiles = profilesRes.data ?? [];
-    const roles = rolesRes.data ?? [];
-    const members = membersRes.data ?? [];
-    const companies = companiesRes.data ?? [];
-    const emailById = new Map<string, string>();
-    const joinedById = new Map<string, string>();
-    const confirmedById = new Map<string, string | null>();
-    for (const u of authUsers.data?.users ?? []) {
-      if (u.email) emailById.set(u.id, u.email);
-      if (u.created_at) joinedById.set(u.id, u.created_at);
-      confirmedById.set(u.id, u.email_confirmed_at ?? null);
-    }
-
-    const companiesById = new Map((companies ?? []).map((c) => [c.id, c.name]));
-    const rolesByUser = new Map<string, AppRole[]>();
-    for (const r of roles ?? []) {
-      const arr = rolesByUser.get(r.user_id) ?? [];
-      arr.push(r.role);
-      rolesByUser.set(r.user_id, arr);
-    }
-    const primaryByUser = new Map<string, { id: string; name: string; joined_at: string }>();
-    for (const m of members ?? []) {
-      if (!primaryByUser.has(m.user_id)) {
-        primaryByUser.set(m.user_id, {
-          id: m.company_id,
-          name: companiesById.get(m.company_id) ?? "—",
-          joined_at: m.joined_at as string,
-        });
+      const profiles = profilesRes.data ?? [];
+      const roles = rolesRes.data ?? [];
+      const members = membersRes.data ?? [];
+      const companies = companiesRes.data ?? [];
+      const authList = authUsers.data?.users ?? [];
+      const profileById = new Map(profiles.map((p) => [p.id, p]));
+      const emailById = new Map<string, string>();
+      const joinedById = new Map<string, string>();
+      const confirmedById = new Map<string, string | null>();
+      for (const u of authList) {
+        if (u.email) emailById.set(u.id, u.email);
+        if (u.created_at) joinedById.set(u.id, u.created_at);
+        confirmedById.set(u.id, u.email_confirmed_at ?? null);
       }
-    }
 
-      const ids = Array.from(
-        new Set([
-          ...profiles.map((p) => p.id),
-          ...(authUsers.data?.users ?? []).map((u) => u.id),
-        ]),
-      );
+      const companiesById = new Map(companies.map((c) => [c.id, c.name]));
+      const rolesByUser = new Map<string, AppRole[]>();
+      const roleCompanyByUser = new Map<string, string | null>();
+      for (const r of roles) {
+        const arr = rolesByUser.get(r.user_id) ?? [];
+        arr.push(r.role);
+        rolesByUser.set(r.user_id, arr);
+        if (!roleCompanyByUser.has(r.user_id)) roleCompanyByUser.set(r.user_id, r.company_id ?? null);
+      }
+      const primaryByUser = new Map<string, { id: string; name: string; joined_at: string }>();
+      for (const m of members) {
+        if (!primaryByUser.has(m.user_id)) {
+          primaryByUser.set(m.user_id, {
+            id: m.company_id,
+            name: companiesById.get(m.company_id) ?? "—",
+            joined_at: m.joined_at as string,
+          });
+        }
+      }
+
+      const ids = Array.from(new Set([...profiles.map((p) => p.id), ...authList.map((u) => u.id)]));
       const users: PlatformUserRow[] = ids.map((id) => {
-        const profile = profiles.find((p) => p.id === id) ?? null;
+        const profile = profileById.get(id) ?? null;
         const primary = primaryByUser.get(id) ?? null;
+        const roleCompanyId = roleCompanyByUser.get(id) ?? null;
         return {
           user_id: id,
           email: emailById.get(id) ?? null,
           full_name: profile?.full_name ?? null,
           avatar_url: profile?.avatar_url ?? null,
           roles: rolesByUser.get(id) ?? [],
-          primary_company: primary ? { id: primary.id, name: primary.name } : null,
-          joined_at:
-            primary?.joined_at ??
-            (profile?.created_at as string | undefined) ??
-            joinedById.get(id) ??
-            null,
+          primary_company: primary
+            ? { id: primary.id, name: primary.name }
+            : roleCompanyId
+              ? { id: roleCompanyId, name: companiesById.get(roleCompanyId) ?? "—" }
+              : null,
+          joined_at: primary?.joined_at ?? (profile?.created_at as string | undefined) ?? joinedById.get(id) ?? null,
           email_confirmed_at: confirmedById.get(id) ?? null,
         };
       });
       users.sort((a, b) => {
         const da = a.joined_at ? new Date(a.joined_at).getTime() : 0;
         const db = b.joined_at ? new Date(b.joined_at).getTime() : 0;
-        return da - db;
+        return db - da;
       });
       return { users, canCreate };
     },
@@ -173,18 +180,20 @@ export const assignRole = createServerFn({ method: "POST" })
     }),
   )
   .handler(async ({ context, data }): Promise<{ ok: boolean; error?: string }> => {
-    const { supabase } = context;
-    const { error } = await supabase
+    const { userId } = context;
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: caller } = await supabaseAdmin.from("profiles").select("company_id").eq("id", userId).maybeSingle();
+    const { error } = await supabaseAdmin
       .from("user_roles")
-      .insert({ user_id: data.userId, role: data.role });
-    if (error && !error.message.includes("duplicate")) {
-      return { ok: false, error: error.message };
-    }
-    await supabase.rpc("log_audit", {
-      _action: "role.assigned",
-      _entity_type: "user_role",
-      _entity_id: data.userId,
-      _diff: { role: data.role },
+      .insert({ user_id: data.userId, role: data.role, company_id: caller?.company_id ?? null, granted_by: userId });
+    if (error && !error.message.includes("duplicate")) return { ok: false, error: error.message };
+    await supabaseAdmin.from("audit_logs").insert({
+      actor_id: userId,
+      action: "role.assigned",
+      entity_type: "user_role",
+      entity_id: data.userId,
+      diff: { role: data.role },
+      company_id: caller?.company_id ?? null,
     });
     return { ok: true };
   });
@@ -209,22 +218,59 @@ export const revokeRole = createServerFn({ method: "POST" })
     }),
   )
   .handler(async ({ context, data }): Promise<{ ok: boolean; error?: string }> => {
-    const { supabase } = context;
-    const { error } = await supabase
-      .from("user_roles")
-      .delete()
-      .eq("user_id", data.userId)
-      .eq("role", data.role);
+    const { userId } = context;
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: caller } = await supabaseAdmin.from("profiles").select("company_id").eq("id", userId).maybeSingle();
+    const { error } = await supabaseAdmin.from("user_roles").delete().eq("user_id", data.userId).eq("role", data.role);
     if (error) return { ok: false, error: error.message };
-    await supabase.rpc("log_audit", {
-      _action: "role.revoked",
-      _entity_type: "user_role",
-      _entity_id: data.userId,
-      _diff: { role: data.role },
+    await supabaseAdmin.from("audit_logs").insert({
+      actor_id: userId,
+      action: "role.revoked",
+      entity_type: "user_role",
+      entity_id: data.userId,
+      diff: { role: data.role },
+      company_id: caller?.company_id ?? null,
     });
     return { ok: true };
   });
 
+export const changeUserRole = createServerFn({ method: "POST" })
+  .middleware([requirePermission("access.users.write")])
+  .inputValidator(
+    z.object({
+      userId: z.string().uuid(),
+      role: z.enum(["super_admin", "admin", "manager", "employee"]),
+    }),
+  )
+  .handler(async ({ context, data }): Promise<{ ok: boolean; error?: string }> => {
+    const { userId } = context;
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: caller } = await supabaseAdmin.from("profiles").select("company_id").eq("id", userId).maybeSingle();
+    const companyId = caller?.company_id ?? null;
+    const { error: deleteErr } = await supabaseAdmin.from("user_roles").delete().eq("user_id", data.userId);
+    if (deleteErr) return { ok: false, error: deleteErr.message };
+    const { error: insertErr } = await supabaseAdmin
+      .from("user_roles")
+      .insert({ user_id: data.userId, role: data.role, company_id: companyId, granted_by: userId });
+    if (insertErr) return { ok: false, error: insertErr.message };
+    if (companyId) {
+      await supabaseAdmin
+        .from("company_members")
+        .upsert({ company_id: companyId, user_id: data.userId, role: data.role, invited_by: userId }, { onConflict: "company_id,user_id" });
+    }
+    await supabaseAdmin.from("audit_logs").insert({
+      actor_id: userId,
+      action: "role.changed",
+      entity_type: "user_role",
+      entity_id: data.userId,
+      diff: { role: data.role },
+      company_id: companyId,
+    });
+    return { ok: true };
+  });
+
+// ============================================================
+// Roles & permissions matrix
 // ============================================================
 // Roles & permissions matrix
 // ============================================================
@@ -638,22 +684,8 @@ export const createPlatformUser = createServerFn({ method: "POST" })
   .inputValidator(
     z.object({
       email: z.string().email().max(254),
-      fullName: z.string().min(1).max(120),
-      password: z.string().min(8).max(120).optional(),
-      role: z.enum([
-        "super_admin",
-        "admin",
-        "hr",
-        "manager",
-        "employee",
-        "sales",
-        "support",
-        "finance",
-        "developer",
-        "viewer",
-      ]),
-      companyId: z.string().uuid().nullable().optional(),
-      sendInvite: z.boolean().optional(),
+      password: z.string().min(8).max(120),
+      role: z.enum(["super_admin", "admin", "manager", "employee"]),
     }),
   )
   .handler(
@@ -661,33 +693,20 @@ export const createPlatformUser = createServerFn({ method: "POST" })
       context,
       data,
     }): Promise<{ ok: boolean; userId?: string; error?: string }> => {
-      const { supabase, userId } = context;
-      // permission already enforced by middleware; userId still needed for audit + invited_by
-
+      const { userId } = context;
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-
-      let newUserId: string | null = null;
-      if (data.sendInvite) {
-        const { data: invited, error } = await supabaseAdmin.auth.admin.inviteUserByEmail(
-          data.email,
-          { data: { full_name: data.fullName } },
-        );
-        if (error || !invited.user) {
-          return { ok: false, error: error?.message ?? "Failed to invite user." };
-        }
-        newUserId = invited.user.id;
-      } else {
-        const { data: created, error } = await supabaseAdmin.auth.admin.createUser({
-          email: data.email,
-          password: data.password ?? undefined,
-          email_confirm: true,
-          user_metadata: { full_name: data.fullName },
-        });
-        if (error || !created.user) {
-          return { ok: false, error: error?.message ?? "Failed to create user." };
-        }
-        newUserId = created.user.id;
+      const { data: caller } = await supabaseAdmin.from("profiles").select("company_id").eq("id", userId).maybeSingle();
+      const companyId = caller?.company_id ?? null;
+      const { data: created, error } = await supabaseAdmin.auth.admin.createUser({
+        email: data.email,
+        password: data.password,
+        email_confirm: true,
+      });
+      if (error || !created.user) {
+        console.error("[createPlatformUser] auth admin createUser error", error);
+        return { ok: false, error: error?.message ?? "Failed to create user." };
       }
+      const newUserId = created.user.id;
 
       // Ensure profile exists/updated
       await supabaseAdmin
@@ -695,8 +714,7 @@ export const createPlatformUser = createServerFn({ method: "POST" })
         .upsert(
           {
             id: newUserId,
-            full_name: data.fullName,
-            company_id: data.companyId ?? null,
+            company_id: companyId,
           },
           { onConflict: "id" },
         );
@@ -705,15 +723,15 @@ export const createPlatformUser = createServerFn({ method: "POST" })
       await supabaseAdmin.from("user_roles").delete().eq("user_id", newUserId);
       const { error: roleErr } = await supabaseAdmin
         .from("user_roles")
-        .insert({ user_id: newUserId, role: data.role, granted_by: userId });
+        .insert({ user_id: newUserId, role: data.role, company_id: companyId, granted_by: userId });
       if (roleErr) return { ok: false, error: roleErr.message };
 
-      if (data.companyId) {
+      if (companyId) {
         await supabaseAdmin
           .from("company_members")
           .upsert(
             {
-              company_id: data.companyId,
+              company_id: companyId,
               user_id: newUserId,
               role: data.role,
               invited_by: userId,
@@ -722,15 +740,17 @@ export const createPlatformUser = createServerFn({ method: "POST" })
           );
       }
 
-      await supabase.rpc("log_audit", {
-        _action: "user.created",
-        _entity_type: "user",
-        _entity_id: newUserId,
-        _diff: {
+      await supabaseAdmin.from("audit_logs").insert({
+        actor_id: userId,
+        action: "user.created",
+        entity_type: "user",
+        entity_id: newUserId,
+        company_id: companyId,
+        diff: {
           email: data.email,
           role: data.role,
-          company_id: data.companyId ?? null,
-          via: data.sendInvite ? "invite" : "password",
+          company_id: companyId,
+          via: "password",
         },
       });
 

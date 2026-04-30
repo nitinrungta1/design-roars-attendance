@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { requirePermission } from "@/integrations/supabase/permission-middleware";
 import type { Database } from "@/integrations/supabase/types";
 
 type Json = Database["public"]["Tables"]["feature_flags"]["Row"]["payload"];
@@ -52,10 +53,10 @@ const DEFAULT_SECURITY = {
 };
 
 export const getPlatformSettings = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }): Promise<{ settings: PlatformSettings | null }> => {
-    const { supabase } = context;
-    const { data, error } = await supabase
+  .middleware([requirePermission("system.settings.read")])
+  .handler(async (): Promise<{ settings: PlatformSettings | null }> => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin
       .from("platform_settings")
       .select("*")
       .eq("singleton", true)
@@ -93,7 +94,7 @@ export const getPlatformSettings = createServerFn({ method: "POST" })
   });
 
 export const updatePlatformSettings = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requirePermission("system.settings.write")])
   .inputValidator(
     z.object({
       patch: z.object({
@@ -138,9 +139,10 @@ export const updatePlatformSettings = createServerFn({ method: "POST" })
       details?: { message?: string; code?: string; hint?: string; details?: string } | null;
     }> => {
       try {
-        const { supabase, userId } = context;
+        const { userId } = context;
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const patch = data.patch as Record<string, unknown>;
-        const { error, data: updated, status, statusText } = await supabase
+        const { error, data: updated, status, statusText } = await supabaseAdmin
           .from("platform_settings")
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           .update({ ...(patch as any), updated_by: userId })
@@ -177,10 +179,11 @@ export const updatePlatformSettings = createServerFn({ method: "POST" })
             details: { message: "0 rows affected", code: "NO_ROWS" },
           };
         }
-        await supabase.rpc("log_audit", {
-          _action: "settings.updated",
-          _entity_type: "platform_settings",
-          _diff: data.patch as Json,
+        await supabaseAdmin.from("audit_logs").insert({
+          actor_id: userId,
+          action: "settings.updated",
+          entity_type: "platform_settings",
+          diff: data.patch as Json,
         });
         return { ok: true };
       } catch (e) {

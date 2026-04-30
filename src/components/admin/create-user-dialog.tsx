@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { UserPlus } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -21,48 +21,33 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
-import {
-  APP_ROLES,
-  createPlatformUser,
-  listCompaniesLite,
-  type AppRole,
-} from "@/lib/access.functions";
+import { createPlatformUser, type AppRole } from "@/lib/access.functions";
+
+type ManagedRole = Extract<AppRole, "super_admin" | "admin" | "manager" | "employee">;
+
+const MANAGED_ROLES: ManagedRole[] = ["super_admin", "admin", "manager", "employee"];
 
 export function CreateUserDialog() {
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
-  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState<AppRole>("employee");
-  const [companyId, setCompanyId] = useState<string>("__none__");
-  const [sendInvite, setSendInvite] = useState(true);
-
-  const companies = useQuery({
-    queryKey: ["admin", "companies-lite"],
-    queryFn: () => listCompaniesLite(),
-    enabled: open,
-  });
+  const [role, setRole] = useState<ManagedRole>("employee");
 
   const create = useMutation({
     mutationFn: () =>
       createPlatformUser({
         data: {
           email: email.trim(),
-          fullName: fullName.trim(),
-          password: sendInvite ? undefined : password,
+          password,
           role,
-          companyId: companyId === "__none__" ? null : companyId,
-          sendInvite,
         },
       }),
     onSuccess: (res) => {
       if (res.ok) {
-        toast.success(sendInvite ? "Invitation sent" : "User created");
+        toast.success("User created");
         qc.invalidateQueries({ queryKey: ["admin", "platform-users"] });
         setOpen(false);
-        setFullName("");
         setEmail("");
         setPassword("");
         setRole("employee");
@@ -70,42 +55,30 @@ export function CreateUserDialog() {
         toast.error(res.error ?? "Failed to create user");
       }
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error("Failed to create user", { description: e.message }),
   });
 
-  const canSubmit =
-    fullName.trim().length > 0 &&
-    /\S+@\S+\.\S+/.test(email) &&
-    (sendInvite || password.length >= 8);
+  const canSubmit = /\S+@\S+\.\S+/.test(email) && password.length >= 8;
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button size="sm" className="h-9 gap-1.5">
           <UserPlus className="h-4 w-4" />
-          Create user
+          Add User
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Create platform user</DialogTitle>
+          <DialogTitle>Add User</DialogTitle>
           <DialogDescription>
-            Add a teammate to your workspace. They will appear in the user list immediately.
+            Create an account and assign its initial platform role.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-3">
           <div className="space-y-1.5">
-            <Label htmlFor="full-name">Full name</Label>
-            <Input
-              id="full-name"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              placeholder="Jane Doe"
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="email">Work email</Label>
+            <Label htmlFor="email">Email</Label>
             <Input
               id="email"
               type="email"
@@ -114,65 +87,31 @@ export function CreateUserDialog() {
               placeholder="jane@company.com"
             />
           </div>
-
-          <div className="flex items-center justify-between rounded-md border border-border bg-muted/30 px-3 py-2">
-            <div>
-              <p className="text-sm font-medium">Send invite email</p>
-              <p className="text-xs text-muted-foreground">
-                {sendInvite
-                  ? "User sets their own password via email link."
-                  : "You set an initial password below."}
-              </p>
-            </div>
-            <Switch checked={sendInvite} onCheckedChange={setSendInvite} />
+          <div className="space-y-1.5">
+            <Label htmlFor="password">Password</Label>
+            <Input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Minimum 8 characters"
+              minLength={8}
+            />
           </div>
-
-          {!sendInvite && (
-            <div className="space-y-1.5">
-              <Label htmlFor="password">Initial password</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Minimum 8 characters"
-                minLength={8}
-              />
-            </div>
-          )}
-
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label>Role</Label>
-              <Select value={role} onValueChange={(v) => setRole(v as AppRole)}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {APP_ROLES.map((r) => (
-                    <SelectItem key={r} value={r} className="capitalize">
-                      {r.replace("_", " ")}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-1.5">
-              <Label>Company</Label>
-              <Select value={companyId} onValueChange={setCompanyId}>
-                <SelectTrigger>
-                  <SelectValue placeholder="None" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="__none__">No company</SelectItem>
-                  {(companies.data?.companies ?? []).map((c) => (
-                    <SelectItem key={c.id} value={c.id}>
-                      {c.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+          <div className="space-y-1.5">
+            <Label>Role</Label>
+            <Select value={role} onValueChange={(v) => setRole(v as ManagedRole)}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {MANAGED_ROLES.map((r) => (
+                  <SelectItem key={r} value={r} className="capitalize">
+                    {r.replace("_", " ")}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
@@ -180,11 +119,8 @@ export function CreateUserDialog() {
           <Button variant="ghost" onClick={() => setOpen(false)}>
             Cancel
           </Button>
-          <Button
-            onClick={() => create.mutate()}
-            disabled={!canSubmit || create.isPending}
-          >
-            {create.isPending ? "Saving…" : sendInvite ? "Send invite" : "Create user"}
+          <Button onClick={() => create.mutate()} disabled={!canSubmit || create.isPending}>
+            {create.isPending ? "Saving…" : "Add User"}
           </Button>
         </DialogFooter>
       </DialogContent>

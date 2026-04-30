@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Users, X, Settings2, AlertCircle } from "lucide-react";
+import { Users, Settings2, AlertCircle } from "lucide-react";
 import { UserAccessSheet } from "@/components/admin/user-access-sheet";
 import { CreateUserDialog } from "@/components/admin/create-user-dialog";
 import type { PlatformUserRow } from "@/lib/access.functions";
@@ -11,14 +11,14 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import {
+  changeUserRole,
   listPlatformUsers,
-  revokeRole,
   type AppRole,
 } from "@/lib/access.functions";
 import { seo } from "@/lib/seo";
-import { cn } from "@/lib/utils";
 import { useRequirePermission } from "@/hooks/use-require-permission";
 
 export const Route = createFileRoute("/_authenticated/admin/access/users")({
@@ -33,18 +33,8 @@ export const Route = createFileRoute("/_authenticated/admin/access/users")({
   component: UsersPage,
 });
 
-const ROLE_TONES: Record<string, string> = {
-  super_admin: "bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300",
-  admin: "bg-violet-100 text-violet-800 dark:bg-violet-950 dark:text-violet-300",
-  hr: "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300",
-  manager: "bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300",
-  finance: "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300",
-  sales: "bg-orange-100 text-orange-800 dark:bg-orange-950 dark:text-orange-300",
-  support: "bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300",
-  developer: "bg-pink-100 text-pink-800 dark:bg-pink-950 dark:text-pink-300",
-  viewer: "bg-slate-100 text-slate-800 dark:bg-slate-900 dark:text-slate-300",
-  employee: "bg-muted text-muted-foreground",
-};
+type ManagedRole = Extract<AppRole, "super_admin" | "admin" | "manager" | "employee">;
+const MANAGED_ROLES: ManagedRole[] = ["super_admin", "admin", "manager", "employee"];
 
 function UsersPage() {
   const blocked = useRequirePermission("access.users.read");
@@ -57,15 +47,16 @@ function UsersPage() {
     enabled: !blocked,
   });
 
-  const revoke = useMutation({
-    mutationFn: (vars: { userId: string; role: AppRole }) =>
-      revokeRole({ data: vars }),
+  const changeRole = useMutation({
+    mutationFn: (vars: { userId: string; role: ManagedRole }) =>
+      changeUserRole({ data: vars }),
     onSuccess: (res) => {
       if (res.ok) {
-        toast.success("Role revoked");
+        toast.success("Role updated");
         qc.invalidateQueries({ queryKey: ["admin", "platform-users"] });
       } else toast.error(res.error);
     },
+    onError: (e: Error) => toast.error("Failed to update role", { description: e.message }),
   });
 
   const users = data?.users ?? [];
@@ -177,22 +168,22 @@ function UsersPage() {
                   {u.roles.length === 0 && (
                     <span className="text-xs text-muted-foreground">No roles</span>
                   )}
-                  {u.roles.map((r) => (
-                    <Badge
-                      key={r}
-                      variant="secondary"
-                      className={cn("group rounded-full pr-1", ROLE_TONES[r] ?? "bg-muted")}
-                    >
-                      <span>{r}</span>
-                      <button
-                        type="button"
-                        onClick={() => revoke.mutate({ userId: u.user_id, role: r })}
-                        className="ml-1 rounded-full p-0.5 opacity-60 hover:opacity-100"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </Badge>
-                  ))}
+                  <Select
+                    value={(MANAGED_ROLES.find((r) => u.roles.includes(r)) ?? "employee") as ManagedRole}
+                    onValueChange={(role) => changeRole.mutate({ userId: u.user_id, role: role as ManagedRole })}
+                    disabled={changeRole.isPending}
+                  >
+                    <SelectTrigger className="h-8 w-40 text-xs capitalize">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {MANAGED_ROLES.map((r) => (
+                        <SelectItem key={r} value={r} className="capitalize text-xs">
+                          {r.replace("_", " ")}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </Td>
               <Td className="text-muted-foreground text-xs">
