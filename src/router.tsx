@@ -1,5 +1,6 @@
 import { createRouter, useRouter } from "@tanstack/react-router";
 import { routeTree } from "./routeTree.gen";
+import { supabase } from "@/integrations/supabase/client";
 
 function DefaultErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   const router = useRouter();
@@ -65,6 +66,21 @@ export const getRouter = () => {
     defaultPreloadStaleTime: 0,
     defaultErrorComponent: DefaultErrorComponent,
   });
+
+  // Inject Supabase Bearer token into every server function call
+  const opts = router.options as any;
+  const originalFetch = opts.fetchFn ?? fetch;
+  opts.fetchFn = async (url: any, options: any, ...args: any[]) => {
+    const { data: { session } } = await supabase.auth.getSession();
+    const token = session?.access_token;
+    if (token && options) {
+      options.headers = {
+        ...((options.headers as Record<string, string>) ?? {}),
+        Authorization: `Bearer ${token}`,
+      };
+    }
+    return (originalFetch as any)(url, options, ...args);
+  };
 
   return router;
 };
