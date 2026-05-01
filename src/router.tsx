@@ -67,19 +67,24 @@ export const getRouter = () => {
     defaultErrorComponent: DefaultErrorComponent,
   });
 
-  // Inject Supabase Bearer token into every server function call
-  const opts = router.options as any;
-  const originalFetch = opts.fetchFn ?? fetch;
-  opts.fetchFn = async (url: any, options: any, ...args: any[]) => {
-    const { data: { session } } = await supabase.auth.getSession();
-    const token = session?.access_token;
-    if (token && options) {
-      options.headers = {
-        ...((options.headers as Record<string, string>) ?? {}),
-        Authorization: `Bearer ${token}`,
-      };
-    }
-    return (originalFetch as any)(url, options, ...args);
+  const originalFetch = globalThis.fetch.bind(globalThis);
+  router.options.fetchFn = async (url: RequestInfo | URL, options?: RequestInit) => {
+    try {
+      const { createClient } = await import("@supabase/supabase-js");
+      const supabase = createClient(
+        import.meta.env.VITE_SUPABASE_URL,
+        import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+        { auth: { persistSession: true, storage: localStorage } }
+      );
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.access_token && options) {
+        options.headers = {
+          ...(options.headers as Record<string, string> ?? {}),
+          Authorization: `Bearer ${session.access_token}`,
+        };
+      }
+    } catch {}
+    return originalFetch(url, options);
   };
 
   return router;
