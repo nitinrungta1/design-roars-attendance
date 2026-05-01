@@ -1,13 +1,40 @@
 import { createRouter, useRouter } from "@tanstack/react-router";
 import { routeTree } from "./routeTree.gen";
-import { supabase } from "@/integrations/supabase/client";
+
+// Patch global fetch to inject Supabase auth token into server function calls
+if (typeof window !== 'undefined') {
+  const _originalFetch = globalThis.fetch.bind(globalThis);
+  globalThis.fetch = async function(url: RequestInfo | URL, options?: RequestInit, ...rest: unknown[]) {
+    if (typeof url === 'string' && url.includes('/_serverFn/')) {
+      try {
+        // Find Supabase token in localStorage
+        const keys = Object.keys(localStorage);
+        const authKey = keys.find(k => k.includes('-auth-token') && k.startsWith('sb-'));
+        if (authKey) {
+          const stored = localStorage.getItem(authKey);
+          if (stored) {
+            const parsed = JSON.parse(stored);
+            const token = parsed?.access_token;
+            if (token) {
+              options = options ?? {};
+              options.headers = {
+                ...(options.headers as Record<string, string> ?? {}),
+                Authorization: `Bearer ${token}`,
+              };
+            }
+          }
+        }
+      } catch {}
+    }
+    return _originalFetch(url, options);
+  } as typeof fetch;
+}
 
 function DefaultErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   const router = useRouter();
   if (typeof console !== "undefined") {
     console.error("[router] Uncaught route error:", error);
   }
-
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
@@ -46,7 +73,7 @@ function DefaultErrorComponent({ error, reset }: { error: Error; reset: () => vo
           >
             Try again
           </button>
-          <a
+          
             href="/"
             className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
           >
@@ -66,26 +93,5 @@ export const getRouter = () => {
     defaultPreloadStaleTime: 0,
     defaultErrorComponent: DefaultErrorComponent,
   });
-
-  const originalFetch = globalThis.fetch.bind(globalThis);
-  router.options.fetchFn = async (url: RequestInfo | URL, options?: RequestInit) => {
-    try {
-      const { createClient } = await import("@supabase/supabase-js");
-      const supabase = createClient(
-        import.meta.env.VITE_SUPABASE_URL,
-        import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-        { auth: { persistSession: true, storage: localStorage } }
-      );
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.access_token && options) {
-        options.headers = {
-          ...(options.headers as Record<string, string> ?? {}),
-          Authorization: `Bearer ${session.access_token}`,
-        };
-      }
-    } catch {}
-    return originalFetch(url, options);
-  };
-
   return router;
 };
