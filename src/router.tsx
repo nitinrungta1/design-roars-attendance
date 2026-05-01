@@ -2,29 +2,25 @@ import { createRouter, useRouter } from "@tanstack/react-router";
 import { routeTree } from "./routeTree.gen";
 
 if (typeof window !== 'undefined') {
-  const _originalFetch = globalThis.fetch.bind(globalThis);
-  (globalThis as typeof globalThis).fetch = async function(url: RequestInfo | URL, options?: RequestInit) {
+  const _orig = globalThis.fetch.bind(globalThis);
+  globalThis.fetch = async function(url: RequestInfo | URL, options?: RequestInit) {
     if (typeof url === 'string' && url.includes('/_serverFn/')) {
       try {
-        const keys = Object.keys(localStorage);
-        const authKey = keys.find(k => k.includes('-auth-token') && k.startsWith('sb-'));
-        if (authKey) {
-          const stored = localStorage.getItem(authKey);
-          if (stored) {
-            const parsed = JSON.parse(stored);
-            const token = parsed?.access_token;
-            if (token) {
-              options = options ?? {};
-              options.headers = {
-                ...(options.headers as Record<string, string> ?? {}),
-                Authorization: `Bearer ${token}`,
-              };
-            }
+        const stored = localStorage.getItem('sb-cehphyqfvvpeqyyxcnnz-auth-token');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          const token = parsed?.access_token;
+          if (token) {
+            options = options ?? {};
+            options.headers = {
+              ...(options.headers as Record<string, string> ?? {}),
+              Authorization: `Bearer ${token}`,
+            };
           }
         }
       } catch {}
     }
-    return _originalFetch(url, options);
+    return _orig(url, options);
   };
 }
 
@@ -66,7 +62,7 @@ function DefaultErrorComponent({ error, reset }: { error: Error; reset: () => vo
           >
             Try again
           </button>
-          
+          <a
             href="/"
             className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
           >
