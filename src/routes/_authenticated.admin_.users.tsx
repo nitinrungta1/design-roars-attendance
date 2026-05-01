@@ -196,10 +196,10 @@ function PlatformUsersPage() {
       />
       <PageBody className="space-y-6">
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCard label="Total users" value={data?.stats.total ?? 0} />
-          <StatCard label="Super admins" value={data?.stats.superAdmins ?? 0} tone="warning" />
-          <StatCard label="Pending invites" value={data?.stats.pending ?? 0} />
-          <StatCard label="Deactivated" value={data?.stats.deactivated ?? 0} tone={data?.stats.deactivated ? "danger" : "default"} />
+          <StatCard label="Total users" value={data?.stats?.total ?? 0} />
+          <StatCard label="Super admins" value={data?.stats?.superAdmins ?? 0} tone="warning" />
+          <StatCard label="Pending invites" value={data?.stats?.pending ?? 0} />
+          <StatCard label="Deactivated" value={data?.stats?.deactivated ?? 0} tone={data?.stats.deactivated ? "danger" : "default"} />
         </div>
 
         {data?.error && (
