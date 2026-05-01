@@ -1,13 +1,11 @@
 import { createRouter, useRouter } from "@tanstack/react-router";
 import { routeTree } from "./routeTree.gen";
 
-// Patch global fetch to inject Supabase auth token into server function calls
 if (typeof window !== 'undefined') {
   const _originalFetch = globalThis.fetch.bind(globalThis);
-  globalThis.fetch = async function(url: RequestInfo | URL, options?: RequestInit, ...rest: unknown[]) {
+  (globalThis as typeof globalThis).fetch = async function(url: RequestInfo | URL, options?: RequestInit) {
     if (typeof url === 'string' && url.includes('/_serverFn/')) {
       try {
-        // Find Supabase token in localStorage
         const keys = Object.keys(localStorage);
         const authKey = keys.find(k => k.includes('-auth-token') && k.startsWith('sb-'));
         if (authKey) {
@@ -27,7 +25,7 @@ if (typeof window !== 'undefined') {
       } catch {}
     }
     return _originalFetch(url, options);
-  } as typeof fetch;
+  };
 }
 
 function DefaultErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
@@ -58,11 +56,6 @@ function DefaultErrorComponent({ error, reset }: { error: Error; reset: () => vo
         <p className="mt-2 text-sm text-muted-foreground">
           An unexpected error occurred. Please try again.
         </p>
-        {import.meta.env.DEV && (error.stack || error.message) && (
-          <pre className="mt-4 max-h-64 overflow-auto rounded-md bg-muted p-3 text-left font-mono text-xs text-destructive whitespace-pre-wrap">
-            {error.stack ?? error.message}
-          </pre>
-        )}
         <div className="mt-6 flex items-center justify-center gap-3">
           <button
             onClick={() => {
