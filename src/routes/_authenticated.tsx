@@ -15,7 +15,8 @@ export const Route = createFileRoute("/_authenticated")({
 function BrandThemeInjector() {
   const { data } = useQuery({
     queryKey: ["admin", "platform-settings"],
-    queryFn: () => getPlatformSettings(),
+    queryFn: () => getPlatformSettings().catch(() => ({ settings: null })),
+    retry: false,
     staleTime: 5 * 60_000,
   });
   const s = data?.settings;
