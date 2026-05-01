@@ -114,8 +114,9 @@ function PlatformUsersPage() {
 
   const { data, isLoading } = useQuery({
     queryKey: ["admin", "platform-users"],
-    queryFn: () => listUsers(),
+    queryFn: () => listUsers().catch(() => ({ users: [], stats: { total: 0, superAdmins: 0, pending: 0, deactivated: 0 }, error: "Failed to load users" })),
     enabled: allowed,
+    retry: false,
   });
 
   const deactivate = useMutation({
@@ -150,6 +151,7 @@ function PlatformUsersPage() {
   });
 
   const users = data?.users ?? [];
+  const stats = data?.stats ?? { total: 0, superAdmins: 0, pending: 0, deactivated: 0 };
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -196,10 +198,10 @@ function PlatformUsersPage() {
       />
       <PageBody className="space-y-6">
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCard label="Total users" value={data?.stats?.total ?? 0} />
-          <StatCard label="Super admins" value={data?.stats?.superAdmins ?? 0} tone="warning" />
-          <StatCard label="Pending invites" value={data?.stats?.pending ?? 0} />
-          <StatCard label="Deactivated" value={data?.stats?.deactivated ?? 0} tone={data?.stats.deactivated ? "danger" : "default"} />
+          <StatCard label="Total users" value={stats.total} />
+          <StatCard label="Super admins" value={stats.superAdmins} tone="warning" />
+          <StatCard label="Pending invites" value={stats.pending} />
+          <StatCard label="Deactivated" value={stats.deactivated} tone={stats.deactivated ? "danger" : "default"} />
         </div>
 
         {data?.error && (
@@ -283,7 +285,7 @@ function PlatformUsersPage() {
                 )}
               </Td>
               <Td>
-                <Badge className={`${STATUS_TONE[u.status]} rounded-full capitalize`} variant="secondary">
+                <Badge className={`${STATUS_TONE[u.status] ?? ""} rounded-full capitalize`} variant="secondary">
                   {u.status}
                 </Badge>
               </Td>
