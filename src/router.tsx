@@ -65,17 +65,17 @@ export const getRouter = () => {
     scrollRestoration: true,
     defaultPreloadStaleTime: 0,
     defaultErrorComponent: DefaultErrorComponent,
-    serverFnBaseUrl: undefined,
   });
 
   // Inject Supabase Bearer token into every server function call
-  const originalFetch = router.options.fetchFn ?? fetch;
-  router.options.fetchFn = async (url: any, options: any, ...args: any[]) => {
+  const opts = router.options as any;
+  const originalFetch = opts.fetchFn ?? fetch;
+  opts.fetchFn = async (url: any, options: any, ...args: any[]) => {
     const { data: { session } } = await supabase.auth.getSession();
     const token = session?.access_token;
     if (token && options) {
       options.headers = {
-        ...(options.headers as Record<string, string> ?? {}),
+        ...((options.headers as Record<string, string>) ?? {}),
         Authorization: `Bearer ${token}`,
       };
     }
