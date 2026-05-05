@@ -172,7 +172,7 @@ export const inviteUser = createServerFn({ method: "POST" })
       role: z.enum(PLATFORM_ROLES),
     }),
   )
-  .handler(async ({ context, data }): Promise<{ ok: boolean; error?: string }> => {
+  .handler(async ({ context, data }): Promise<{ ok: boolean; error?: string; action_link?: string; email_sent?: boolean }> => {
     const { userId } = context as { userId: string };
     const guard = await ensureAdmin(userId);
     if (!guard.ok) return { ok: false, error: guard.error };
@@ -181,39 +181,67 @@ export const inviteUser = createServerFn({ method: "POST" })
     const companyId = guard.companyId ?? (await getDefaultCompanyId());
 
     try {
-      const { data: invited, error: inviteErr } = await supabaseAdmin.auth.admin.inviteUserByEmail(
+      // Try invite-by-email first (sends email if SMTP configured).
+      let newUserId: string | null = null;
+      let emailSent = false;
+      let actionLink: string | undefined;
+
+      const inviteRes = await supabaseAdmin.auth.admin.inviteUserByEmail(
         data.email,
         { data: { full_name: data.full_name } },
       );
-      if (inviteErr || !invited?.user) {
-        console.error("[platform-users.inviteUser] invite error", inviteErr);
-        return { ok: false, error: inviteErr?.message ?? "Failed to send invite." };
-      }
-      const newId = invited.user.id;
 
-      // Profile (id is PK = auth user id)
+      if (!inviteRes.error && inviteRes.data?.user) {
+        newUserId = inviteRes.data.user.id;
+        emailSent = true;
+      } else {
+        // Fall back: create user (no email) and generate an invite link to share manually.
+        console.warn("[inviteUser] inviteByEmail failed, falling back to generateLink", inviteRes.error?.message);
+        // Try to create the user; if they already exist, we'll just generate a link below.
+        const created = await supabaseAdmin.auth.admin.createUser({
+          email: data.email,
+          email_confirm: false,
+          user_metadata: { full_name: data.full_name },
+        });
+        if (created.data?.user) newUserId = created.data.user.id;
+      }
+
+      // Always also generate an invite link so the admin can share it manually.
+      const linkRes = await supabaseAdmin.auth.admin.generateLink({
+        type: "invite",
+        email: data.email,
+        options: { data: { full_name: data.full_name } },
+      });
+      if (linkRes.data?.properties?.action_link) {
+        actionLink = linkRes.data.properties.action_link;
+        if (!newUserId && linkRes.data.user) newUserId = linkRes.data.user.id;
+      }
+
+      if (!newUserId) {
+        return { ok: false, error: "Failed to create or invite user." };
+      }
+
       const { error: profileErr } = await supabaseAdmin
         .from("profiles")
-        .upsert({ id: newId, full_name: data.full_name, company_id: companyId }, { onConflict: "id" });
-      if (profileErr) console.error("[platform-users.inviteUser] profile upsert error", profileErr);
+        .upsert({ id: newUserId, full_name: data.full_name, company_id: companyId }, { onConflict: "id" });
+      if (profileErr) console.error("[inviteUser] profile upsert error", profileErr);
 
-      // Clear existing roles (handle_new_user trigger may have inserted a default)
-      await supabaseAdmin.from("user_roles").delete().eq("user_id", newId);
+      await supabaseAdmin.from("user_roles").delete().eq("user_id", newUserId);
       const { error: roleErr } = await supabaseAdmin.from("user_roles").insert({
-        user_id: newId,
+        user_id: newUserId,
         role: data.role,
         company_id: companyId,
         granted_by: userId,
         permissions: {},
       });
       if (roleErr) {
-        console.error("[platform-users.inviteUser] role insert error", roleErr);
-        return { ok: false, error: `Invite sent, but role assignment failed: ${roleErr.message}` };
+        console.error("[inviteUser] role insert error", roleErr);
+        return { ok: false, error: `Invite created, but role assignment failed: ${roleErr.message}`, action_link: actionLink, email_sent: emailSent };
       }
-      return { ok: true };
+      return { ok: true, action_link: actionLink, email_sent: emailSent };
     } catch (e) {
       const err = e as Error;
-      console.error("[platform-users.inviteUser] unexpected", err);
+      console.error("[inviteUser] unexpected", err);
       return { ok: false, error: err.message };
     }
   });
