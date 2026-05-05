@@ -38,9 +38,9 @@ d("Supabase: roles & RPCs", () => {
       .select("user_id")
       .eq("role", "super_admin")
       .limit(1);
-    const uid = rows?.[0]?.user_id;
+    const uid = (rows as any)?.[0]?.user_id;
     expect(uid).toBeTruthy();
-    const { data: ok, error } = await admin.rpc("is_super_admin", { _user_id: uid });
+    const { data: ok, error } = await (admin.rpc as any)("is_super_admin", { _user_id: uid });
     expect(error).toBeNull();
     expect(ok).toBe(true);
   });
