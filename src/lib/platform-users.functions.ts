@@ -334,18 +334,20 @@ export const setUserBanned = createServerFn({ method: "POST" })
 export const resendInvite = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(z.object({ email: z.string().email() }))
-  .handler(async ({ context, data }): Promise<{ ok: boolean; error?: string }> => {
+  .handler(async ({ context, data }): Promise<{ ok: boolean; error?: string; action_link?: string; email_sent?: boolean }> => {
     const { userId } = context as { userId: string };
     const guard = await ensureAdmin(userId);
     if (!guard.ok) return { ok: false, error: guard.error };
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin.auth.admin.inviteUserByEmail(data.email);
-    if (error) {
-      console.error("[platform-users.resendInvite] error", error);
-      return { ok: false, error: error.message };
+    const inviteRes = await supabaseAdmin.auth.admin.inviteUserByEmail(data.email);
+    const emailSent = !inviteRes.error;
+    const linkRes = await supabaseAdmin.auth.admin.generateLink({ type: "invite", email: data.email });
+    const action_link = linkRes.data?.properties?.action_link;
+    if (!emailSent && !action_link) {
+      return { ok: false, error: inviteRes.error?.message ?? "Failed to resend invite." };
     }
-    return { ok: true };
+    return { ok: true, action_link, email_sent: emailSent };
   });
 
 export const revokeUser = createServerFn({ method: "POST" })
