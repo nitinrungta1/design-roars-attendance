@@ -78,7 +78,6 @@ import { Route as AuthenticatedAdminWorkforceAttendanceRouteImport } from './rou
 import { Route as AuthenticatedAdminWorkforceAssetsRouteImport } from './routes/_authenticated.admin.workforce.assets'
 import { Route as AuthenticatedAdminWorkforceApprovalsRouteImport } from './routes/_authenticated.admin.workforce.approvals'
 import { Route as AuthenticatedAdminWorkforceAnnouncementsRouteImport } from './routes/_authenticated.admin.workforce.announcements'
-import { Route as AuthenticatedAdminSystemSettingsRouteImport } from './routes/_authenticated.admin.system.settings'
 import { Route as AuthenticatedAdminSystemSecurityRouteImport } from './routes/_authenticated.admin.system.security'
 import { Route as AuthenticatedAdminSystemBackupsRouteImport } from './routes/_authenticated.admin.system.backups'
 import { Route as AuthenticatedAdminSystemAuditLogsRouteImport } from './routes/_authenticated.admin.system.audit-logs'
@@ -119,7 +118,6 @@ import { Route as AuthenticatedAdminAnalyticsSettingsRouteImport } from './route
 import { Route as AuthenticatedAdminAnalyticsFunnelRouteImport } from './routes/_authenticated.admin.analytics.funnel'
 import { Route as AuthenticatedAdminAnalyticsCampaignsRouteImport } from './routes/_authenticated.admin.analytics.campaigns'
 import { Route as AuthenticatedAdminAnalyticsAttributionRouteImport } from './routes/_authenticated.admin.analytics.attribution'
-import { Route as AuthenticatedAdminAccessUsersRouteImport } from './routes/_authenticated.admin.access.users'
 import { Route as AuthenticatedAdminAccessTeamsRouteImport } from './routes/_authenticated.admin.access.teams'
 import { Route as AuthenticatedAdminAccessRolesRouteImport } from './routes/_authenticated.admin.access.roles'
 import { Route as AuthenticatedAdminAccessPermissionsRouteImport } from './routes/_authenticated.admin.access.permissions'
@@ -500,12 +498,6 @@ const AuthenticatedAdminWorkforceAnnouncementsRoute =
     path: '/workforce/announcements',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
-const AuthenticatedAdminSystemSettingsRoute =
-  AuthenticatedAdminSystemSettingsRouteImport.update({
-    id: '/system/settings',
-    path: '/system/settings',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
 const AuthenticatedAdminSystemSecurityRoute =
   AuthenticatedAdminSystemSecurityRouteImport.update({
     id: '/system/security',
@@ -746,12 +738,6 @@ const AuthenticatedAdminAnalyticsAttributionRoute =
     path: '/attribution',
     getParentRoute: () => AuthenticatedAdminAnalyticsRoute,
   } as any)
-const AuthenticatedAdminAccessUsersRoute =
-  AuthenticatedAdminAccessUsersRouteImport.update({
-    id: '/access/users',
-    path: '/access/users',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
 const AuthenticatedAdminAccessTeamsRoute =
   AuthenticatedAdminAccessTeamsRouteImport.update({
     id: '/access/teams',
@@ -853,7 +839,6 @@ export interface FileRoutesByFullPath {
   '/admin/access/permissions': typeof AuthenticatedAdminAccessPermissionsRoute
   '/admin/access/roles': typeof AuthenticatedAdminAccessRolesRoute
   '/admin/access/teams': typeof AuthenticatedAdminAccessTeamsRoute
-  '/admin/access/users': typeof AuthenticatedAdminAccessUsersRoute
   '/admin/analytics/attribution': typeof AuthenticatedAdminAnalyticsAttributionRoute
   '/admin/analytics/campaigns': typeof AuthenticatedAdminAnalyticsCampaignsRoute
   '/admin/analytics/funnel': typeof AuthenticatedAdminAnalyticsFunnelRoute
@@ -894,7 +879,6 @@ export interface FileRoutesByFullPath {
   '/admin/system/audit-logs': typeof AuthenticatedAdminSystemAuditLogsRoute
   '/admin/system/backups': typeof AuthenticatedAdminSystemBackupsRoute
   '/admin/system/security': typeof AuthenticatedAdminSystemSecurityRoute
-  '/admin/system/settings': typeof AuthenticatedAdminSystemSettingsRoute
   '/admin/workforce/announcements': typeof AuthenticatedAdminWorkforceAnnouncementsRoute
   '/admin/workforce/approvals': typeof AuthenticatedAdminWorkforceApprovalsRoute
   '/admin/workforce/assets': typeof AuthenticatedAdminWorkforceAssetsRoute
@@ -970,7 +954,6 @@ export interface FileRoutesByTo {
   '/admin/access/permissions': typeof AuthenticatedAdminAccessPermissionsRoute
   '/admin/access/roles': typeof AuthenticatedAdminAccessRolesRoute
   '/admin/access/teams': typeof AuthenticatedAdminAccessTeamsRoute
-  '/admin/access/users': typeof AuthenticatedAdminAccessUsersRoute
   '/admin/analytics/attribution': typeof AuthenticatedAdminAnalyticsAttributionRoute
   '/admin/analytics/campaigns': typeof AuthenticatedAdminAnalyticsCampaignsRoute
   '/admin/analytics/funnel': typeof AuthenticatedAdminAnalyticsFunnelRoute
@@ -1011,7 +994,6 @@ export interface FileRoutesByTo {
   '/admin/system/audit-logs': typeof AuthenticatedAdminSystemAuditLogsRoute
   '/admin/system/backups': typeof AuthenticatedAdminSystemBackupsRoute
   '/admin/system/security': typeof AuthenticatedAdminSystemSecurityRoute
-  '/admin/system/settings': typeof AuthenticatedAdminSystemSettingsRoute
   '/admin/workforce/announcements': typeof AuthenticatedAdminWorkforceAnnouncementsRoute
   '/admin/workforce/approvals': typeof AuthenticatedAdminWorkforceApprovalsRoute
   '/admin/workforce/assets': typeof AuthenticatedAdminWorkforceAssetsRoute
@@ -1092,7 +1074,6 @@ export interface FileRoutesById {
   '/_authenticated/admin/access/permissions': typeof AuthenticatedAdminAccessPermissionsRoute
   '/_authenticated/admin/access/roles': typeof AuthenticatedAdminAccessRolesRoute
   '/_authenticated/admin/access/teams': typeof AuthenticatedAdminAccessTeamsRoute
-  '/_authenticated/admin/access/users': typeof AuthenticatedAdminAccessUsersRoute
   '/_authenticated/admin/analytics/attribution': typeof AuthenticatedAdminAnalyticsAttributionRoute
   '/_authenticated/admin/analytics/campaigns': typeof AuthenticatedAdminAnalyticsCampaignsRoute
   '/_authenticated/admin/analytics/funnel': typeof AuthenticatedAdminAnalyticsFunnelRoute
@@ -1133,7 +1114,6 @@ export interface FileRoutesById {
   '/_authenticated/admin/system/audit-logs': typeof AuthenticatedAdminSystemAuditLogsRoute
   '/_authenticated/admin/system/backups': typeof AuthenticatedAdminSystemBackupsRoute
   '/_authenticated/admin/system/security': typeof AuthenticatedAdminSystemSecurityRoute
-  '/_authenticated/admin/system/settings': typeof AuthenticatedAdminSystemSettingsRoute
   '/_authenticated/admin/workforce/announcements': typeof AuthenticatedAdminWorkforceAnnouncementsRoute
   '/_authenticated/admin/workforce/approvals': typeof AuthenticatedAdminWorkforceApprovalsRoute
   '/_authenticated/admin/workforce/assets': typeof AuthenticatedAdminWorkforceAssetsRoute
@@ -1214,7 +1194,6 @@ export interface FileRouteTypes {
     | '/admin/access/permissions'
     | '/admin/access/roles'
     | '/admin/access/teams'
-    | '/admin/access/users'
     | '/admin/analytics/attribution'
     | '/admin/analytics/campaigns'
     | '/admin/analytics/funnel'
@@ -1255,7 +1234,6 @@ export interface FileRouteTypes {
     | '/admin/system/audit-logs'
     | '/admin/system/backups'
     | '/admin/system/security'
-    | '/admin/system/settings'
     | '/admin/workforce/announcements'
     | '/admin/workforce/approvals'
     | '/admin/workforce/assets'
@@ -1331,7 +1309,6 @@ export interface FileRouteTypes {
     | '/admin/access/permissions'
     | '/admin/access/roles'
     | '/admin/access/teams'
-    | '/admin/access/users'
     | '/admin/analytics/attribution'
     | '/admin/analytics/campaigns'
     | '/admin/analytics/funnel'
@@ -1372,7 +1349,6 @@ export interface FileRouteTypes {
     | '/admin/system/audit-logs'
     | '/admin/system/backups'
     | '/admin/system/security'
-    | '/admin/system/settings'
     | '/admin/workforce/announcements'
     | '/admin/workforce/approvals'
     | '/admin/workforce/assets'
@@ -1452,7 +1428,6 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/access/permissions'
     | '/_authenticated/admin/access/roles'
     | '/_authenticated/admin/access/teams'
-    | '/_authenticated/admin/access/users'
     | '/_authenticated/admin/analytics/attribution'
     | '/_authenticated/admin/analytics/campaigns'
     | '/_authenticated/admin/analytics/funnel'
@@ -1493,7 +1468,6 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/system/audit-logs'
     | '/_authenticated/admin/system/backups'
     | '/_authenticated/admin/system/security'
-    | '/_authenticated/admin/system/settings'
     | '/_authenticated/admin/workforce/announcements'
     | '/_authenticated/admin/workforce/approvals'
     | '/_authenticated/admin/workforce/assets'
@@ -2047,13 +2021,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminWorkforceAnnouncementsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
-    '/_authenticated/admin/system/settings': {
-      id: '/_authenticated/admin/system/settings'
-      path: '/system/settings'
-      fullPath: '/admin/system/settings'
-      preLoaderRoute: typeof AuthenticatedAdminSystemSettingsRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
     '/_authenticated/admin/system/security': {
       id: '/_authenticated/admin/system/security'
       path: '/system/security'
@@ -2334,13 +2301,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminAnalyticsAttributionRouteImport
       parentRoute: typeof AuthenticatedAdminAnalyticsRoute
     }
-    '/_authenticated/admin/access/users': {
-      id: '/_authenticated/admin/access/users'
-      path: '/access/users'
-      fullPath: '/admin/access/users'
-      preLoaderRoute: typeof AuthenticatedAdminAccessUsersRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
     '/_authenticated/admin/access/teams': {
       id: '/_authenticated/admin/access/teams'
       path: '/access/teams'
@@ -2461,7 +2421,6 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminAccessPermissionsRoute: typeof AuthenticatedAdminAccessPermissionsRoute
   AuthenticatedAdminAccessRolesRoute: typeof AuthenticatedAdminAccessRolesRoute
   AuthenticatedAdminAccessTeamsRoute: typeof AuthenticatedAdminAccessTeamsRoute
-  AuthenticatedAdminAccessUsersRoute: typeof AuthenticatedAdminAccessUsersRoute
   AuthenticatedAdminBillingCouponsRoute: typeof AuthenticatedAdminBillingCouponsRoute
   AuthenticatedAdminBillingInvoicesRoute: typeof AuthenticatedAdminBillingInvoicesRoute
   AuthenticatedAdminBillingPaymentsRoute: typeof AuthenticatedAdminBillingPaymentsRoute
@@ -2497,7 +2456,6 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminSystemAuditLogsRoute: typeof AuthenticatedAdminSystemAuditLogsRoute
   AuthenticatedAdminSystemBackupsRoute: typeof AuthenticatedAdminSystemBackupsRoute
   AuthenticatedAdminSystemSecurityRoute: typeof AuthenticatedAdminSystemSecurityRoute
-  AuthenticatedAdminSystemSettingsRoute: typeof AuthenticatedAdminSystemSettingsRoute
   AuthenticatedAdminWorkforceAnnouncementsRoute: typeof AuthenticatedAdminWorkforceAnnouncementsRoute
   AuthenticatedAdminWorkforceApprovalsRoute: typeof AuthenticatedAdminWorkforceApprovalsRoute
   AuthenticatedAdminWorkforceAssetsRoute: typeof AuthenticatedAdminWorkforceAssetsRoute
@@ -2527,7 +2485,6 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
     AuthenticatedAdminAccessPermissionsRoute,
   AuthenticatedAdminAccessRolesRoute: AuthenticatedAdminAccessRolesRoute,
   AuthenticatedAdminAccessTeamsRoute: AuthenticatedAdminAccessTeamsRoute,
-  AuthenticatedAdminAccessUsersRoute: AuthenticatedAdminAccessUsersRoute,
   AuthenticatedAdminBillingCouponsRoute: AuthenticatedAdminBillingCouponsRoute,
   AuthenticatedAdminBillingInvoicesRoute:
     AuthenticatedAdminBillingInvoicesRoute,
@@ -2581,7 +2538,6 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
     AuthenticatedAdminSystemAuditLogsRoute,
   AuthenticatedAdminSystemBackupsRoute: AuthenticatedAdminSystemBackupsRoute,
   AuthenticatedAdminSystemSecurityRoute: AuthenticatedAdminSystemSecurityRoute,
-  AuthenticatedAdminSystemSettingsRoute: AuthenticatedAdminSystemSettingsRoute,
   AuthenticatedAdminWorkforceAnnouncementsRoute:
     AuthenticatedAdminWorkforceAnnouncementsRoute,
   AuthenticatedAdminWorkforceApprovalsRoute:
@@ -2716,12 +2672,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}
