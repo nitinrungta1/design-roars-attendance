@@ -4,7 +4,8 @@ import { routeTree } from "./routeTree.gen";
 if (typeof window !== 'undefined') {
   const _orig = globalThis.fetch.bind(globalThis);
   globalThis.fetch = async function(url: RequestInfo | URL, options?: RequestInit) {
-    if (typeof url === 'string' && url.includes('/_serverFn/')) {
+    const urlStr = typeof url === 'string' ? url : url instanceof URL ? url.toString() : (url as Request).url;
+    if (urlStr && urlStr.includes('/_serverFn/')) {
       try {
         const stored = localStorage.getItem('sb-cehphyqfvvpeqyyxcnnz-auth-token');
         if (stored) {
@@ -12,10 +13,12 @@ if (typeof window !== 'undefined') {
           const token = parsed?.access_token;
           if (token) {
             options = options ?? {};
-            options.headers = {
-              ...(options.headers as Record<string, string> ?? {}),
-              Authorization: `Bearer ${token}`,
-            };
+            // Preserve existing headers (Headers instance, array, or plain obj) and only add Authorization
+            const merged = new Headers(options.headers as HeadersInit | undefined);
+            if (!merged.has('Authorization') && !merged.has('authorization')) {
+              merged.set('Authorization', `Bearer ${token}`);
+            }
+            options.headers = merged;
           }
         }
       } catch {}
