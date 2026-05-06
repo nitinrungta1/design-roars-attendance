@@ -122,7 +122,19 @@ export const listUsers = createServerFn({ method: "POST" })
       }
     }
 
-    const users: PlatformUser[] = (authRes.data?.users ?? []).map((u) => {
+    // Scope to caller's company. Callers without a company_id see all users.
+    const callerCompany = guard.companyId;
+    const allAuthUsers = authRes.data?.users ?? [];
+    const filteredAuthUsers = callerCompany
+      ? allAuthUsers.filter((u) => {
+          const role = roleByUser.get(u.id);
+          const profile = profileById.get(u.id);
+          const userCompany = role?.company_id ?? profile?.company_id ?? null;
+          return userCompany === callerCompany;
+        })
+      : allAuthUsers;
+
+    const users: PlatformUser[] = filteredAuthUsers.map((u) => {
       const profile = profileById.get(u.id) ?? null;
       const roleEntry = roleByUser.get(u.id) ?? null;
       const banned_until = (u as unknown as { banned_until?: string | null }).banned_until ?? null;
