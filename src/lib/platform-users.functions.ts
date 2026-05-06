@@ -181,44 +181,52 @@ export const inviteUser = createServerFn({ method: "POST" })
     const companyId = guard.companyId ?? (await getDefaultCompanyId());
 
     try {
-      // Try invite-by-email first (sends email if SMTP configured).
       let newUserId: string | null = null;
       let emailSent = false;
       let actionLink: string | undefined;
 
-      const inviteRes = await supabaseAdmin.auth.admin.inviteUserByEmail(
-        data.email,
-        { data: { full_name: data.full_name } },
-      );
-
-      if (!inviteRes.error && inviteRes.data?.user) {
-        newUserId = inviteRes.data.user.id;
-        emailSent = true;
-      } else {
-        // Fall back: create user (no email) and generate an invite link to share manually.
-        console.warn("[inviteUser] inviteByEmail failed, falling back to generateLink", inviteRes.error?.message);
-        // Try to create the user; if they already exist, we'll just generate a link below.
-        const created = await supabaseAdmin.auth.admin.createUser({
-          email: data.email,
-          email_confirm: false,
-          user_metadata: { full_name: data.full_name },
-        });
-        if (created.data?.user) newUserId = created.data.user.id;
-      }
-
-      // Always also generate an invite link so the admin can share it manually.
+      // 1) Generate invite link first — creates the user if it doesn't exist
+      //    and always returns an action_link we can show in the UI.
       const linkRes = await supabaseAdmin.auth.admin.generateLink({
         type: "invite",
         email: data.email,
         options: { data: { full_name: data.full_name } },
       });
+      if (linkRes.error) {
+        console.error("[inviteUser] generateLink error", linkRes.error);
+      }
       if (linkRes.data?.properties?.action_link) {
         actionLink = linkRes.data.properties.action_link;
-        if (!newUserId && linkRes.data.user) newUserId = linkRes.data.user.id;
+      }
+      if (linkRes.data?.user) {
+        newUserId = linkRes.data.user.id;
+      }
+
+      // 2) If generateLink didn't yield a user (e.g. already exists), look it up.
+      if (!newUserId) {
+        const { data: list } = await supabaseAdmin.auth.admin.listUsers({ perPage: 1000 });
+        const existing = list?.users?.find((u) => u.email?.toLowerCase() === data.email.toLowerCase());
+        if (existing) newUserId = existing.id;
+      }
+
+      // 3) Best-effort: try to send the actual invite email. Don't block on failure.
+      try {
+        const inviteRes = await supabaseAdmin.auth.admin.inviteUserByEmail(
+          data.email,
+          { data: { full_name: data.full_name } },
+        );
+        if (!inviteRes.error) {
+          emailSent = true;
+          if (!newUserId && inviteRes.data?.user) newUserId = inviteRes.data.user.id;
+        } else {
+          console.warn("[inviteUser] inviteByEmail failed (link still available):", inviteRes.error.message);
+        }
+      } catch (e) {
+        console.warn("[inviteUser] inviteByEmail threw (link still available):", (e as Error).message);
       }
 
       if (!newUserId) {
-        return { ok: false, error: "Failed to create or invite user." };
+        return { ok: false, error: "Failed to create or invite user.", action_link: actionLink };
       }
 
       const { error: profileErr } = await supabaseAdmin
