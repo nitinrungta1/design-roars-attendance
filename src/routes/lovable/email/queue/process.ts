@@ -36,11 +36,10 @@ function getRetryAfterSeconds(error: unknown): number {
 }
 
 // Move a message to the dead letter queue and log the reason.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function moveToDlq(
-  supabase: any,
+  supabase: ReturnType<typeof createClient>,
   queue: string,
-  msg: { msg_id: number; message: Record<string, any> },
+  msg: { msg_id: number; message: Record<string, unknown> },
   reason: string
 ): Promise<void> {
   const payload = msg.message
