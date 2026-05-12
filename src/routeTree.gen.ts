@@ -61,6 +61,9 @@ import { Route as AuthenticatedAdminAnalyticsRouteImport } from './routes/_authe
 import { Route as AuthenticatedAdminWorkforceIndexRouteImport } from './routes/_authenticated.admin.workforce.index'
 import { Route as AuthenticatedAdminLeadsIndexRouteImport } from './routes/_authenticated.admin.leads.index'
 import { Route as AuthenticatedAdminAnalyticsIndexRouteImport } from './routes/_authenticated.admin.analytics.index'
+import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
+import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
+import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as AuthenticatedAdminWorkforceTimesheetsRouteImport } from './routes/_authenticated.admin.workforce.timesheets'
 import { Route as AuthenticatedAdminWorkforceTeamsRouteImport } from './routes/_authenticated.admin.workforce.teams'
 import { Route as AuthenticatedAdminWorkforceShiftsRouteImport } from './routes/_authenticated.admin.workforce.shifts'
@@ -396,6 +399,22 @@ const AuthenticatedAdminAnalyticsIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedAdminAnalyticsRoute,
   } as any)
+const LovableEmailQueueProcessRoute =
+  LovableEmailQueueProcessRouteImport.update({
+    id: '/lovable/email/queue/process',
+    path: '/lovable/email/queue/process',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const LovableEmailAuthWebhookRoute = LovableEmailAuthWebhookRouteImport.update({
+  id: '/lovable/email/auth/webhook',
+  path: '/lovable/email/auth/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
+  id: '/lovable/email/auth/preview',
+  path: '/lovable/email/auth/preview',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedAdminWorkforceTimesheetsRoute =
   AuthenticatedAdminWorkforceTimesheetsRouteImport.update({
     id: '/workforce/timesheets',
@@ -896,6 +915,9 @@ export interface FileRoutesByFullPath {
   '/admin/workforce/shifts': typeof AuthenticatedAdminWorkforceShiftsRoute
   '/admin/workforce/teams': typeof AuthenticatedAdminWorkforceTeamsRoute
   '/admin/workforce/timesheets': typeof AuthenticatedAdminWorkforceTimesheetsRoute
+  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
+  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/admin/analytics/': typeof AuthenticatedAdminAnalyticsIndexRoute
   '/admin/leads/': typeof AuthenticatedAdminLeadsIndexRoute
   '/admin/workforce/': typeof AuthenticatedAdminWorkforceIndexRoute
@@ -1011,6 +1033,9 @@ export interface FileRoutesByTo {
   '/admin/workforce/shifts': typeof AuthenticatedAdminWorkforceShiftsRoute
   '/admin/workforce/teams': typeof AuthenticatedAdminWorkforceTeamsRoute
   '/admin/workforce/timesheets': typeof AuthenticatedAdminWorkforceTimesheetsRoute
+  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
+  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsIndexRoute
   '/admin/leads': typeof AuthenticatedAdminLeadsIndexRoute
   '/admin/workforce': typeof AuthenticatedAdminWorkforceIndexRoute
@@ -1131,6 +1156,9 @@ export interface FileRoutesById {
   '/_authenticated/admin/workforce/shifts': typeof AuthenticatedAdminWorkforceShiftsRoute
   '/_authenticated/admin/workforce/teams': typeof AuthenticatedAdminWorkforceTeamsRoute
   '/_authenticated/admin/workforce/timesheets': typeof AuthenticatedAdminWorkforceTimesheetsRoute
+  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
+  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/_authenticated/admin/analytics/': typeof AuthenticatedAdminAnalyticsIndexRoute
   '/_authenticated/admin/leads/': typeof AuthenticatedAdminLeadsIndexRoute
   '/_authenticated/admin/workforce/': typeof AuthenticatedAdminWorkforceIndexRoute
@@ -1251,6 +1279,9 @@ export interface FileRouteTypes {
     | '/admin/workforce/shifts'
     | '/admin/workforce/teams'
     | '/admin/workforce/timesheets'
+    | '/lovable/email/auth/preview'
+    | '/lovable/email/auth/webhook'
+    | '/lovable/email/queue/process'
     | '/admin/analytics/'
     | '/admin/leads/'
     | '/admin/workforce/'
@@ -1366,6 +1397,9 @@ export interface FileRouteTypes {
     | '/admin/workforce/shifts'
     | '/admin/workforce/teams'
     | '/admin/workforce/timesheets'
+    | '/lovable/email/auth/preview'
+    | '/lovable/email/auth/webhook'
+    | '/lovable/email/queue/process'
     | '/admin/analytics'
     | '/admin/leads'
     | '/admin/workforce'
@@ -1485,6 +1519,9 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/workforce/shifts'
     | '/_authenticated/admin/workforce/teams'
     | '/_authenticated/admin/workforce/timesheets'
+    | '/lovable/email/auth/preview'
+    | '/lovable/email/auth/webhook'
+    | '/lovable/email/queue/process'
     | '/_authenticated/admin/analytics/'
     | '/_authenticated/admin/leads/'
     | '/_authenticated/admin/workforce/'
@@ -1534,6 +1571,9 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   TimeTrackingSoftwareRoute: typeof TimeTrackingSoftwareRoute
   ApiPublicTrackRoute: typeof ApiPublicTrackRoute
+  LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
+  LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
+  LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1901,6 +1941,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/analytics/'
       preLoaderRoute: typeof AuthenticatedAdminAnalyticsIndexRouteImport
       parentRoute: typeof AuthenticatedAdminAnalyticsRoute
+    }
+    '/lovable/email/queue/process': {
+      id: '/lovable/email/queue/process'
+      path: '/lovable/email/queue/process'
+      fullPath: '/lovable/email/queue/process'
+      preLoaderRoute: typeof LovableEmailQueueProcessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/auth/webhook': {
+      id: '/lovable/email/auth/webhook'
+      path: '/lovable/email/auth/webhook'
+      fullPath: '/lovable/email/auth/webhook'
+      preLoaderRoute: typeof LovableEmailAuthWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/auth/preview': {
+      id: '/lovable/email/auth/preview'
+      path: '/lovable/email/auth/preview'
+      fullPath: '/lovable/email/auth/preview'
+      preLoaderRoute: typeof LovableEmailAuthPreviewRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin/workforce/timesheets': {
       id: '/_authenticated/admin/workforce/timesheets'
@@ -2668,7 +2729,19 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   TimeTrackingSoftwareRoute: TimeTrackingSoftwareRoute,
   ApiPublicTrackRoute: ApiPublicTrackRoute,
+  LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
+  LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
+  LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
