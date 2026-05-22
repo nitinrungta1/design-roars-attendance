@@ -126,6 +126,7 @@ import { Route as AuthenticatedAdminAnalyticsAttributionRouteImport } from './ro
 import { Route as AuthenticatedAdminAccessTeamsRouteImport } from './routes/_authenticated.admin.access.teams'
 import { Route as AuthenticatedAdminAccessRolesRouteImport } from './routes/_authenticated.admin.access.roles'
 import { Route as AuthenticatedAdminAccessPermissionsRouteImport } from './routes/_authenticated.admin.access.permissions'
+import { Route as AuthenticatedAdminCmsSeoIndexRouteImport } from './routes/_authenticated.admin.cms.seo.index'
 import { Route as AuthenticatedAdminSupportKbNewRouteImport } from './routes/_authenticated.admin.support.kb.new'
 import { Route as AuthenticatedAdminSupportKbFeedbackRouteImport } from './routes/_authenticated.admin.support.kb.feedback'
 import { Route as AuthenticatedAdminSupportKbCategoriesRouteImport } from './routes/_authenticated.admin.support.kb.categories'
@@ -790,6 +791,12 @@ const AuthenticatedAdminAccessPermissionsRoute =
     path: '/access/permissions',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminCmsSeoIndexRoute =
+  AuthenticatedAdminCmsSeoIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedAdminCmsSeoRoute,
+  } as any)
 const AuthenticatedAdminSupportKbNewRoute =
   AuthenticatedAdminSupportKbNewRouteImport.update({
     id: '/new',
@@ -964,6 +971,7 @@ export interface FileRoutesByFullPath {
   '/admin/support/kb/categories': typeof AuthenticatedAdminSupportKbCategoriesRoute
   '/admin/support/kb/feedback': typeof AuthenticatedAdminSupportKbFeedbackRoute
   '/admin/support/kb/new': typeof AuthenticatedAdminSupportKbNewRoute
+  '/admin/cms/seo/': typeof AuthenticatedAdminCmsSeoIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -1032,7 +1040,6 @@ export interface FileRoutesByTo {
   '/admin/cms/forms': typeof AuthenticatedAdminCmsFormsRoute
   '/admin/cms/media': typeof AuthenticatedAdminCmsMediaRoute
   '/admin/cms/pages': typeof AuthenticatedAdminCmsPagesRoute
-  '/admin/cms/seo': typeof AuthenticatedAdminCmsSeoRouteWithChildren
   '/admin/customers/accounts': typeof AuthenticatedAdminCustomersAccountsRoute
   '/admin/customers/companies': typeof AuthenticatedAdminCustomersCompaniesRoute
   '/admin/customers/contacts': typeof AuthenticatedAdminCustomersContactsRoute
@@ -1087,6 +1094,7 @@ export interface FileRoutesByTo {
   '/admin/support/kb/categories': typeof AuthenticatedAdminSupportKbCategoriesRoute
   '/admin/support/kb/feedback': typeof AuthenticatedAdminSupportKbFeedbackRoute
   '/admin/support/kb/new': typeof AuthenticatedAdminSupportKbNewRoute
+  '/admin/cms/seo': typeof AuthenticatedAdminCmsSeoIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -1215,6 +1223,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/support/kb/categories': typeof AuthenticatedAdminSupportKbCategoriesRoute
   '/_authenticated/admin/support/kb/feedback': typeof AuthenticatedAdminSupportKbFeedbackRoute
   '/_authenticated/admin/support/kb/new': typeof AuthenticatedAdminSupportKbNewRoute
+  '/_authenticated/admin/cms/seo/': typeof AuthenticatedAdminCmsSeoIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -1343,6 +1352,7 @@ export interface FileRouteTypes {
     | '/admin/support/kb/categories'
     | '/admin/support/kb/feedback'
     | '/admin/support/kb/new'
+    | '/admin/cms/seo/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -1411,7 +1421,6 @@ export interface FileRouteTypes {
     | '/admin/cms/forms'
     | '/admin/cms/media'
     | '/admin/cms/pages'
-    | '/admin/cms/seo'
     | '/admin/customers/accounts'
     | '/admin/customers/companies'
     | '/admin/customers/contacts'
@@ -1466,6 +1475,7 @@ export interface FileRouteTypes {
     | '/admin/support/kb/categories'
     | '/admin/support/kb/feedback'
     | '/admin/support/kb/new'
+    | '/admin/cms/seo'
   id:
     | '__root__'
     | '/'
@@ -1593,6 +1603,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/support/kb/categories'
     | '/_authenticated/admin/support/kb/feedback'
     | '/_authenticated/admin/support/kb/new'
+    | '/_authenticated/admin/cms/seo/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -2462,6 +2473,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminAccessPermissionsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/cms/seo/': {
+      id: '/_authenticated/admin/cms/seo/'
+      path: '/'
+      fullPath: '/admin/cms/seo/'
+      preLoaderRoute: typeof AuthenticatedAdminCmsSeoIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminCmsSeoRoute
+    }
     '/_authenticated/admin/support/kb/new': {
       id: '/_authenticated/admin/support/kb/new'
       path: '/new'
@@ -2555,6 +2573,7 @@ interface AuthenticatedAdminCmsSeoRouteChildren {
   AuthenticatedAdminCmsSeoIndustriesRoute: typeof AuthenticatedAdminCmsSeoIndustriesRoute
   AuthenticatedAdminCmsSeoOverridesRoute: typeof AuthenticatedAdminCmsSeoOverridesRoute
   AuthenticatedAdminCmsSeoServicesRoute: typeof AuthenticatedAdminCmsSeoServicesRoute
+  AuthenticatedAdminCmsSeoIndexRoute: typeof AuthenticatedAdminCmsSeoIndexRoute
 }
 
 const AuthenticatedAdminCmsSeoRouteChildren: AuthenticatedAdminCmsSeoRouteChildren =
@@ -2565,6 +2584,7 @@ const AuthenticatedAdminCmsSeoRouteChildren: AuthenticatedAdminCmsSeoRouteChildr
       AuthenticatedAdminCmsSeoOverridesRoute,
     AuthenticatedAdminCmsSeoServicesRoute:
       AuthenticatedAdminCmsSeoServicesRoute,
+    AuthenticatedAdminCmsSeoIndexRoute: AuthenticatedAdminCmsSeoIndexRoute,
   }
 
 const AuthenticatedAdminCmsSeoRouteWithChildren =
