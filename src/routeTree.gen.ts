@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TimeTrackingSoftwareRouteImport } from './routes/time-tracking-software'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as SitemapSeoDotxmlRouteImport } from './routes/sitemap-seo[.]xml'
 import { Route as SitemapPagesDotxmlRouteImport } from './routes/sitemap-pages[.]xml'
 import { Route as SitemapHelpDotxmlRouteImport } from './routes/sitemap-help[.]xml'
 import { Route as SignupRouteImport } from './routes/signup'
@@ -39,11 +40,14 @@ import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CareersRouteImport } from './routes/careers'
 import { Route as BlogRouteImport } from './routes/blog'
 import { Route as BiometricAttendanceSoftwareRouteImport } from './routes/biometric-attendance-software'
+import { Route as BestServiceInCityRouteImport } from './routes/best-$service-in-$city'
+import { Route as BestServiceForIndustryInCityRouteImport } from './routes/best-$service-for-$industry-in-$city'
 import { Route as AuthCallbackRouteImport } from './routes/auth-callback'
 import { Route as AttendanceManagementSystemRouteImport } from './routes/attendance-management-system'
 import { Route as AttendanceAppIndiaRouteImport } from './routes/attendance-app-india'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
+import { Route as ServiceForIndustryRouteImport } from './routes/$service-for-$industry'
 import { Route as PageSlugRouteImport } from './routes/$pageSlug'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as HelpIndexRouteImport } from './routes/help.index'
@@ -143,6 +147,11 @@ const TermsRoute = TermsRouteImport.update({
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapSeoDotxmlRoute = SitemapSeoDotxmlRouteImport.update({
+  id: '/sitemap-seo.xml',
+  path: '/sitemap-seo.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SitemapPagesDotxmlRoute = SitemapPagesDotxmlRouteImport.update({
@@ -284,6 +293,17 @@ const BiometricAttendanceSoftwareRoute =
     path: '/biometric-attendance-software',
     getParentRoute: () => rootRouteImport,
   } as any)
+const BestServiceInCityRoute = BestServiceInCityRouteImport.update({
+  id: '/best-$service-in-$city',
+  path: '/best-$service-in-$city',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BestServiceForIndustryInCityRoute =
+  BestServiceForIndustryInCityRouteImport.update({
+    id: '/best-$service-for-$industry-in-$city',
+    path: '/best-$service-for-$industry-in-$city',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthCallbackRoute = AuthCallbackRouteImport.update({
   id: '/auth-callback',
   path: '/auth-callback',
@@ -307,6 +327,11 @@ const AboutRoute = AboutRouteImport.update({
 } as any)
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
   id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ServiceForIndustryRoute = ServiceForIndustryRouteImport.update({
+  id: '/$service-for-$industry',
+  path: '/$service-for-$industry',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PageSlugRoute = PageSlugRouteImport.update({
@@ -809,10 +834,13 @@ const AuthenticatedAdminSupportKbIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/$pageSlug': typeof PageSlugRoute
+  '/$service-for-$industry': typeof ServiceForIndustryRoute
   '/about': typeof AboutRoute
   '/attendance-app-india': typeof AttendanceAppIndiaRoute
   '/attendance-management-system': typeof AttendanceManagementSystemRoute
   '/auth-callback': typeof AuthCallbackRoute
+  '/best-$service-for-$industry-in-$city': typeof BestServiceForIndustryInCityRoute
+  '/best-$service-in-$city': typeof BestServiceInCityRoute
   '/biometric-attendance-software': typeof BiometricAttendanceSoftwareRoute
   '/blog': typeof BlogRouteWithChildren
   '/careers': typeof CareersRouteWithChildren
@@ -840,6 +868,7 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/sitemap-help.xml': typeof SitemapHelpDotxmlRoute
   '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
+  '/sitemap-seo.xml': typeof SitemapSeoDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/time-tracking-software': typeof TimeTrackingSoftwareRoute
@@ -930,10 +959,13 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/$pageSlug': typeof PageSlugRoute
+  '/$service-for-$industry': typeof ServiceForIndustryRoute
   '/about': typeof AboutRoute
   '/attendance-app-india': typeof AttendanceAppIndiaRoute
   '/attendance-management-system': typeof AttendanceManagementSystemRoute
   '/auth-callback': typeof AuthCallbackRoute
+  '/best-$service-for-$industry-in-$city': typeof BestServiceForIndustryInCityRoute
+  '/best-$service-in-$city': typeof BestServiceInCityRoute
   '/biometric-attendance-software': typeof BiometricAttendanceSoftwareRoute
   '/blog': typeof BlogRouteWithChildren
   '/careers': typeof CareersRouteWithChildren
@@ -960,6 +992,7 @@ export interface FileRoutesByTo {
   '/signup': typeof SignupRoute
   '/sitemap-help.xml': typeof SitemapHelpDotxmlRoute
   '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
+  '/sitemap-seo.xml': typeof SitemapSeoDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/time-tracking-software': typeof TimeTrackingSoftwareRoute
@@ -1049,11 +1082,14 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/$pageSlug': typeof PageSlugRoute
+  '/$service-for-$industry': typeof ServiceForIndustryRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/about': typeof AboutRoute
   '/attendance-app-india': typeof AttendanceAppIndiaRoute
   '/attendance-management-system': typeof AttendanceManagementSystemRoute
   '/auth-callback': typeof AuthCallbackRoute
+  '/best-$service-for-$industry-in-$city': typeof BestServiceForIndustryInCityRoute
+  '/best-$service-in-$city': typeof BestServiceInCityRoute
   '/biometric-attendance-software': typeof BiometricAttendanceSoftwareRoute
   '/blog': typeof BlogRouteWithChildren
   '/careers': typeof CareersRouteWithChildren
@@ -1081,6 +1117,7 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/sitemap-help.xml': typeof SitemapHelpDotxmlRoute
   '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
+  '/sitemap-seo.xml': typeof SitemapSeoDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/time-tracking-software': typeof TimeTrackingSoftwareRoute
@@ -1173,10 +1210,13 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/$pageSlug'
+    | '/$service-for-$industry'
     | '/about'
     | '/attendance-app-india'
     | '/attendance-management-system'
     | '/auth-callback'
+    | '/best-$service-for-$industry-in-$city'
+    | '/best-$service-in-$city'
     | '/biometric-attendance-software'
     | '/blog'
     | '/careers'
@@ -1204,6 +1244,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/sitemap-help.xml'
     | '/sitemap-pages.xml'
+    | '/sitemap-seo.xml'
     | '/sitemap.xml'
     | '/terms'
     | '/time-tracking-software'
@@ -1294,10 +1335,13 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/$pageSlug'
+    | '/$service-for-$industry'
     | '/about'
     | '/attendance-app-india'
     | '/attendance-management-system'
     | '/auth-callback'
+    | '/best-$service-for-$industry-in-$city'
+    | '/best-$service-in-$city'
     | '/biometric-attendance-software'
     | '/blog'
     | '/careers'
@@ -1324,6 +1368,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/sitemap-help.xml'
     | '/sitemap-pages.xml'
+    | '/sitemap-seo.xml'
     | '/sitemap.xml'
     | '/terms'
     | '/time-tracking-software'
@@ -1412,11 +1457,14 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/$pageSlug'
+    | '/$service-for-$industry'
     | '/_authenticated'
     | '/about'
     | '/attendance-app-india'
     | '/attendance-management-system'
     | '/auth-callback'
+    | '/best-$service-for-$industry-in-$city'
+    | '/best-$service-in-$city'
     | '/biometric-attendance-software'
     | '/blog'
     | '/careers'
@@ -1444,6 +1492,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/sitemap-help.xml'
     | '/sitemap-pages.xml'
+    | '/sitemap-seo.xml'
     | '/sitemap.xml'
     | '/terms'
     | '/time-tracking-software'
@@ -1535,11 +1584,14 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   PageSlugRoute: typeof PageSlugRoute
+  ServiceForIndustryRoute: typeof ServiceForIndustryRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   AboutRoute: typeof AboutRoute
   AttendanceAppIndiaRoute: typeof AttendanceAppIndiaRoute
   AttendanceManagementSystemRoute: typeof AttendanceManagementSystemRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
+  BestServiceForIndustryInCityRoute: typeof BestServiceForIndustryInCityRoute
+  BestServiceInCityRoute: typeof BestServiceInCityRoute
   BiometricAttendanceSoftwareRoute: typeof BiometricAttendanceSoftwareRoute
   BlogRoute: typeof BlogRouteWithChildren
   CareersRoute: typeof CareersRouteWithChildren
@@ -1567,6 +1619,7 @@ export interface RootRouteChildren {
   SignupRoute: typeof SignupRoute
   SitemapHelpDotxmlRoute: typeof SitemapHelpDotxmlRoute
   SitemapPagesDotxmlRoute: typeof SitemapPagesDotxmlRoute
+  SitemapSeoDotxmlRoute: typeof SitemapSeoDotxmlRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
   TimeTrackingSoftwareRoute: typeof TimeTrackingSoftwareRoute
@@ -1597,6 +1650,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap-seo.xml': {
+      id: '/sitemap-seo.xml'
+      path: '/sitemap-seo.xml'
+      fullPath: '/sitemap-seo.xml'
+      preLoaderRoute: typeof SitemapSeoDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sitemap-pages.xml': {
@@ -1788,6 +1848,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BiometricAttendanceSoftwareRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/best-$service-in-$city': {
+      id: '/best-$service-in-$city'
+      path: '/best-$service-in-$city'
+      fullPath: '/best-$service-in-$city'
+      preLoaderRoute: typeof BestServiceInCityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/best-$service-for-$industry-in-$city': {
+      id: '/best-$service-for-$industry-in-$city'
+      path: '/best-$service-for-$industry-in-$city'
+      fullPath: '/best-$service-for-$industry-in-$city'
+      preLoaderRoute: typeof BestServiceForIndustryInCityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth-callback': {
       id: '/auth-callback'
       path: '/auth-callback'
@@ -1821,6 +1895,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/$service-for-$industry': {
+      id: '/$service-for-$industry'
+      path: '/$service-for-$industry'
+      fullPath: '/$service-for-$industry'
+      preLoaderRoute: typeof ServiceForIndustryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/$pageSlug': {
@@ -2693,11 +2774,14 @@ const HelpRouteWithChildren = HelpRoute._addFileChildren(HelpRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   PageSlugRoute: PageSlugRoute,
+  ServiceForIndustryRoute: ServiceForIndustryRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   AboutRoute: AboutRoute,
   AttendanceAppIndiaRoute: AttendanceAppIndiaRoute,
   AttendanceManagementSystemRoute: AttendanceManagementSystemRoute,
   AuthCallbackRoute: AuthCallbackRoute,
+  BestServiceForIndustryInCityRoute: BestServiceForIndustryInCityRoute,
+  BestServiceInCityRoute: BestServiceInCityRoute,
   BiometricAttendanceSoftwareRoute: BiometricAttendanceSoftwareRoute,
   BlogRoute: BlogRouteWithChildren,
   CareersRoute: CareersRouteWithChildren,
@@ -2725,6 +2809,7 @@ const rootRouteChildren: RootRouteChildren = {
   SignupRoute: SignupRoute,
   SitemapHelpDotxmlRoute: SitemapHelpDotxmlRoute,
   SitemapPagesDotxmlRoute: SitemapPagesDotxmlRoute,
+  SitemapSeoDotxmlRoute: SitemapSeoDotxmlRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
   TimeTrackingSoftwareRoute: TimeTrackingSoftwareRoute,
