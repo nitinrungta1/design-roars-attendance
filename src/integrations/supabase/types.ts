@@ -3648,6 +3648,288 @@ export type Database = {
         }
         Relationships: []
       }
+      seo_city_pages: {
+        Row: {
+          body_html: string | null
+          city_slug: string
+          created_at: string
+          cta_text: string | null
+          faqs: Json
+          h1: string | null
+          hero_intro: string | null
+          id: string
+          meta_description: string | null
+          meta_title: string | null
+          nearby_slugs: string[]
+          service_id: string
+          status: Database["public"]["Enums"]["seo_status"]
+          testimonials: Json
+          updated_at: string
+        }
+        Insert: {
+          body_html?: string | null
+          city_slug: string
+          created_at?: string
+          cta_text?: string | null
+          faqs?: Json
+          h1?: string | null
+          hero_intro?: string | null
+          id?: string
+          meta_description?: string | null
+          meta_title?: string | null
+          nearby_slugs?: string[]
+          service_id: string
+          status?: Database["public"]["Enums"]["seo_status"]
+          testimonials?: Json
+          updated_at?: string
+        }
+        Update: {
+          body_html?: string | null
+          city_slug?: string
+          created_at?: string
+          cta_text?: string | null
+          faqs?: Json
+          h1?: string | null
+          hero_intro?: string | null
+          id?: string
+          meta_description?: string | null
+          meta_title?: string | null
+          nearby_slugs?: string[]
+          service_id?: string
+          status?: Database["public"]["Enums"]["seo_status"]
+          testimonials?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seo_city_pages_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "seo_services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      seo_industries: {
+        Row: {
+          created_at: string
+          default_faqs: Json
+          hero_blurb: string | null
+          id: string
+          name: string
+          noun: string
+          pain_points: Json
+          slug: string
+          status: Database["public"]["Enums"]["seo_status"]
+          updated_at: string
+          use_cases: Json
+        }
+        Insert: {
+          created_at?: string
+          default_faqs?: Json
+          hero_blurb?: string | null
+          id?: string
+          name: string
+          noun: string
+          pain_points?: Json
+          slug: string
+          status?: Database["public"]["Enums"]["seo_status"]
+          updated_at?: string
+          use_cases?: Json
+        }
+        Update: {
+          created_at?: string
+          default_faqs?: Json
+          hero_blurb?: string | null
+          id?: string
+          name?: string
+          noun?: string
+          pain_points?: Json
+          slug?: string
+          status?: Database["public"]["Enums"]["seo_status"]
+          updated_at?: string
+          use_cases?: Json
+        }
+        Relationships: []
+      }
+      seo_industry_city_pages: {
+        Row: {
+          body_html: string | null
+          city_slug: string
+          created_at: string
+          cta_text: string | null
+          faqs: Json
+          h1: string | null
+          hero_intro: string | null
+          id: string
+          industry_slug: string
+          meta_description: string | null
+          meta_title: string | null
+          nearby_slugs: string[]
+          service_id: string
+          status: Database["public"]["Enums"]["seo_status"]
+          testimonials: Json
+          updated_at: string
+        }
+        Insert: {
+          body_html?: string | null
+          city_slug: string
+          created_at?: string
+          cta_text?: string | null
+          faqs?: Json
+          h1?: string | null
+          hero_intro?: string | null
+          id?: string
+          industry_slug: string
+          meta_description?: string | null
+          meta_title?: string | null
+          nearby_slugs?: string[]
+          service_id: string
+          status?: Database["public"]["Enums"]["seo_status"]
+          testimonials?: Json
+          updated_at?: string
+        }
+        Update: {
+          body_html?: string | null
+          city_slug?: string
+          created_at?: string
+          cta_text?: string | null
+          faqs?: Json
+          h1?: string | null
+          hero_intro?: string | null
+          id?: string
+          industry_slug?: string
+          meta_description?: string | null
+          meta_title?: string | null
+          nearby_slugs?: string[]
+          service_id?: string
+          status?: Database["public"]["Enums"]["seo_status"]
+          testimonials?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seo_industry_city_pages_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "seo_services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      seo_industry_pages: {
+        Row: {
+          body_html: string | null
+          created_at: string
+          cta_text: string | null
+          faqs: Json
+          h1: string | null
+          hero_intro: string | null
+          id: string
+          industry_slug: string
+          meta_description: string | null
+          meta_title: string | null
+          service_id: string
+          status: Database["public"]["Enums"]["seo_status"]
+          testimonials: Json
+          updated_at: string
+        }
+        Insert: {
+          body_html?: string | null
+          created_at?: string
+          cta_text?: string | null
+          faqs?: Json
+          h1?: string | null
+          hero_intro?: string | null
+          id?: string
+          industry_slug: string
+          meta_description?: string | null
+          meta_title?: string | null
+          service_id: string
+          status?: Database["public"]["Enums"]["seo_status"]
+          testimonials?: Json
+          updated_at?: string
+        }
+        Update: {
+          body_html?: string | null
+          created_at?: string
+          cta_text?: string | null
+          faqs?: Json
+          h1?: string | null
+          hero_intro?: string | null
+          id?: string
+          industry_slug?: string
+          meta_description?: string | null
+          meta_title?: string | null
+          service_id?: string
+          status?: Database["public"]["Enums"]["seo_status"]
+          testimonials?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seo_industry_pages_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "seo_services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      seo_services: {
+        Row: {
+          created_at: string
+          default_cta_text_tpl: string | null
+          default_faqs: Json
+          default_h1_tpl: string | null
+          default_hero_intro_tpl: string | null
+          default_meta_description_tpl: string | null
+          default_meta_title_tpl: string | null
+          default_testimonials: Json
+          id: string
+          name: string
+          noun: string
+          slug: string
+          status: Database["public"]["Enums"]["seo_status"]
+          tagline: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          default_cta_text_tpl?: string | null
+          default_faqs?: Json
+          default_h1_tpl?: string | null
+          default_hero_intro_tpl?: string | null
+          default_meta_description_tpl?: string | null
+          default_meta_title_tpl?: string | null
+          default_testimonials?: Json
+          id?: string
+          name: string
+          noun: string
+          slug: string
+          status?: Database["public"]["Enums"]["seo_status"]
+          tagline?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          default_cta_text_tpl?: string | null
+          default_faqs?: Json
+          default_h1_tpl?: string | null
+          default_hero_intro_tpl?: string | null
+          default_meta_description_tpl?: string | null
+          default_meta_title_tpl?: string | null
+          default_testimonials?: Json
+          id?: string
+          name?: string
+          noun?: string
+          slug?: string
+          status?: Database["public"]["Enums"]["seo_status"]
+          tagline?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       seo_settings: {
         Row: {
           default_description: string | null
@@ -4796,6 +5078,7 @@ export type Database = {
       post_status: "draft" | "scheduled" | "published" | "archived"
       remote_status: "pending" | "approved" | "rejected" | "cancelled"
       schedule_status: "draft" | "published" | "archived"
+      seo_status: "draft" | "published"
       subscription_status:
         | "trialing"
         | "active"
@@ -5069,6 +5352,7 @@ export const Constants = {
       post_status: ["draft", "scheduled", "published", "archived"],
       remote_status: ["pending", "approved", "rejected", "cancelled"],
       schedule_status: ["draft", "published", "archived"],
+      seo_status: ["draft", "published"],
       subscription_status: [
         "trialing",
         "active",
