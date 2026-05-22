@@ -3,12 +3,29 @@ import { MarketingLayout } from "@/components/brand/marketing-layout";
 import { Container, Section } from "@/components/brand/primitives";
 import { seo } from "@/lib/seo";
 import { getPublicPage, type CmsPageDetail } from "@/lib/cms.functions";
+import { resolveServiceIndustry, seoHeadFor, type ResolvedSeoPage } from "@/lib/seo/resolve";
+import { SeoLandingTemplate } from "@/components/marketing/seo-landing-template";
+
+type LoaderData = { kind: "cms"; page: CmsPageDetail } | { kind: "seo"; page: ResolvedSeoPage };
 
 export const Route = createFileRoute("/$pageSlug")({
-  loader: async ({ params }): Promise<{ page: CmsPageDetail }> => {
-    const { page } = await getPublicPage({ data: { slug: params.pageSlug } });
+  loader: async ({ params }): Promise<LoaderData> => {
+    const slug = params.pageSlug;
+    // Try SEO service-for-industry pattern first
+    const forIdx = slug.lastIndexOf("-for-");
+    if (forIdx > 0) {
+      const service = slug.slice(0, forIdx);
+      const industry = slug.slice(forIdx + 5);
+      if (service && industry) {
+        try {
+          const page = await resolveServiceIndustry(service, industry);
+          return { kind: "seo", page };
+        } catch { /* fall through */ }
+      }
+    }
+    const { page } = await getPublicPage({ data: { slug } });
     if (!page) throw notFound();
-    return { page };
+    return { kind: "cms", page };
   },
   head: ({ loaderData }) => {
     const page = loaderData?.page;

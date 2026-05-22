@@ -40,6 +40,7 @@ import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CareersRouteImport } from './routes/careers'
 import { Route as BlogRouteImport } from './routes/blog'
 import { Route as BiometricAttendanceSoftwareRouteImport } from './routes/biometric-attendance-software'
+import { Route as BestChar123slugChar125RouteImport } from './routes/best-{$slug}'
 import { Route as AuthCallbackRouteImport } from './routes/auth-callback'
 import { Route as AttendanceManagementSystemRouteImport } from './routes/attendance-management-system'
 import { Route as AttendanceAppIndiaRouteImport } from './routes/attendance-app-india'
@@ -290,6 +291,11 @@ const BiometricAttendanceSoftwareRoute =
     path: '/biometric-attendance-software',
     getParentRoute: () => rootRouteImport,
   } as any)
+const BestChar123slugChar125Route = BestChar123slugChar125RouteImport.update({
+  id: '/best-{$slug}',
+  path: '/best-{$slug}',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthCallbackRoute = AuthCallbackRouteImport.update({
   id: '/auth-callback',
   path: '/auth-callback',
@@ -819,6 +825,7 @@ export interface FileRoutesByFullPath {
   '/attendance-app-india': typeof AttendanceAppIndiaRoute
   '/attendance-management-system': typeof AttendanceManagementSystemRoute
   '/auth-callback': typeof AuthCallbackRoute
+  '/best-{$slug}': typeof BestChar123slugChar125Route
   '/biometric-attendance-software': typeof BiometricAttendanceSoftwareRoute
   '/blog': typeof BlogRouteWithChildren
   '/careers': typeof CareersRouteWithChildren
@@ -941,6 +948,7 @@ export interface FileRoutesByTo {
   '/attendance-app-india': typeof AttendanceAppIndiaRoute
   '/attendance-management-system': typeof AttendanceManagementSystemRoute
   '/auth-callback': typeof AuthCallbackRoute
+  '/best-{$slug}': typeof BestChar123slugChar125Route
   '/biometric-attendance-software': typeof BiometricAttendanceSoftwareRoute
   '/blog': typeof BlogRouteWithChildren
   '/careers': typeof CareersRouteWithChildren
@@ -1062,6 +1070,7 @@ export interface FileRoutesById {
   '/attendance-app-india': typeof AttendanceAppIndiaRoute
   '/attendance-management-system': typeof AttendanceManagementSystemRoute
   '/auth-callback': typeof AuthCallbackRoute
+  '/best-{$slug}': typeof BestChar123slugChar125Route
   '/biometric-attendance-software': typeof BiometricAttendanceSoftwareRoute
   '/blog': typeof BlogRouteWithChildren
   '/careers': typeof CareersRouteWithChildren
@@ -1186,6 +1195,7 @@ export interface FileRouteTypes {
     | '/attendance-app-india'
     | '/attendance-management-system'
     | '/auth-callback'
+    | '/best-{$slug}'
     | '/biometric-attendance-software'
     | '/blog'
     | '/careers'
@@ -1308,6 +1318,7 @@ export interface FileRouteTypes {
     | '/attendance-app-india'
     | '/attendance-management-system'
     | '/auth-callback'
+    | '/best-{$slug}'
     | '/biometric-attendance-software'
     | '/blog'
     | '/careers'
@@ -1428,6 +1439,7 @@ export interface FileRouteTypes {
     | '/attendance-app-india'
     | '/attendance-management-system'
     | '/auth-callback'
+    | '/best-{$slug}'
     | '/biometric-attendance-software'
     | '/blog'
     | '/careers'
@@ -1552,6 +1564,7 @@ export interface RootRouteChildren {
   AttendanceAppIndiaRoute: typeof AttendanceAppIndiaRoute
   AttendanceManagementSystemRoute: typeof AttendanceManagementSystemRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
+  BestChar123slugChar125Route: typeof BestChar123slugChar125Route
   BiometricAttendanceSoftwareRoute: typeof BiometricAttendanceSoftwareRoute
   BlogRoute: typeof BlogRouteWithChildren
   CareersRoute: typeof CareersRouteWithChildren
@@ -1806,6 +1819,13 @@ declare module '@tanstack/react-router' {
       path: '/biometric-attendance-software'
       fullPath: '/biometric-attendance-software'
       preLoaderRoute: typeof BiometricAttendanceSoftwareRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/best-{$slug}': {
+      id: '/best-{$slug}'
+      path: '/best-{$slug}'
+      fullPath: '/best-{$slug}'
+      preLoaderRoute: typeof BestChar123slugChar125RouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth-callback': {
@@ -2718,6 +2738,7 @@ const rootRouteChildren: RootRouteChildren = {
   AttendanceAppIndiaRoute: AttendanceAppIndiaRoute,
   AttendanceManagementSystemRoute: AttendanceManagementSystemRoute,
   AuthCallbackRoute: AuthCallbackRoute,
+  BestChar123slugChar125Route: BestChar123slugChar125Route,
   BiometricAttendanceSoftwareRoute: BiometricAttendanceSoftwareRoute,
   BlogRoute: BlogRouteWithChildren,
   CareersRoute: CareersRouteWithChildren,
@@ -2757,12 +2778,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}
