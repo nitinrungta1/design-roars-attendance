@@ -38,8 +38,8 @@ export type ResolvedSeoPage = {
 };
 
 async function loadService(slug: string): Promise<SeoService | null> {
-  const { data } = await supabase
-    .from("seo_services" as any)
+  const { data } = await (supabase as any)
+    .from("seo_services")
     .select("*")
     .eq("slug", slug)
     .eq("status", "published")
@@ -48,8 +48,8 @@ async function loadService(slug: string): Promise<SeoService | null> {
 }
 
 async function loadIndustry(slug: string): Promise<SeoIndustry | null> {
-  const { data } = await supabase
-    .from("seo_industries" as any)
+  const { data } = await (supabase as any)
+    .from("seo_industries")
     .select("*")
     .eq("slug", slug)
     .eq("status", "published")
@@ -58,8 +58,8 @@ async function loadIndustry(slug: string): Promise<SeoIndustry | null> {
 }
 
 async function loadSiblingIndustries(excludeSlug?: string) {
-  const { data } = await supabase
-    .from("seo_industries" as any)
+  const { data } = await (supabase as any)
+    .from("seo_industries")
     .select("slug, name")
     .eq("status", "published")
     .limit(8);
@@ -72,8 +72,8 @@ export async function resolveServiceCity(serviceSlug: string, citySlug: string):
   const city = CITY_BY_SLUG[citySlug];
   if (!service || !city) throw notFound();
 
-  const { data: row } = await supabase
-    .from("seo_city_pages" as any)
+  const { data: row } = await (supabase as any)
+    .from("seo_city_pages")
     .select("*")
     .eq("service_id", service.id)
     .eq("city_slug", citySlug)
@@ -114,8 +114,8 @@ export async function resolveServiceIndustry(serviceSlug: string, industrySlug: 
   const industry = await loadIndustry(industrySlug);
   if (!service || !industry) throw notFound();
 
-  const { data: row } = await supabase
-    .from("seo_industry_pages" as any)
+  const { data: row } = await (supabase as any)
+    .from("seo_industry_pages")
     .select("*")
     .eq("service_id", service.id)
     .eq("industry_slug", industrySlug)
@@ -159,8 +159,8 @@ export async function resolveServiceIndustryCity(
   const city = CITY_BY_SLUG[citySlug];
   if (!service || !industry || !city) throw notFound();
 
-  const { data: row } = await supabase
-    .from("seo_industry_city_pages" as any)
+  const { data: row } = await (supabase as any)
+    .from("seo_industry_city_pages")
     .select("*")
     .eq("service_id", service.id)
     .eq("industry_slug", industrySlug)
