@@ -3,10 +3,15 @@ import { MarketingLayout } from "@/components/brand/marketing-layout";
 import { SeoLandingTemplate } from "@/components/marketing/seo-landing-template";
 import { resolveServiceCity, resolveServiceIndustryCity, seoHeadFor, type ResolvedSeoPage } from "@/lib/seo/resolve";
 
+// Reserved slugs that should NEVER resolve as SEO pages (avoid hijacking
+// real marketing/content slugs starting with "best-").
+const RESERVED = new Set<string>(["practices", "practice"]);
+
 function parseSlug(slug: string):
   | { kind: "city"; service: string; city: string }
   | { kind: "industry-city"; service: string; industry: string; city: string }
   | null {
+  if (RESERVED.has(slug)) return null;
   // best-{service}-for-{industry}-in-{city}
   const forIdx = slug.indexOf("-for-");
   const inIdx = slug.lastIndexOf("-in-");
