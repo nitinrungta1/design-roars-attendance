@@ -130,7 +130,23 @@ export const listSeoOverrides = createServerFn({ method: "POST" })
   .handler(async ({ data, context }): Promise<{ rows: OverrideRow[] }> => {
     const sb = (context as { supabase: unknown }).supabase as { from: (t: string) => any };
     const { data: rows } = await sb.from(TABLE[data.kind]).select("*").order("updated_at", { ascending: false }).limit(500);
-    return { rows: (rows ?? []) as OverrideRow[] };
+    const mapped: OverrideRow[] = ((rows ?? []) as any[]).map((r) => ({
+      id: r.id,
+      service_id: r.service_id,
+      city_slug: r.city_slug ?? null,
+      industry_slug: r.industry_slug ?? null,
+      metaTitle: r.meta_title ?? null,
+      metaDescription: r.meta_description ?? null,
+      h1: r.h1 ?? null,
+      heroIntro: r.hero_intro ?? null,
+      ctaText: r.cta_text ?? null,
+      body_html: r.body_html ?? null,
+      faqs: r.faqs ?? null,
+      testimonials: r.testimonials ?? null,
+      nearby_slugs: r.nearby_slugs ?? null,
+      status: r.status,
+    }));
+    return { rows: mapped };
   });
 
 const overrideInputSchema = z.object({
@@ -156,16 +172,21 @@ export const upsertSeoOverride = createServerFn({ method: "POST" })
   .inputValidator((input) => overrideInputSchema.parse(input))
   .handler(async ({ data, context }): Promise<{ ok: boolean; error?: string }> => {
     const sb = (context as { supabase: unknown }).supabase as { from: (t: string) => any };
-    const { kind, ...rest } = data;
+    const { kind, metaTitle, metaDescription, heroIntro, ctaText, ...rest } = data;
     if (kind === "city" && !rest.city_slug) return { ok: false, error: "city_slug required" };
     if (kind === "industry" && !rest.industry_slug) return { ok: false, error: "industry_slug required" };
     if (kind === "industry-city" && (!rest.industry_slug || !rest.city_slug))
       return { ok: false, error: "industry_slug and city_slug required" };
+    const row: Record<string, unknown> = { ...rest };
+    if (metaTitle !== undefined) row.meta_title = metaTitle;
+    if (metaDescription !== undefined) row.meta_description = metaDescription;
+    if (heroIntro !== undefined) row.hero_intro = heroIntro;
+    if (ctaText !== undefined) row.cta_text = ctaText;
     const conflict =
       kind === "city" ? "service_id,city_slug"
       : kind === "industry" ? "service_id,industry_slug"
       : "service_id,industry_slug,city_slug";
-    const { error } = await sb.from(TABLE[kind]).upsert(rest, { onConflict: conflict });
+    const { error } = await sb.from(TABLE[kind]).upsert(row, { onConflict: conflict });
     return error ? { ok: false, error: error.message } : { ok: true };
   });
 
