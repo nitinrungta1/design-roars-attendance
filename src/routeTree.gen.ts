@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TimeTrackingSoftwareRouteImport } from './routes/time-tracking-software'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as SitemapSeoDotxmlRouteImport } from './routes/sitemap-seo[.]xml'
 import { Route as SitemapPagesDotxmlRouteImport } from './routes/sitemap-pages[.]xml'
 import { Route as SitemapHelpDotxmlRouteImport } from './routes/sitemap-help[.]xml'
 import { Route as SignupRouteImport } from './routes/signup'
@@ -143,6 +144,11 @@ const TermsRoute = TermsRouteImport.update({
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapSeoDotxmlRoute = SitemapSeoDotxmlRouteImport.update({
+  id: '/sitemap-seo.xml',
+  path: '/sitemap-seo.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SitemapPagesDotxmlRoute = SitemapPagesDotxmlRouteImport.update({
@@ -840,6 +846,7 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/sitemap-help.xml': typeof SitemapHelpDotxmlRoute
   '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
+  '/sitemap-seo.xml': typeof SitemapSeoDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/time-tracking-software': typeof TimeTrackingSoftwareRoute
@@ -960,6 +967,7 @@ export interface FileRoutesByTo {
   '/signup': typeof SignupRoute
   '/sitemap-help.xml': typeof SitemapHelpDotxmlRoute
   '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
+  '/sitemap-seo.xml': typeof SitemapSeoDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/time-tracking-software': typeof TimeTrackingSoftwareRoute
@@ -1081,6 +1089,7 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/sitemap-help.xml': typeof SitemapHelpDotxmlRoute
   '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
+  '/sitemap-seo.xml': typeof SitemapSeoDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/time-tracking-software': typeof TimeTrackingSoftwareRoute
@@ -1204,6 +1213,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/sitemap-help.xml'
     | '/sitemap-pages.xml'
+    | '/sitemap-seo.xml'
     | '/sitemap.xml'
     | '/terms'
     | '/time-tracking-software'
@@ -1324,6 +1334,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/sitemap-help.xml'
     | '/sitemap-pages.xml'
+    | '/sitemap-seo.xml'
     | '/sitemap.xml'
     | '/terms'
     | '/time-tracking-software'
@@ -1444,6 +1455,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/sitemap-help.xml'
     | '/sitemap-pages.xml'
+    | '/sitemap-seo.xml'
     | '/sitemap.xml'
     | '/terms'
     | '/time-tracking-software'
@@ -1567,6 +1579,7 @@ export interface RootRouteChildren {
   SignupRoute: typeof SignupRoute
   SitemapHelpDotxmlRoute: typeof SitemapHelpDotxmlRoute
   SitemapPagesDotxmlRoute: typeof SitemapPagesDotxmlRoute
+  SitemapSeoDotxmlRoute: typeof SitemapSeoDotxmlRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
   TimeTrackingSoftwareRoute: typeof TimeTrackingSoftwareRoute
@@ -1597,6 +1610,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap-seo.xml': {
+      id: '/sitemap-seo.xml'
+      path: '/sitemap-seo.xml'
+      fullPath: '/sitemap-seo.xml'
+      preLoaderRoute: typeof SitemapSeoDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sitemap-pages.xml': {
@@ -2725,6 +2745,7 @@ const rootRouteChildren: RootRouteChildren = {
   SignupRoute: SignupRoute,
   SitemapHelpDotxmlRoute: SitemapHelpDotxmlRoute,
   SitemapPagesDotxmlRoute: SitemapPagesDotxmlRoute,
+  SitemapSeoDotxmlRoute: SitemapSeoDotxmlRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
   TimeTrackingSoftwareRoute: TimeTrackingSoftwareRoute,
@@ -2736,3 +2757,12 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
