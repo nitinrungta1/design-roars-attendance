@@ -11,6 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { getSeoSettings, patchSeoSettings } from "@/lib/cms.functions";
 import { seo } from "@/lib/seo";
+import { SeoTabs } from "./_authenticated.admin.cms.seo.services";
 
 export const Route = createFileRoute("/_authenticated/admin/cms/seo")({
   head: () => seo({ title: "SEO | Admin", description: "Global SEO config & sitemap.", kind: "product", path: "/admin/cms/seo", noindex: true }),
@@ -54,6 +55,7 @@ function SeoPage() {
     <>
       <PageHeader eyebrow="Content" title="SEO" description="Global title template, default description, robots & sitemap." breadcrumbs={[{ label: "Admin", to: "/admin" }, { label: "SEO" }]} />
       <PageBody className="max-w-3xl space-y-4">
+        <SeoTabs current="settings" />
         <div>
           <Label>Title template</Label>
           <Input value={titleTpl} onChange={(e) => setTitleTpl(e.target.value)} placeholder="%s | Oqlio" />
