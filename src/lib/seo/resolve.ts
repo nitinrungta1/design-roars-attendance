@@ -92,11 +92,11 @@ export async function resolveServiceCity(serviceSlug: string, citySlug: string):
   const siblingIndustries = await loadSiblingIndustries();
 
   return {
-    metaTitle: ov?.metaTitle?.trim() || fillTemplate(service.default_meta_title_tpl, vars, fb.metaTitle),
-    metaDescription: ov?.metaDescription?.trim() || fillTemplate(service.default_meta_description_tpl, vars, fb.metaDescription),
+    metaTitle: ov?.meta_title?.trim() || fillTemplate(service.default_meta_title_tpl, vars, fb.metaTitle),
+    metaDescription: ov?.meta_description?.trim() || fillTemplate(service.default_meta_description_tpl, vars, fb.metaDescription),
     h1: ov?.h1?.trim() || fillTemplate(service.default_h1_tpl, vars, fb.h1),
-    heroIntro: ov?.heroIntro?.trim() || fillTemplate(service.default_hero_intro_tpl, vars, fb.heroIntro),
-    ctaText: ov?.ctaText?.trim() || fillTemplate(service.default_cta_text_tpl, vars, fb.ctaText),
+    heroIntro: ov?.hero_intro?.trim() || fillTemplate(service.default_hero_intro_tpl, vars, fb.heroIntro),
+    ctaText: ov?.cta_text?.trim() || fillTemplate(service.default_cta_text_tpl, vars, fb.ctaText),
     intro: buildIntro(vars, `${service.slug}:${citySlug}`),
     bodyHtml: ov?.body_html ?? "",
     faqs: (ov?.faqs && ov.faqs.length > 0) ? fillFaqs(ov.faqs, vars) : fillFaqs(service.default_faqs, vars),
@@ -126,15 +126,15 @@ export async function resolveServiceIndustry(serviceSlug: string, industrySlug: 
   const vars: TemplateVars = { service: service.name, industry: industry.name };
 
   const fb = builtInFallbacks(service, null, null);
-  const heroIntro = ov?.heroIntro?.trim() || industryHeroFallback(industry, null);
+  const heroIntro = ov?.hero_intro?.trim() || industryHeroFallback(industry, null);
   const siblingIndustries = await loadSiblingIndustries(industrySlug);
 
   return {
-    metaTitle: ov?.metaTitle?.trim() || `${service.noun} for ${industry.name} — Punchly`,
-    metaDescription: ov?.metaDescription?.trim() || `Punchly is the ${service.noun.toLowerCase()} built for ${industry.noun}. ${industry.hero_blurb ?? ""}`.trim(),
+    metaTitle: ov?.meta_title?.trim() || `${service.noun} for ${industry.name} — Punchly`,
+    metaDescription: ov?.meta_description?.trim() || `Punchly is the ${service.noun.toLowerCase()} built for ${industry.noun}. ${industry.hero_blurb ?? ""}`.trim(),
     h1: ov?.h1?.trim() || `${service.name} for ${industry.name}`,
     heroIntro,
-    ctaText: ov?.ctaText?.trim() || `Start your free Punchly trial for ${industry.name.toLowerCase()}`,
+    ctaText: ov?.cta_text?.trim() || `Start your free Punchly trial for ${industry.name.toLowerCase()}`,
     intro: buildIntro(vars, `${service.slug}:${industrySlug}`),
     bodyHtml: ov?.body_html ?? "",
     faqs: (ov?.faqs && ov.faqs.length > 0) ? fillFaqs(ov.faqs, vars) : fillFaqs(industry.default_faqs.length > 0 ? industry.default_faqs : service.default_faqs, vars),
@@ -178,11 +178,11 @@ export async function resolveServiceIndustryCity(
   const siblingIndustries = await loadSiblingIndustries(industrySlug);
 
   return {
-    metaTitle: ov?.metaTitle?.trim() || `Best ${service.noun} for ${industry.name} in ${city.city} (2026) — Punchly`,
-    metaDescription: ov?.metaDescription?.trim() || `Punchly is the best ${service.noun.toLowerCase()} for ${industry.noun} in ${city.city}, ${city.state}. GPS check-ins, shift scheduling, payroll-ready reports.`,
+    metaTitle: ov?.meta_title?.trim() || `Best ${service.noun} for ${industry.name} in ${city.city} (2026) — Punchly`,
+    metaDescription: ov?.meta_description?.trim() || `Punchly is the best ${service.noun.toLowerCase()} for ${industry.noun} in ${city.city}, ${city.state}. GPS check-ins, shift scheduling, payroll-ready reports.`,
     h1: ov?.h1?.trim() || `Best ${service.noun.toLowerCase()} for ${industry.name.toLowerCase()} in ${city.city}`,
-    heroIntro: ov?.heroIntro?.trim() || `${industryHeroFallback(industry, city.city)} Built for ${city.city} teams.`,
-    ctaText: ov?.ctaText?.trim() || `Start your free trial for ${industry.name.toLowerCase()} in ${city.city}`,
+    heroIntro: ov?.hero_intro?.trim() || `${industryHeroFallback(industry, city.city)} Built for ${city.city} teams.`,
+    ctaText: ov?.cta_text?.trim() || `Start your free trial for ${industry.name.toLowerCase()} in ${city.city}`,
     intro: buildIntro(vars, `${service.slug}:${industrySlug}:${citySlug}`),
     bodyHtml: ov?.body_html ?? "",
     faqs: (ov?.faqs && ov.faqs.length > 0) ? fillFaqs(ov.faqs, vars) : fillFaqs(industry.default_faqs.length > 0 ? industry.default_faqs : service.default_faqs, vars),
