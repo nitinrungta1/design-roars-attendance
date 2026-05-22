@@ -126,11 +126,15 @@ import { Route as AuthenticatedAdminAnalyticsAttributionRouteImport } from './ro
 import { Route as AuthenticatedAdminAccessTeamsRouteImport } from './routes/_authenticated.admin.access.teams'
 import { Route as AuthenticatedAdminAccessRolesRouteImport } from './routes/_authenticated.admin.access.roles'
 import { Route as AuthenticatedAdminAccessPermissionsRouteImport } from './routes/_authenticated.admin.access.permissions'
+import { Route as AuthenticatedAdminCmsSeoIndexRouteImport } from './routes/_authenticated.admin.cms.seo.index'
 import { Route as AuthenticatedAdminSupportKbNewRouteImport } from './routes/_authenticated.admin.support.kb.new'
 import { Route as AuthenticatedAdminSupportKbFeedbackRouteImport } from './routes/_authenticated.admin.support.kb.feedback'
 import { Route as AuthenticatedAdminSupportKbCategoriesRouteImport } from './routes/_authenticated.admin.support.kb.categories'
 import { Route as AuthenticatedAdminSupportKbAnalyticsRouteImport } from './routes/_authenticated.admin.support.kb.analytics'
 import { Route as AuthenticatedAdminSupportKbIdRouteImport } from './routes/_authenticated.admin.support.kb.$id'
+import { Route as AuthenticatedAdminCmsSeoServicesRouteImport } from './routes/_authenticated.admin.cms.seo.services'
+import { Route as AuthenticatedAdminCmsSeoOverridesRouteImport } from './routes/_authenticated.admin.cms.seo.overrides'
+import { Route as AuthenticatedAdminCmsSeoIndustriesRouteImport } from './routes/_authenticated.admin.cms.seo.industries'
 
 const TimeTrackingSoftwareRoute = TimeTrackingSoftwareRouteImport.update({
   id: '/time-tracking-software',
@@ -787,6 +791,12 @@ const AuthenticatedAdminAccessPermissionsRoute =
     path: '/access/permissions',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminCmsSeoIndexRoute =
+  AuthenticatedAdminCmsSeoIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedAdminCmsSeoRoute,
+  } as any)
 const AuthenticatedAdminSupportKbNewRoute =
   AuthenticatedAdminSupportKbNewRouteImport.update({
     id: '/new',
@@ -816,6 +826,24 @@ const AuthenticatedAdminSupportKbIdRoute =
     id: '/$id',
     path: '/$id',
     getParentRoute: () => AuthenticatedAdminSupportKbRoute,
+  } as any)
+const AuthenticatedAdminCmsSeoServicesRoute =
+  AuthenticatedAdminCmsSeoServicesRouteImport.update({
+    id: '/services',
+    path: '/services',
+    getParentRoute: () => AuthenticatedAdminCmsSeoRoute,
+  } as any)
+const AuthenticatedAdminCmsSeoOverridesRoute =
+  AuthenticatedAdminCmsSeoOverridesRouteImport.update({
+    id: '/overrides',
+    path: '/overrides',
+    getParentRoute: () => AuthenticatedAdminCmsSeoRoute,
+  } as any)
+const AuthenticatedAdminCmsSeoIndustriesRoute =
+  AuthenticatedAdminCmsSeoIndustriesRouteImport.update({
+    id: '/industries',
+    path: '/industries',
+    getParentRoute: () => AuthenticatedAdminCmsSeoRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -888,7 +916,7 @@ export interface FileRoutesByFullPath {
   '/admin/cms/forms': typeof AuthenticatedAdminCmsFormsRoute
   '/admin/cms/media': typeof AuthenticatedAdminCmsMediaRoute
   '/admin/cms/pages': typeof AuthenticatedAdminCmsPagesRoute
-  '/admin/cms/seo': typeof AuthenticatedAdminCmsSeoRoute
+  '/admin/cms/seo': typeof AuthenticatedAdminCmsSeoRouteWithChildren
   '/admin/customers/accounts': typeof AuthenticatedAdminCustomersAccountsRoute
   '/admin/customers/companies': typeof AuthenticatedAdminCustomersCompaniesRoute
   '/admin/customers/contacts': typeof AuthenticatedAdminCustomersContactsRoute
@@ -935,11 +963,15 @@ export interface FileRoutesByFullPath {
   '/admin/analytics/': typeof AuthenticatedAdminAnalyticsIndexRoute
   '/admin/leads/': typeof AuthenticatedAdminLeadsIndexRoute
   '/admin/workforce/': typeof AuthenticatedAdminWorkforceIndexRoute
+  '/admin/cms/seo/industries': typeof AuthenticatedAdminCmsSeoIndustriesRoute
+  '/admin/cms/seo/overrides': typeof AuthenticatedAdminCmsSeoOverridesRoute
+  '/admin/cms/seo/services': typeof AuthenticatedAdminCmsSeoServicesRoute
   '/admin/support/kb/$id': typeof AuthenticatedAdminSupportKbIdRoute
   '/admin/support/kb/analytics': typeof AuthenticatedAdminSupportKbAnalyticsRoute
   '/admin/support/kb/categories': typeof AuthenticatedAdminSupportKbCategoriesRoute
   '/admin/support/kb/feedback': typeof AuthenticatedAdminSupportKbFeedbackRoute
   '/admin/support/kb/new': typeof AuthenticatedAdminSupportKbNewRoute
+  '/admin/cms/seo/': typeof AuthenticatedAdminCmsSeoIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -1008,7 +1040,6 @@ export interface FileRoutesByTo {
   '/admin/cms/forms': typeof AuthenticatedAdminCmsFormsRoute
   '/admin/cms/media': typeof AuthenticatedAdminCmsMediaRoute
   '/admin/cms/pages': typeof AuthenticatedAdminCmsPagesRoute
-  '/admin/cms/seo': typeof AuthenticatedAdminCmsSeoRoute
   '/admin/customers/accounts': typeof AuthenticatedAdminCustomersAccountsRoute
   '/admin/customers/companies': typeof AuthenticatedAdminCustomersCompaniesRoute
   '/admin/customers/contacts': typeof AuthenticatedAdminCustomersContactsRoute
@@ -1055,11 +1086,15 @@ export interface FileRoutesByTo {
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsIndexRoute
   '/admin/leads': typeof AuthenticatedAdminLeadsIndexRoute
   '/admin/workforce': typeof AuthenticatedAdminWorkforceIndexRoute
+  '/admin/cms/seo/industries': typeof AuthenticatedAdminCmsSeoIndustriesRoute
+  '/admin/cms/seo/overrides': typeof AuthenticatedAdminCmsSeoOverridesRoute
+  '/admin/cms/seo/services': typeof AuthenticatedAdminCmsSeoServicesRoute
   '/admin/support/kb/$id': typeof AuthenticatedAdminSupportKbIdRoute
   '/admin/support/kb/analytics': typeof AuthenticatedAdminSupportKbAnalyticsRoute
   '/admin/support/kb/categories': typeof AuthenticatedAdminSupportKbCategoriesRoute
   '/admin/support/kb/feedback': typeof AuthenticatedAdminSupportKbFeedbackRoute
   '/admin/support/kb/new': typeof AuthenticatedAdminSupportKbNewRoute
+  '/admin/cms/seo': typeof AuthenticatedAdminCmsSeoIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -1133,7 +1168,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/cms/forms': typeof AuthenticatedAdminCmsFormsRoute
   '/_authenticated/admin/cms/media': typeof AuthenticatedAdminCmsMediaRoute
   '/_authenticated/admin/cms/pages': typeof AuthenticatedAdminCmsPagesRoute
-  '/_authenticated/admin/cms/seo': typeof AuthenticatedAdminCmsSeoRoute
+  '/_authenticated/admin/cms/seo': typeof AuthenticatedAdminCmsSeoRouteWithChildren
   '/_authenticated/admin/customers/accounts': typeof AuthenticatedAdminCustomersAccountsRoute
   '/_authenticated/admin/customers/companies': typeof AuthenticatedAdminCustomersCompaniesRoute
   '/_authenticated/admin/customers/contacts': typeof AuthenticatedAdminCustomersContactsRoute
@@ -1180,11 +1215,15 @@ export interface FileRoutesById {
   '/_authenticated/admin/analytics/': typeof AuthenticatedAdminAnalyticsIndexRoute
   '/_authenticated/admin/leads/': typeof AuthenticatedAdminLeadsIndexRoute
   '/_authenticated/admin/workforce/': typeof AuthenticatedAdminWorkforceIndexRoute
+  '/_authenticated/admin/cms/seo/industries': typeof AuthenticatedAdminCmsSeoIndustriesRoute
+  '/_authenticated/admin/cms/seo/overrides': typeof AuthenticatedAdminCmsSeoOverridesRoute
+  '/_authenticated/admin/cms/seo/services': typeof AuthenticatedAdminCmsSeoServicesRoute
   '/_authenticated/admin/support/kb/$id': typeof AuthenticatedAdminSupportKbIdRoute
   '/_authenticated/admin/support/kb/analytics': typeof AuthenticatedAdminSupportKbAnalyticsRoute
   '/_authenticated/admin/support/kb/categories': typeof AuthenticatedAdminSupportKbCategoriesRoute
   '/_authenticated/admin/support/kb/feedback': typeof AuthenticatedAdminSupportKbFeedbackRoute
   '/_authenticated/admin/support/kb/new': typeof AuthenticatedAdminSupportKbNewRoute
+  '/_authenticated/admin/cms/seo/': typeof AuthenticatedAdminCmsSeoIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -1305,11 +1344,15 @@ export interface FileRouteTypes {
     | '/admin/analytics/'
     | '/admin/leads/'
     | '/admin/workforce/'
+    | '/admin/cms/seo/industries'
+    | '/admin/cms/seo/overrides'
+    | '/admin/cms/seo/services'
     | '/admin/support/kb/$id'
     | '/admin/support/kb/analytics'
     | '/admin/support/kb/categories'
     | '/admin/support/kb/feedback'
     | '/admin/support/kb/new'
+    | '/admin/cms/seo/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -1378,7 +1421,6 @@ export interface FileRouteTypes {
     | '/admin/cms/forms'
     | '/admin/cms/media'
     | '/admin/cms/pages'
-    | '/admin/cms/seo'
     | '/admin/customers/accounts'
     | '/admin/customers/companies'
     | '/admin/customers/contacts'
@@ -1425,11 +1467,15 @@ export interface FileRouteTypes {
     | '/admin/analytics'
     | '/admin/leads'
     | '/admin/workforce'
+    | '/admin/cms/seo/industries'
+    | '/admin/cms/seo/overrides'
+    | '/admin/cms/seo/services'
     | '/admin/support/kb/$id'
     | '/admin/support/kb/analytics'
     | '/admin/support/kb/categories'
     | '/admin/support/kb/feedback'
     | '/admin/support/kb/new'
+    | '/admin/cms/seo'
   id:
     | '__root__'
     | '/'
@@ -1549,11 +1595,15 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/analytics/'
     | '/_authenticated/admin/leads/'
     | '/_authenticated/admin/workforce/'
+    | '/_authenticated/admin/cms/seo/industries'
+    | '/_authenticated/admin/cms/seo/overrides'
+    | '/_authenticated/admin/cms/seo/services'
     | '/_authenticated/admin/support/kb/$id'
     | '/_authenticated/admin/support/kb/analytics'
     | '/_authenticated/admin/support/kb/categories'
     | '/_authenticated/admin/support/kb/feedback'
     | '/_authenticated/admin/support/kb/new'
+    | '/_authenticated/admin/cms/seo/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -2423,6 +2473,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminAccessPermissionsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/cms/seo/': {
+      id: '/_authenticated/admin/cms/seo/'
+      path: '/'
+      fullPath: '/admin/cms/seo/'
+      preLoaderRoute: typeof AuthenticatedAdminCmsSeoIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminCmsSeoRoute
+    }
     '/_authenticated/admin/support/kb/new': {
       id: '/_authenticated/admin/support/kb/new'
       path: '/new'
@@ -2458,6 +2515,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminSupportKbIdRouteImport
       parentRoute: typeof AuthenticatedAdminSupportKbRoute
     }
+    '/_authenticated/admin/cms/seo/services': {
+      id: '/_authenticated/admin/cms/seo/services'
+      path: '/services'
+      fullPath: '/admin/cms/seo/services'
+      preLoaderRoute: typeof AuthenticatedAdminCmsSeoServicesRouteImport
+      parentRoute: typeof AuthenticatedAdminCmsSeoRoute
+    }
+    '/_authenticated/admin/cms/seo/overrides': {
+      id: '/_authenticated/admin/cms/seo/overrides'
+      path: '/overrides'
+      fullPath: '/admin/cms/seo/overrides'
+      preLoaderRoute: typeof AuthenticatedAdminCmsSeoOverridesRouteImport
+      parentRoute: typeof AuthenticatedAdminCmsSeoRoute
+    }
+    '/_authenticated/admin/cms/seo/industries': {
+      id: '/_authenticated/admin/cms/seo/industries'
+      path: '/industries'
+      fullPath: '/admin/cms/seo/industries'
+      preLoaderRoute: typeof AuthenticatedAdminCmsSeoIndustriesRouteImport
+      parentRoute: typeof AuthenticatedAdminCmsSeoRoute
+    }
   }
 }
 
@@ -2489,6 +2567,29 @@ const AuthenticatedAdminAnalyticsRouteChildren: AuthenticatedAdminAnalyticsRoute
 const AuthenticatedAdminAnalyticsRouteWithChildren =
   AuthenticatedAdminAnalyticsRoute._addFileChildren(
     AuthenticatedAdminAnalyticsRouteChildren,
+  )
+
+interface AuthenticatedAdminCmsSeoRouteChildren {
+  AuthenticatedAdminCmsSeoIndustriesRoute: typeof AuthenticatedAdminCmsSeoIndustriesRoute
+  AuthenticatedAdminCmsSeoOverridesRoute: typeof AuthenticatedAdminCmsSeoOverridesRoute
+  AuthenticatedAdminCmsSeoServicesRoute: typeof AuthenticatedAdminCmsSeoServicesRoute
+  AuthenticatedAdminCmsSeoIndexRoute: typeof AuthenticatedAdminCmsSeoIndexRoute
+}
+
+const AuthenticatedAdminCmsSeoRouteChildren: AuthenticatedAdminCmsSeoRouteChildren =
+  {
+    AuthenticatedAdminCmsSeoIndustriesRoute:
+      AuthenticatedAdminCmsSeoIndustriesRoute,
+    AuthenticatedAdminCmsSeoOverridesRoute:
+      AuthenticatedAdminCmsSeoOverridesRoute,
+    AuthenticatedAdminCmsSeoServicesRoute:
+      AuthenticatedAdminCmsSeoServicesRoute,
+    AuthenticatedAdminCmsSeoIndexRoute: AuthenticatedAdminCmsSeoIndexRoute,
+  }
+
+const AuthenticatedAdminCmsSeoRouteWithChildren =
+  AuthenticatedAdminCmsSeoRoute._addFileChildren(
+    AuthenticatedAdminCmsSeoRouteChildren,
   )
 
 interface AuthenticatedAdminSupportKbRouteChildren {
@@ -2533,7 +2634,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminCmsFormsRoute: typeof AuthenticatedAdminCmsFormsRoute
   AuthenticatedAdminCmsMediaRoute: typeof AuthenticatedAdminCmsMediaRoute
   AuthenticatedAdminCmsPagesRoute: typeof AuthenticatedAdminCmsPagesRoute
-  AuthenticatedAdminCmsSeoRoute: typeof AuthenticatedAdminCmsSeoRoute
+  AuthenticatedAdminCmsSeoRoute: typeof AuthenticatedAdminCmsSeoRouteWithChildren
   AuthenticatedAdminCustomersAccountsRoute: typeof AuthenticatedAdminCustomersAccountsRoute
   AuthenticatedAdminCustomersCompaniesRoute: typeof AuthenticatedAdminCustomersCompaniesRoute
   AuthenticatedAdminCustomersContactsRoute: typeof AuthenticatedAdminCustomersContactsRoute
@@ -2600,7 +2701,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminCmsFormsRoute: AuthenticatedAdminCmsFormsRoute,
   AuthenticatedAdminCmsMediaRoute: AuthenticatedAdminCmsMediaRoute,
   AuthenticatedAdminCmsPagesRoute: AuthenticatedAdminCmsPagesRoute,
-  AuthenticatedAdminCmsSeoRoute: AuthenticatedAdminCmsSeoRoute,
+  AuthenticatedAdminCmsSeoRoute: AuthenticatedAdminCmsSeoRouteWithChildren,
   AuthenticatedAdminCustomersAccountsRoute:
     AuthenticatedAdminCustomersAccountsRoute,
   AuthenticatedAdminCustomersCompaniesRoute:

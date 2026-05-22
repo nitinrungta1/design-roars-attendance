@@ -15,6 +15,10 @@ export const Route = createFileRoute("/sitemap.xml")({
     <loc>https://oqlio.com/sitemap-help.xml</loc>
     <lastmod>${today}</lastmod>
   </sitemap>
+  <sitemap>
+    <loc>https://oqlio.com/sitemap-seo.xml</loc>
+    <lastmod>${today}</lastmod>
+  </sitemap>
 </sitemapindex>`;
         return new Response(xml, { headers: { "Content-Type": "application/xml; charset=utf-8" } });
       },
