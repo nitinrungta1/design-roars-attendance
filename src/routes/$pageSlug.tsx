@@ -28,8 +28,7 @@ export const Route = createFileRoute("/$pageSlug")({
     return { kind: "cms", page };
   },
   head: ({ loaderData }) => {
-    const page = loaderData?.page;
-    if (!page) {
+    if (!loaderData) {
       return seo({
         title: "Page not found",
         description: "The page you’re looking for is not available.",
@@ -38,6 +37,8 @@ export const Route = createFileRoute("/$pageSlug")({
         noindex: true,
       });
     }
+    if (loaderData.kind === "seo") return seoHeadFor(loaderData.page);
+    const page = loaderData.page;
     return seo({
       title: page.seo_title ?? page.title,
       description: page.seo_description ?? `${page.title} — Oqlio`,
@@ -61,11 +62,38 @@ export const Route = createFileRoute("/$pageSlug")({
       </Section>
     </MarketingLayout>
   ),
-  component: CmsPageView,
+  component: PageView,
 });
 
-function CmsPageView() {
-  const { page } = Route.useLoaderData();
+function PageView() {
+  const data = Route.useLoaderData();
+  if (data.kind === "seo") {
+    const page = data.page;
+    return (
+      <MarketingLayout>
+        <SeoLandingTemplate
+          eyebrow={`Punchly · ${page.serviceName}`}
+          h1={page.h1}
+          heroIntro={page.heroIntro}
+          ctaText={page.ctaText}
+          intro={page.intro}
+          serviceSlug={page.serviceSlug}
+          serviceName={page.serviceName}
+          cityName={page.cityName}
+          industryName={page.industryName}
+          industrySlug={page.industrySlug}
+          painPoints={page.painPoints}
+          useCases={page.useCases}
+          faqs={page.faqs}
+          testimonials={page.testimonials}
+          nearby={page.nearby}
+          siblingIndustries={page.siblingIndustries}
+          bodyHtml={page.bodyHtml}
+        />
+      </MarketingLayout>
+    );
+  }
+  const page = data.page;
   return (
     <MarketingLayout>
       <Section>
