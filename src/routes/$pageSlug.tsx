@@ -3,16 +3,32 @@ import { MarketingLayout } from "@/components/brand/marketing-layout";
 import { Container, Section } from "@/components/brand/primitives";
 import { seo } from "@/lib/seo";
 import { getPublicPage, type CmsPageDetail } from "@/lib/cms.functions";
+import { resolveServiceIndustry, seoHeadFor, type ResolvedSeoPage } from "@/lib/seo/resolve";
+import { SeoLandingTemplate } from "@/components/marketing/seo-landing-template";
+
+type LoaderData = { kind: "cms"; page: CmsPageDetail } | { kind: "seo"; page: ResolvedSeoPage };
 
 export const Route = createFileRoute("/$pageSlug")({
-  loader: async ({ params }): Promise<{ page: CmsPageDetail }> => {
-    const { page } = await getPublicPage({ data: { slug: params.pageSlug } });
+  loader: async ({ params }): Promise<LoaderData> => {
+    const slug = params.pageSlug;
+    // Try SEO service-for-industry pattern first
+    const forIdx = slug.lastIndexOf("-for-");
+    if (forIdx > 0) {
+      const service = slug.slice(0, forIdx);
+      const industry = slug.slice(forIdx + 5);
+      if (service && industry) {
+        try {
+          const page = await resolveServiceIndustry(service, industry);
+          return { kind: "seo", page };
+        } catch { /* fall through */ }
+      }
+    }
+    const { page } = await getPublicPage({ data: { slug } });
     if (!page) throw notFound();
-    return { page };
+    return { kind: "cms", page };
   },
   head: ({ loaderData }) => {
-    const page = loaderData?.page;
-    if (!page) {
+    if (!loaderData) {
       return seo({
         title: "Page not found",
         description: "The page you’re looking for is not available.",
@@ -21,6 +37,8 @@ export const Route = createFileRoute("/$pageSlug")({
         noindex: true,
       });
     }
+    if (loaderData.kind === "seo") return seoHeadFor(loaderData.page);
+    const page = loaderData.page;
     return seo({
       title: page.seo_title ?? page.title,
       description: page.seo_description ?? `${page.title} — Oqlio`,
@@ -44,11 +62,38 @@ export const Route = createFileRoute("/$pageSlug")({
       </Section>
     </MarketingLayout>
   ),
-  component: CmsPageView,
+  component: PageView,
 });
 
-function CmsPageView() {
-  const { page } = Route.useLoaderData();
+function PageView() {
+  const data = Route.useLoaderData();
+  if (data.kind === "seo") {
+    const page = data.page;
+    return (
+      <MarketingLayout>
+        <SeoLandingTemplate
+          eyebrow={`Punchly · ${page.serviceName}`}
+          h1={page.h1}
+          heroIntro={page.heroIntro}
+          ctaText={page.ctaText}
+          intro={page.intro}
+          serviceSlug={page.serviceSlug}
+          serviceName={page.serviceName}
+          cityName={page.cityName}
+          industryName={page.industryName}
+          industrySlug={page.industrySlug}
+          painPoints={page.painPoints}
+          useCases={page.useCases}
+          faqs={page.faqs}
+          testimonials={page.testimonials}
+          nearby={page.nearby}
+          siblingIndustries={page.siblingIndustries}
+          bodyHtml={page.bodyHtml}
+        />
+      </MarketingLayout>
+    );
+  }
+  const page = data.page;
   return (
     <MarketingLayout>
       <Section>
