@@ -80,7 +80,7 @@ export async function resolveServiceCity(serviceSlug: string, citySlug: string):
     .eq("status", "published")
     .maybeSingle();
 
-  const ov = (row as unknown as Partial<ResolvedSeoPage> & { nearby_slugs?: string[]; faqs?: SeoFaq[]; testimonials?: SeoTestimonial[]; body_html?: string }) ?? null;
+  const ov = (row as unknown as { meta_title?: string; meta_description?: string; h1?: string; hero_intro?: string; cta_text?: string; body_html?: string; nearby_slugs?: string[]; faqs?: SeoFaq[]; testimonials?: SeoTestimonial[] }) ?? null;
   const vars: TemplateVars = { city: city.city, state: city.state, service: service.name };
   const fb = builtInFallbacks(service, city.city, city.state);
 
@@ -122,7 +122,7 @@ export async function resolveServiceIndustry(serviceSlug: string, industrySlug: 
     .eq("status", "published")
     .maybeSingle();
 
-  const ov = (row as unknown as Partial<ResolvedSeoPage> & { faqs?: SeoFaq[]; testimonials?: SeoTestimonial[]; body_html?: string }) ?? null;
+  const ov = (row as unknown as { meta_title?: string; meta_description?: string; h1?: string; hero_intro?: string; cta_text?: string; body_html?: string; faqs?: SeoFaq[]; testimonials?: SeoTestimonial[] }) ?? null;
   const vars: TemplateVars = { service: service.name, industry: industry.name };
 
   const fb = builtInFallbacks(service, null, null);
@@ -168,7 +168,7 @@ export async function resolveServiceIndustryCity(
     .eq("status", "published")
     .maybeSingle();
 
-  const ov = (row as unknown as Partial<ResolvedSeoPage> & { nearby_slugs?: string[]; faqs?: SeoFaq[]; testimonials?: SeoTestimonial[]; body_html?: string }) ?? null;
+  const ov = (row as unknown as { meta_title?: string; meta_description?: string; h1?: string; hero_intro?: string; cta_text?: string; body_html?: string; nearby_slugs?: string[]; faqs?: SeoFaq[]; testimonials?: SeoTestimonial[] }) ?? null;
   const vars: TemplateVars = { city: city.city, state: city.state, service: service.name, industry: industry.name };
 
   const nearby = (ov?.nearby_slugs && ov.nearby_slugs.length > 0)
