@@ -415,7 +415,7 @@ function PlanCard({
     (isFree ? "Start Free" : isEnterprise ? "Talk to Sales" : "Start Free Trial");
   const ctaHref = isEnterprise
     ? "/contact"
-    : `/signup?plan=${encodeURIComponent(plan.code)}&cycle=${cycle}`;
+    : `https://app.oqlio.com/signup?plan=${encodeURIComponent(plan.code)}&cycle=${cycle}`;
 
   const onCtaClick = () =>
     trackPricingEvent({

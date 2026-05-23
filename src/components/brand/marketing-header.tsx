@@ -77,10 +77,10 @@ export function MarketingHeader() {
         <div className="hidden items-center gap-2 lg:flex">
           <CurrencySwitcher />
           <Button variant="ghost" asChild size="sm">
-            <Link to="/login">Sign in</Link>
+            <a href="https://app.oqlio.com/login">Sign in</a>
           </Button>
           <Button asChild size="sm" className="bg-gradient-brand text-primary-foreground hover:opacity-90">
-            <Link to="/signup">Start free trial</Link>
+            <a href="https://app.oqlio.com/signup">Start free trial</a>
           </Button>
         </div>
         <div className="flex items-center gap-1 lg:hidden">
@@ -120,10 +120,10 @@ export function MarketingHeader() {
             )}
             <div className="flex gap-2 pt-2">
               <Button asChild variant="outline" className="flex-1">
-                <Link to="/login" onClick={() => setOpen(false)}>Sign in</Link>
+                <a href="https://app.oqlio.com/login" onClick={() => setOpen(false)}>Sign in</a>
               </Button>
               <Button asChild className="flex-1 bg-gradient-brand text-primary-foreground">
-                <Link to="/signup" onClick={() => setOpen(false)}>Start free</Link>
+                <a href="https://app.oqlio.com/signup" onClick={() => setOpen(false)}>Start free</a>
               </Button>
             </div>
           </div>
