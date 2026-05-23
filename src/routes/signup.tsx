@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/signup")({
   component: () => {
-    if (typeof window !== "undefined") {
+    if (typeof window !== "undefined" && !window.location.hostname.includes("legacy")) {
       const search = window.location.search;
       window.location.replace(`https://app.oqlio.com/signup${search}`);
     }
