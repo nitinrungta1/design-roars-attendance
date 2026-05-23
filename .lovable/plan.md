@@ -1,27 +1,28 @@
-# Fix SEO override save error
+## Plan: Redirect marketing auth routes to app.oqlio.com
 
-## Problem
-The admin override editor saves fields like `ctaText`, `metaTitle`, `metaDescription`, `heroIntro`, but the DB columns are `cta_text`, `meta_title`, `meta_description`, `hero_intro`. Postgres rejects the upsert: *"Could not find the 'ctaText' column of 'seo_industry_city_pages'"*. The same mismatch silently makes resolved page reads ignore the override values.
+### Goal
+Point the marketing site (oqlio.com) to the separate app (app.oqlio.com) for all authentication, signup, and dashboard entry points. Update the header nav links accordingly.
 
-## Fix
+### Files to modify (6 files only)
 
-### 1. `src/lib/seo-admin.functions.ts`
-In `upsertSeoOverride.handler`, translate the validated input to snake_case before the upsert:
-- `metaTitle` → `meta_title`
-- `metaDescription` → `meta_description`
-- `heroIntro` → `hero_intro`
-- `ctaText` → `cta_text`
-- (`h1`, `body_html`, `faqs`, `testimonials`, `nearby_slugs`, `service_id`, `industry_slug`, `city_slug`, `status`, `id` already match)
+1. **`src/components/brand/marketing-header.tsx`**
+   - Replace `<Link to="/login">Sign in</Link>` with `<a href="https://app.oqlio.com/login">Sign in</a>`
+   - Replace `<Link to="/login" onClick={…}>` (mobile) with `<a href="https://app.oqlio.com/login">Sign in</a>`
+   - Replace `<Link to="/signup">Start free trial</Link>` with `<a href="https://app.oqlio.com/signup">Start free trial</a>`
+   - Replace `<Link to="/signup" onClick={…}>` (mobile) with `<a href="https://app.oqlio.com/signup">Start free</a>`
 
-In `listSeoOverrides.handler`, map rows back to the `OverrideRow` camelCase shape so the admin UI reads the saved values correctly.
+2. **`src/routes/pricing.tsx`**
+   - Find any signup CTA/button link pointing to `/signup` and change it to `https://app.oqlio.com/signup` (preserve query params if present).
 
-### 2. `src/lib/seo/resolve.ts`
-In all three resolvers (`resolveServiceCity`, `resolveServiceIndustry`, `resolveServiceIndustryCity`), the `ov` overlay currently reads `ov?.metaTitle`, `ov?.metaDescription`, `ov?.heroIntro`, `ov?.ctaText` from raw DB rows — those are undefined. Read snake_case: `ov?.meta_title`, `ov?.meta_description`, `ov?.hero_intro`, `ov?.cta_text` (keep `h1` and `body_html` as-is).
+3. **`src/routes/login.tsx`** — Replace entire route component with a client-side redirect to `https://app.oqlio.com/login`.
 
-## Out of scope
-- Renaming DB columns (would break existing data + types).
-- Other admin CRUD (services/industries already use snake_case end-to-end).
+4. **`src/routes/signup.tsx`** — Replace entire route component with a client-side redirect to `https://app.oqlio.com/signup`, preserving `window.location.search`.
 
-## Verification
-- Open `/admin/cms/seo/overrides`, save an industry-city override with all fields filled → no toast error, row reappears with values.
-- Visit the matching `/best-{service}-for-{industry}-in-{city}` URL → overridden title/meta/CTA render instead of fallbacks.
+5. **`src/routes/forgot-password.tsx`** — Replace entire route component with a client-side redirect to `https://app.oqlio.com/forgot-password`.
+
+6. **`src/routes/_authenticated.tsx`** — Replace entire route component with a client-side redirect to `https://app.oqlio.com/dashboard`.
+
+### Technical notes
+- Each redirect route uses a minimal component that checks `typeof window !== "undefined"` before calling `window.location.replace(...)`.
+- No other files will be touched.
+- `seo()` head calls and `validateSearch` on `/login` will be removed since the component no longer renders a page — just the redirect.
